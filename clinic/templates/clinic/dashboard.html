@@ -1,0 +1,36 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Dashboard - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Hi{% if owner %}, {{ owner.full_name }}{% endif %} 👋</h2>
+  <a class="btn" href="{% url 'logout' %}">Logout</a>
+</div>
+
+<div class="grid-cards" style="margin-bottom:16px;">
+  <div class="card">
+    <h3>Your Pets</h3>
+    <p class="muted">Quick view of your registered pets.</p>
+    <ul>
+      {% for pet in pets %}
+        <li><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a> — {{ pet.get_species_display }}</li>
+      {% empty %}
+        <li class="muted">No pets yet. Add one from your owner profile in the admin or ask the clinic.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Upcoming Appointments</h3>
+    <p class="muted">Next visits scheduled for your pets.</p>
+    <ul>
+      {% for a in appointments %}
+        <li>{{ a.date_time }} — {{ a.pet.name }} ({{ a.reason }})</li>
+      {% empty %}
+        <li class="muted">No upcoming appointments.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<a class="btn" href="{% url 'appointment_create' %}">+ New Appointment</a>
+{% endblock %}
+

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ePetCare{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div>
+                <a class="brand" href="{% url 'home' %}"><strong>ePetCare</strong></a>
+                <div class="tagline">Pet Health Management System</div>
+            </div>
+            <nav class="nav">
+                {% if request.user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                    <a class="nav-link" href="{% url 'pet_list' %}">Pets</a>
+                    <a class="nav-link" href="{% url 'appointment_list' %}">Appointments</a>
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                {% endif %}
+                
+                {% if request.user.is_staff %}
+                    <a class="nav-link" href="{% url 'owner_list' %}">Owners</a>
+                    <a class="nav-link" href="/admin/">Admin</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    
+    <div id="toast-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast {{ message.tags }}">
+                    {{ message }}
+                    <button class="toast-close">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <small>© 2025 ePetCare · Student Edition</small>
+    </footer>
+
+    <script>
+        // Auto-dismiss toast notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = document.querySelectorAll('.toast');
+            
+            // Add click handler to close buttons
+            document.querySelectorAll('.toast-close').forEach(button => {
+                button.addEventListener('click', function() {
+                    const toast = this.parentElement;
+                    toast.classList.add('toast-hiding');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                });
+            });
+            
+            // Auto-dismiss after 5 seconds
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.classList.add('toast-hiding');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

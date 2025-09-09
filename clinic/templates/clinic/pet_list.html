@@ -1,0 +1,26 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Pets - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Pets</h2>
+  <a class="btn" href="{% url 'pet_create' %}">+ New Pet</a>
+</div>
+<table>
+  <thead>
+    <tr><th>Name</th><th>Owner</th><th>Species</th><th>Breed</th></tr>
+  </thead>
+  <tbody>
+    {% for pet in pets %}
+      <tr>
+        <td><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a></td>
+        <td>{{ pet.owner.full_name }}</td>
+        <td>{{ pet.get_species_display }}</td>
+        <td>{{ pet.breed|default:'-' }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">No pets yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+

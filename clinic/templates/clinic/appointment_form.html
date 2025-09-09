@@ -1,0 +1,19 @@
+{% extends 'clinic/base.html' %}
+{% block title %}New Appointment - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>New Appointment</h2>
+  <a class="btn" href="{% url 'appointment_list' %}">← Back</a>
+</div>
+<form method="post">
+  {% csrf_token %}
+  <div class="field">{{ form.pet.label_tag }}{{ form.pet }}</div>
+  <div class="field">{{ form.date_time.label_tag }}{{ form.date_time }}</div>
+  <div class="field">{{ form.reason.label_tag }}{{ form.reason }}</div>
+  <div class="field">{{ form.notes.label_tag }}{{ form.notes }}</div>
+  <div class="field">{{ form.status.label_tag }}{{ form.status }}</div>
+  <button class="btn" type="submit">Save</button>
+  <a class="btn" href="{% url 'appointment_list' %}" style="background:#3f4857;">Cancel</a>
+</form>
+{% endblock %}
+

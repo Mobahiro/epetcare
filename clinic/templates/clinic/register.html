@@ -1,0 +1,71 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Register - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Create Account</h2>
+  <a class="btn" href="{% url 'login' %}">Login</a>
+</div>
+
+{% if form.non_field_errors %}
+<div class="error-message">
+  {% for error in form.non_field_errors %}
+    {{ error }}
+  {% endfor %}
+</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="field">
+    {{ form.username.label_tag }}
+    {{ form.username }}
+    {% if form.username.errors %}
+      <div class="error-text">{{ form.username.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <div class="field">
+    {{ form.email.label_tag }}
+    {{ form.email }}
+    {% if form.email.errors %}
+      <div class="error-text">{{ form.email.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <div class="field">
+    {{ form.password1.label_tag }}
+    {{ form.password1 }}
+    {% if form.password1.errors %}
+      <div class="error-text">{{ form.password1.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <div class="field">
+    {{ form.password2.label_tag }}
+    {{ form.password2 }}
+    {% if form.password2.errors %}
+      <div class="error-text">{{ form.password2.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <hr>
+  <div class="field">
+    {{ form.full_name.label_tag }}
+    {{ form.full_name }}
+    {% if form.full_name.errors %}
+      <div class="error-text">{{ form.full_name.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <div class="field">
+    {{ form.phone.label_tag }}
+    {{ form.phone }}
+    {% if form.phone.errors %}
+      <div class="error-text">{{ form.phone.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <div class="field">
+    {{ form.address.label_tag }}
+    {{ form.address }}
+    {% if form.address.errors %}
+      <div class="error-text">{{ form.address.errors.0 }}</div>
+    {% endif %}
+  </div>
+  <button class="btn" type="submit">Create Account</button>
+</form>
+{% endblock %}

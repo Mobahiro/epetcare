@@ -1,0 +1,22 @@
+{% extends 'clinic/base.html' %}
+{% block title %}New Pet - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>New Pet</h2>
+  <a class="btn" href="{% url 'pet_list' %}">← Back</a>
+</div>
+<form method="post">
+  {% csrf_token %}
+  <div class="field">{{ form.owner.label_tag }}{{ form.owner }}</div>
+  <div class="field">{{ form.name.label_tag }}{{ form.name }}</div>
+  <div class="field">{{ form.species.label_tag }}{{ form.species }}</div>
+  <div class="field">{{ form.breed.label_tag }}{{ form.breed }}</div>
+  <div class="field">{{ form.sex.label_tag }}{{ form.sex }}</div>
+  <div class="field">{{ form.birth_date.label_tag }}{{ form.birth_date }}</div>
+  <div class="field">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}</div>
+  <div class="field">{{ form.notes.label_tag }}{{ form.notes }}</div>
+  <button class="btn" type="submit">Save</button>
+  <a class="btn" href="{% url 'pet_list' %}" style="background:#3f4857;">Cancel</a>
+</form>
+{% endblock %}
+

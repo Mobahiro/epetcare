@@ -1,0 +1,79 @@
+{% extends 'clinic/base.html' %}
+{% block title %}ePetCare - Home{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <div class="hero-content">
+        <h1>Your Pet's Health in One Place</h1>
+        <p>Keep track of vaccinations, appointments, and medical history with our easy-to-use platform.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'register' %}" class="btn btn-primary">Create Account</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<h2 class="section-title">Why Choose ePetCare?</h2>
+<div class="grid-cards">
+    <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Appointment Management</h3>
+        <p>Schedule and track vet visits, get reminders, and never miss an important checkup.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">💉</div>
+        <h3>Vaccination Tracking</h3>
+        <p>Keep vaccination records up-to-date with automatic reminders for boosters.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Medical History</h3>
+        <p>Store complete medical records and access them instantly when needed.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">💊</div>
+        <h3>Prescription Management</h3>
+        <p>Track medications, dosages, and refill dates all in one secure place.</p>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<h2 class="section-title">How It Works</h2>
+<div class="steps">
+    <div class="step">
+        <div class="step-number">1</div>
+        <h3>Create an Account</h3>
+        <p>Sign up in seconds with your basic information.</p>
+    </div>
+    <div class="step">
+        <div class="step-number">2</div>
+        <h3>Add Your Pets</h3>
+        <p>Enter your pets' details and medical history.</p>
+    </div>
+    <div class="step">
+        <div class="step-number">3</div>
+        <h3>Manage Health Records</h3>
+        <p>Schedule appointments, track vaccinations, and more.</p>
+    </div>
+</div>
+
+<!-- Testimonials Section -->
+<h2 class="section-title">What Pet Owners Say</h2>
+<div class="testimonials">
+    <div class="testimonial">
+        <p class="quote">"ePetCare has made managing my dog's health so much easier. I love getting reminders for upcoming appointments!"</p>
+        <p class="author">— Sarah T., Dog Owner</p>
+    </div>
+    <div class="testimonial">
+        <p class="quote">"As a cat owner with multiple pets, keeping track of vaccinations was a nightmare before ePetCare."</p>
+        <p class="author">— Michael R., Cat Owner</p>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-section">
+    <h2>Ready to simplify your pet's healthcare?</h2>
+    <a href="{% url 'register' %}" class="btn btn-large">Get Started Now</a>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Owner Details - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>{{ owner.full_name }}</h2>
+  <a class="btn" href="{% url 'owner_list' %}">← Back</a>
+</div>
+<p class="muted"><strong>Email:</strong> {{ owner.email|default:'-' }} &nbsp; <strong>Phone:</strong> {{ owner.phone|default:'-' }}</p>
+<p><strong>Address:</strong><br>{{ owner.address|linebreaksbr }}</p>
+
+<div class="toolbar" style="margin-top:16px;">
+  <h3>Pets</h3>
+  <a class="btn" href="{% url 'pet_create' %}?owner={{ owner.id }}">+ Add Pet</a>
+</div>
+<table>
+  <thead>
+    <tr><th>Name</th><th>Species</th><th>Breed</th></tr>
+  </thead>
+  <tbody>
+    {% for pet in pets %}
+      <tr>
+        <td><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a></td>
+        <td>{{ pet.get_species_display }}</td>
+        <td>{{ pet.breed|default:'-' }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3">No pets yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
