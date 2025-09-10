@@ -1,0 +1,29 @@
+ePetCare Vet Desktop Application License Agreement
+
+Copyright (c) 2025 ePetCare
+
+1. LICENSE GRANT
+Subject to the terms of this Agreement, ePetCare grants you a limited, non-exclusive, non-transferable license to use the ePetCare Vet Desktop Application ("Software") solely for your internal business purposes.
+
+2. RESTRICTIONS
+You may not:
+(a) Modify, translate, reverse engineer, decompile, disassemble or create derivative works based on the Software
+(b) Rent, lease, loan, resell, sublicense, distribute or otherwise transfer the Software to any third party
+(c) Remove or alter any proprietary notices, labels or marks on the Software
+
+3. OWNERSHIP
+The Software is owned and copyrighted by ePetCare. Your license confers no title or ownership in the Software and is not a sale of any rights in the Software.
+
+4. DISCLAIMER OF WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. EPETCARE DISCLAIMS ALL WARRANTIES, EXPRESSED OR IMPLIED, INCLUDING WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT.
+
+5. LIMITATION OF LIABILITY
+IN NO EVENT SHALL EPETCARE BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE.
+
+6. TERMINATION
+This license will terminate automatically if you fail to comply with the limitations described herein. On termination, you must destroy all copies of the Software.
+
+7. GENERAL
+This Agreement shall be governed by the laws of your country of residence. If any provision of this Agreement is held to be unenforceable, that provision will be removed and the remaining provisions will remain in full force.
+
+By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this Agreement.

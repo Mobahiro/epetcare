@@ -18,9 +18,20 @@ a = Analysis(
     noarchive=False,
 )
 
-# Add resources
+# Add resources and data files
 a.datas += [
     ('config.json', 'config.json', 'DATA'),
+    ('resources/app-icon.png', 'resources/app-icon.png', 'DATA'),
+    ('resources/refresh-icon.png', 'resources/refresh-icon.png', 'DATA'),
+    ('resources/appointment-icon.png', 'resources/appointment-icon.png', 'DATA'),
+    ('resources/search-icon.png', 'resources/search-icon.png', 'DATA'),
+    ('resources/calendar-icon.png', 'resources/calendar-icon.png', 'DATA'),
+    ('resources/dashboard-icon.png', 'resources/dashboard-icon.png', 'DATA'),
+    ('resources/patients-icon.png', 'resources/patients-icon.png', 'DATA'),
+    ('resources/appointments-icon.png', 'resources/appointments-icon.png', 'DATA'),
+    ('resources/settings-icon.png', 'resources/settings-icon.png', 'DATA'),
+    ('resources/logout-icon.png', 'resources/logout-icon.png', 'DATA'),
+    ('resources/style.qss', 'resources/style.qss', 'DATA'),
 ]
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
@@ -30,7 +41,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='ePetCare Vet Desktop',
+    name='ePetCare_Vet_Desktop',  # No spaces for Windows compatibility
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -41,7 +52,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='resources/icon.ico',
+    icon='resources/app-icon.png',  # Use the app icon
 )
 
 coll = COLLECT(
@@ -52,5 +63,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='ePetCare Vet Desktop',
+    name='ePetCare_Vet_Desktop',  # No spaces for Windows compatibility
 )
