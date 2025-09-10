@@ -1,0 +1,15 @@
+{
+    "database": {
+        "path": "/home/shiro/epetcare/db.sqlite3",
+        "backup_dir": "/home/shiro/epetcare/vet_desktop_app/backups"
+    },
+    "app": {
+        "offline_mode": false,
+        "sync_interval": 300,
+        "auto_backup": true
+    },
+    "ui": {
+        "theme": "light",
+        "font_size": 10
+    }
+}

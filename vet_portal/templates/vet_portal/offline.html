@@ -1,0 +1,101 @@
+{% extends 'vet_portal/base.html' %}
+{% load static %}
+
+{% block title %}Offline - ePetCare Vet Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="offline-message mt-5">
+                <img src="{% static 'vet_portal/img/offline.svg' %}" alt="Offline" class="img-fluid mb-4" style="max-width: 200px;">
+                
+                <h1 class="mb-4">You're offline</h1>
+                
+                <p class="lead mb-4">
+                    It looks like you've lost your internet connection. 
+                    Don't worry, you can still access some features and your changes will be saved.
+                </p>
+                
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">What you can do offline:</h5>
+                        <ul class="list-group list-group-flush text-start">
+                            <li class="list-group-item bg-transparent">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                View cached patient records
+                            </li>
+                            <li class="list-group-item bg-transparent">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Create new appointments (will sync when online)
+                            </li>
+                            <li class="list-group-item bg-transparent">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Update medical records (will sync when online)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <button id="check-connection" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat me-2"></i> Try Again
+                    </button>
+                    <a href="{% url 'vet_portal:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-2"></i> Go to Dashboard
+                    </a>
+                </div>
+                
+                <div id="connection-status" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkConnectionBtn = document.getElementById('check-connection');
+        const connectionStatus = document.getElementById('connection-status');
+        
+        checkConnectionBtn.addEventListener('click', function() {
+            checkConnectionBtn.disabled = true;
+            connectionStatus.innerHTML = '<div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> Checking connection...';
+            
+            // Try to fetch a small file to check connection
+            fetch('/vet-portal/api/ping/', { 
+                method: 'GET',
+                cache: 'no-store',
+                headers: { 'Cache-Control': 'no-cache' }
+            })
+            .then(response => {
+                if (response.ok) {
+                    connectionStatus.innerHTML = '<div class="alert alert-success">You\'re back online! Redirecting...</div>';
+                    setTimeout(() => {
+                        window.location.href = "{% url 'vet_portal:dashboard' %}";
+                    }, 1500);
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                connectionStatus.innerHTML = '<div class="alert alert-danger">Still offline. Please check your connection.</div>';
+                checkConnectionBtn.disabled = false;
+            });
+        });
+        
+        // Listen for online/offline events
+        window.addEventListener('online', function() {
+            connectionStatus.innerHTML = '<div class="alert alert-success">You\'re back online! Redirecting...</div>';
+            setTimeout(() => {
+                window.location.href = "{% url 'vet_portal:dashboard' %}";
+            }, 1500);
+        });
+        
+        window.addEventListener('offline', function() {
+            connectionStatus.innerHTML = '<div class="alert alert-danger">You\'re offline. Please check your connection.</div>';
+        });
+    });
+</script>
+{% endblock %}

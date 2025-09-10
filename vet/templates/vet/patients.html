@@ -1,0 +1,64 @@
+{% extends 'vet/base.html' %}
+{% block title %}Patients - Veterinarian Portal{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Patients</h2>
+  <div>
+    <input type="text" id="patientSearch" placeholder="Search patients..." style="width:250px; display:inline-block;">
+  </div>
+</div>
+
+<table id="patientsTable">
+  <thead>
+    <tr>
+      <th>Pet Name</th>
+      <th>Species</th>
+      <th>Breed</th>
+      <th>Owner</th>
+      <th>Sex</th>
+      <th>Age</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pet in pets %}
+      <tr class="patient-row" data-pet-name="{{ pet.name|lower }}" data-owner-name="{{ pet.owner.full_name|lower }}">
+        <td>{{ pet.name }}</td>
+        <td>{{ pet.get_species_display }}</td>
+        <td>{{ pet.breed|default:'-' }}</td>
+        <td>{{ pet.owner.full_name }}</td>
+        <td>{{ pet.get_sex_display }}</td>
+        <td>{% if pet.birth_date %}{{ pet.birth_date }}{% else %}-{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="6">No patients found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple search functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('patientSearch');
+    const patientRows = document.querySelectorAll('.patient-row');
+    
+    searchInput.addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      
+      patientRows.forEach(row => {
+        const petName = row.getAttribute('data-pet-name');
+        const ownerName = row.getAttribute('data-owner-name');
+        
+        if (petName.includes(searchTerm) || ownerName.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

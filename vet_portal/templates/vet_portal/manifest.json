@@ -1,0 +1,42 @@
+{
+  "name": "ePetCare Vet Portal",
+  "short_name": "Vet Portal",
+  "description": "Veterinarian Portal for ePetCare",
+  "start_url": "/vet-portal/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "icons": [
+    {
+      "src": "/static/vet_portal/img/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/vet_portal/img/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "orientation": "portrait",
+  "scope": "/vet-portal/",
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/vet-portal/",
+      "description": "View your dashboard"
+    },
+    {
+      "name": "Patients",
+      "url": "/vet-portal/patients/",
+      "description": "View all patients"
+    },
+    {
+      "name": "Appointments",
+      "url": "/vet-portal/appointments/",
+      "description": "View all appointments"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{% extends 'vet/base.html' %}
+{% block title %}Notifications - Veterinarian Portal{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Notifications</h2>
+  <div>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" name="mark_all_read" class="btn">Mark All as Read</button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .notification-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .notification-item.unread {
+    border-left: 3px solid #38bdf8;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+  }
+  .notification-item h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+  .notification-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .notification-actions a {
+    color: var(--muted);
+    margin-left: 10px;
+    text-decoration: none;
+  }
+  .notification-actions a:hover {
+    color: #38bdf8;
+  }
+</style>
+
+<div class="notifications-list">
+  {% for notification in notifications %}
+    <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+      <h4>{{ notification.title }}</h4>
+      <p>{{ notification.message }}</p>
+      <div class="notification-meta">
+        <span class="notification-time">{{ notification.created_at }}</span>
+        <div class="notification-actions">
+          {% if not notification.is_read %}
+            <a href="{% url 'vet:mark_notification_read' notification.id %}">Mark as Read</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="muted">No notifications found.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Check for new notifications every 30 seconds
+  function checkForNewNotifications() {
+    // In a real implementation, this would make an AJAX call to an API endpoint
+    console.log('Checking for new notifications...');
+  }
+  
+  // Start the update check loop
+  setInterval(checkForNewNotifications, 30000);
+</script>
+{% endblock %}

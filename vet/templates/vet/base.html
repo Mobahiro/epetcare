@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ePetCare - Vet Portal{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}">
+    <style>
+        /* Vet Portal Specific Styles */
+        .site-header { background: rgba(30, 41, 59, 0.8); }
+        .brand { color: #38bdf8; }
+        .nav-link:hover { color: #38bdf8; }
+        .btn-primary { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+        .sidebar {
+            width: 240px;
+            background: rgba(30, 41, 59, 0.6);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            left: 0;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(51, 65, 85, 0.4);
+            color: #fff;
+            border-left-color: #38bdf8;
+        }
+        .sidebar-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+        }
+        .notification-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+        }
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(56, 189, 248, 0.1));
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+            background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        /* Only show sidebar on authenticated pages */
+        body.has-sidebar .container {
+            max-width: calc(100% - 240px);
+            margin-left: 240px;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="{% if request.user.is_authenticated %}has-sidebar{% endif %}">
+    <header class="site-header">
+        <div class="header-inner">
+            <div>
+                <a class="brand" href="{% url 'vet:home' %}"><strong>ePetCare</strong> <span style="opacity:0.8">Vet Portal</span></a>
+            </div>
+            <nav class="nav">
+                {% if request.user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'vet:dashboard' %}">Dashboard</a>
+                    <a class="nav-link" href="{% url 'vet:notifications' %}">
+                        Notifications
+                        {% with unread_count=request.user.vet_profile.notifications.filter.is_read=False|length %}
+                            {% if unread_count > 0 %}
+                                <span class="notification-badge">{{ unread_count }}</span>
+                            {% endif %}
+                        {% endwith %}
+                    </a>
+                    <a class="nav-link" href="{% url 'vet:logout' %}">Logout</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'vet:home' %}">Home</a>
+                    <a class="nav-link" href="{% url 'vet:login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'vet:register' %}">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    
+    <div id="toast-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast {{ message.tags }}">
+                    {{ message }}
+                    <button class="toast-close">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    {% if request.user.is_authenticated %}
+        <div class="sidebar">
+            <a href="{% url 'vet:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <span class="sidebar-icon">📊</span> Dashboard
+            </a>
+            <a href="{% url 'vet:patients' %}" class="sidebar-link {% if request.resolver_match.url_name == 'patients' %}active{% endif %}">
+                <span class="sidebar-icon">🐾</span> Patients
+            </a>
+            <a href="{% url 'vet:appointments' %}" class="sidebar-link {% if request.resolver_match.url_name == 'appointments' %}active{% endif %}">
+                <span class="sidebar-icon">📅</span> Appointments
+            </a>
+            <a href="{% url 'vet:notifications' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                <span class="sidebar-icon">🔔</span> Notifications
+                {% with unread_count=request.user.vet_profile.notifications.filter.is_read=False|length %}
+                    {% if unread_count > 0 %}
+                        <span class="notification-badge">{{ unread_count }}</span>
+                    {% endif %}
+                {% endwith %}
+            </a>
+        </div>
+    {% endif %}
+    
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <small>© 2025 ePetCare Vet Portal · Student Edition</small>
+    </footer>
+
+    <script>
+        // Auto-dismiss toast notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = document.querySelectorAll('.toast');
+            
+            // Add click handler to close buttons
+            document.querySelectorAll('.toast-close').forEach(button => {
+                button.addEventListener('click', function() {
+                    const toast = this.parentElement;
+                    toast.classList.add('toast-hiding');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                });
+            });
+            
+            // Auto-dismiss after 5 seconds
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.classList.add('toast-hiding');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

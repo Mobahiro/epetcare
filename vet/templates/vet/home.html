@@ -1,0 +1,66 @@
+{% extends 'vet/base.html' %}
+{% block title %}ePetCare - Veterinarian Portal{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <div class="hero-content">
+        <h1>Veterinarian Portal</h1>
+        <p>Manage your patients, appointments, and medical records with our dedicated veterinarian platform.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'vet:register' %}" class="btn btn-primary">Create Account</a>
+            <a href="{% url 'vet:login' %}" class="btn btn-secondary">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<h2 class="section-title">Portal Features</h2>
+<div class="grid-cards">
+    <div class="feature-card">
+        <div class="feature-icon">👨‍⚕️</div>
+        <h3>Patient Management</h3>
+        <p>View complete medical histories and track patient progress over time.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Appointment Scheduling</h3>
+        <p>See your daily schedule and get real-time notifications for new appointments.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Medical Records</h3>
+        <p>Access and update patient records with a comprehensive medical history system.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Real-time Notifications</h3>
+        <p>Stay informed with instant alerts about new appointments and patient updates.</p>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<h2 class="section-title">How It Works</h2>
+<div class="steps">
+    <div class="step">
+        <div class="step-number">1</div>
+        <h3>Create Your Account</h3>
+        <p>Register with your professional credentials.</p>
+    </div>
+    <div class="step">
+        <div class="step-number">2</div>
+        <h3>Access Dashboard</h3>
+        <p>View your patients and upcoming appointments.</p>
+    </div>
+    <div class="step">
+        <div class="step-number">3</div>
+        <h3>Manage Patient Care</h3>
+        <p>Update records and track patient health over time.</p>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-section">
+    <h2>Ready to streamline your veterinary practice?</h2>
+    <a href="{% url 'vet:register' %}" class="btn btn-large">Get Started Now</a>
+</div>
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends 'vet_portal/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - ePetCare Vet Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Welcome, Dr. {{ vet.full_name }}</h1>
+        <p class="text-muted">Here's an overview of your clinic activity</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary-light rounded-circle p-3 me-3">
+                        <i class="bi bi-clipboard2-heart text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle mb-1 text-muted">Total Patients</h6>
+                        <h2 class="card-title mb-0">{{ total_pets }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success-light rounded-circle p-3 me-3">
+                        <i class="bi bi-calendar-check text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle mb-1 text-muted">Upcoming Appointments</h6>
+                        <h2 class="card-title mb-0">{{ total_appointments }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning-light rounded-circle p-3 me-3">
+                        <i class="bi bi-capsule text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle mb-1 text-muted">Active Prescriptions</h6>
+                        <h2 class="card-title mb-0">{{ total_pending_prescriptions }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Today's Appointments -->
+    <div class="col-lg-8 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Today's Appointments</h5>
+                <a href="{% url 'vet_portal:appointment_list' %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Time</th>
+                                <th>Pet</th>
+                                <th>Owner</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in today_appointments %}
+                                <tr>
+                                    <td>{{ appointment.date_time|date:"H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'vet_portal:patient_detail' appointment.pet.id %}" class="text-decoration-none">
+                                            {{ appointment.pet.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ appointment.pet.owner.full_name }}</td>
+                                    <td>{{ appointment.reason }}</td>
+                                    <td>
+                                        {% if appointment.status == 'scheduled' %}
+                                            <span class="badge bg-primary">Scheduled</span>
+                                        {% elif appointment.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif appointment.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'vet_portal:appointment_detail' appointment.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-calendar-x fs-4 d-block mb-2"></i>
+                                            No appointments scheduled for today
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white text-end">
+                <a href="{% url 'vet_portal:appointment_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> New Appointment
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notifications -->
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Notifications</h5>
+                <a href="{% url 'vet_portal:mark_all_notifications_read' %}" class="btn btn-sm btn-outline-secondary">
+                    Mark All Read
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                        <a href="{% url 'vet_portal:mark_notification_read' notification.id %}" 
+                           class="list-group-item list-group-item-action {% if not notification.is_read %}unread{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ notification.title }}</h6>
+                                <small>{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="mb-1">{{ notification.message|truncatechars:100 }}</p>
+                        </a>
+                    {% empty %}
+                        <div class="list-group-item text-center py-4">
+                            <div class="text-muted">
+                                <i class="bi bi-bell-slash fs-4 d-block mb-2"></i>
+                                No new notifications
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Medical Records -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Medical Records</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Pet</th>
+                                <th>Owner</th>
+                                <th>Condition</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in recent_records %}
+                                <tr>
+                                    <td>{{ record.visit_date }}</td>
+                                    <td>
+                                        <a href="{% url 'vet_portal:patient_detail' record.pet.id %}" class="text-decoration-none">
+                                            {{ record.pet.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ record.pet.owner.full_name }}</td>
+                                    <td>{{ record.condition }}</td>
+                                    <td>
+                                        <a href="{% url 'vet_portal:medical_record_detail' record.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-clipboard-x fs-4 d-block mb-2"></i>
+                                            No medical records found
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .bg-primary-light {
+        background-color: rgba(0, 102, 204, 0.1);
+    }
+    
+    .bg-success-light {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+    
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .list-group-item.unread {
+        border-left: 3px solid #0066cc;
+        background-color: rgba(0, 102, 204, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Check for offline status
+    window.addEventListener('load', function() {
+        function updateOnlineStatus() {
+            const statusElement = document.getElementById('connection-status');
+            if (statusElement) {
+                if (navigator.onLine) {
+                    statusElement.textContent = 'Online';
+                    statusElement.classList.remove('bg-danger');
+                    statusElement.classList.add('bg-success');
+                } else {
+                    statusElement.textContent = 'Offline';
+                    statusElement.classList.remove('bg-success');
+                    statusElement.classList.add('bg-danger');
+                }
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'vet/base.html' %}
+{% block title %}Appointments - Veterinarian Portal{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Appointments</h2>
+  <div>
+    <select id="statusFilter" style="width:auto; display:inline-block;">
+      <option value="all">All Statuses</option>
+      <option value="scheduled">Scheduled</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+</div>
+
+<table id="appointmentsTable">
+  <thead>
+    <tr>
+      <th>Date & Time</th>
+      <th>Pet</th>
+      <th>Owner</th>
+      <th>Reason</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for appointment in appointments %}
+      <tr class="appointment-row" data-status="{{ appointment.status }}">
+        <td>{{ appointment.date_time }}</td>
+        <td>{{ appointment.pet.name }}</td>
+        <td>{{ appointment.pet.owner.full_name }}</td>
+        <td>{{ appointment.reason }}</td>
+        <td>
+          {% if appointment.status == 'scheduled' %}
+            <span class="badge scheduled">Scheduled</span>
+          {% elif appointment.status == 'completed' %}
+            <span class="badge completed">Completed</span>
+          {% elif appointment.status == 'cancelled' %}
+            <span class="badge cancelled">Cancelled</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">No appointments found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple filter functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const appointmentRows = document.querySelectorAll('.appointment-row');
+    
+    statusFilter.addEventListener('change', function() {
+      const selectedStatus = this.value;
+      
+      appointmentRows.forEach(row => {
+        const status = row.getAttribute('data-status');
+        
+        if (selectedStatus === 'all' || status === selectedStatus) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+    
+    // Check for new appointments every 30 seconds
+    function checkForNewAppointments() {
+      // In a real implementation, this would make an AJAX call to an API endpoint
+      console.log('Checking for new appointments...');
+    }
+    
+    // Start the update check loop
+    setInterval(checkForNewAppointments, 30000);
+  });
+</script>
+{% endblock %}

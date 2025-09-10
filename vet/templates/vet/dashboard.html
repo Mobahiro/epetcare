@@ -1,0 +1,102 @@
+{% extends 'vet/base.html' %}
+{% block title %}Dashboard - Veterinarian Portal{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Dashboard</h2>
+  <div>
+    <span class="muted">Welcome, Dr. {{ vet.full_name }}</span>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="dashboard-stats">
+  <div class="stat-card">
+    <div class="stat-label">Total Owners</div>
+    <div class="stat-value">{{ total_owners }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Pets</div>
+    <div class="stat-value">{{ total_pets }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Upcoming Appointments</div>
+    <div class="stat-value">{{ upcoming_appointments|length }}</div>
+  </div>
+</div>
+
+<!-- Upcoming Appointments -->
+<div class="toolbar">
+  <h3>Upcoming Appointments</h3>
+  <a href="{% url 'vet:appointments' %}" class="btn">View All</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Date & Time</th>
+      <th>Pet</th>
+      <th>Owner</th>
+      <th>Reason</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for appointment in upcoming_appointments %}
+      <tr>
+        <td>{{ appointment.date_time }}</td>
+        <td>{{ appointment.pet.name }}</td>
+        <td>{{ appointment.pet.owner.full_name }}</td>
+        <td>{{ appointment.reason }}</td>
+        <td>
+          {% if appointment.status == 'scheduled' %}
+            <span class="badge scheduled">Scheduled</span>
+          {% elif appointment.status == 'completed' %}
+            <span class="badge completed">Completed</span>
+          {% elif appointment.status == 'cancelled' %}
+            <span class="badge cancelled">Cancelled</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">No upcoming appointments.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Recent Notifications -->
+<div class="toolbar" style="margin-top:30px;">
+  <h3>Recent Notifications</h3>
+  <a href="{% url 'vet:notifications' %}" class="btn">View All</a>
+</div>
+
+<div class="notifications-list">
+  {% for notification in notifications %}
+    <div class="notification-item">
+      <h4>{{ notification.title }}</h4>
+      <p>{{ notification.message }}</p>
+      <div class="notification-meta">
+        <span class="notification-time">{{ notification.created_at }}</span>
+      </div>
+    </div>
+  {% empty %}
+    <p class="muted">No new notifications.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Check for new appointments every 30 seconds
+  function checkForUpdates() {
+    // In a real implementation, this would make an AJAX call to an API endpoint
+    console.log('Checking for updates...');
+    // For demo purposes, we'll just reload the page after 60 seconds
+    // setTimeout(() => { window.location.reload(); }, 60000);
+  }
+  
+  // Start the update check loop
+  setInterval(checkForUpdates, 30000);
+</script>
+{% endblock %}
