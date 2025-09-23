@@ -147,10 +147,23 @@ def main():
         logger.debug(f"Organization name: {app.organizationName()}")
         logger.debug(f"Organization domain: {app.organizationDomain()}")
 
-        # Set up fonts
-        default_font = QFont("Segoe UI", 10)
-        app.setFont(default_font)
-        logger.debug(f"Default font set: {default_font.family()} {default_font.pointSize()}")
+        # Set up fonts and theme
+        try:
+            # Import theme manager
+            from utils.theme_manager import apply_theme, update_font_size
+            
+            # Apply theme and font size
+            theme_applied = apply_theme(app)
+            font_updated = update_font_size(app)
+            
+            logger.debug(f"Theme applied: {theme_applied}, Font updated: {font_updated}")
+        except Exception as e:
+            logger.error(f"Error applying theme: {e}")
+            
+            # Fallback to default font
+            default_font = QFont("Segoe UI", 10)
+            app.setFont(default_font)
+            logger.debug(f"Default font set: {default_font.family()} {default_font.pointSize()}")
 
         # Apply stylesheet - try multiple possible paths
         style_paths = [

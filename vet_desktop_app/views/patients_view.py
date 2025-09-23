@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit,
     QComboBox, QGroupBox, QTabWidget, QFormLayout, QTextEdit,
-    QDateEdit, QMessageBox, QSplitter, QStackedWidget
+    QDateEdit, QMessageBox, QSplitter, QStackedWidget, QDialog
 )
 from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QFont
@@ -124,6 +124,20 @@ class PatientsView(QWidget):
         
         self.pet_weight_label = QLabel()
         pet_info_layout.addRow("Weight:", self.pet_weight_label)
+        
+        # Add buttons for pet actions
+        pet_buttons_layout = QHBoxLayout()
+        
+        self.edit_pet_button = QPushButton("Edit Pet")
+        self.edit_pet_button.clicked.connect(self.edit_pet)
+        pet_buttons_layout.addWidget(self.edit_pet_button)
+        
+        self.delete_pet_button = QPushButton("Delete Pet")
+        self.delete_pet_button.setStyleSheet("background-color: #cc0000; color: white;")
+        self.delete_pet_button.clicked.connect(self.delete_pet)
+        pet_buttons_layout.addWidget(self.delete_pet_button)
+        
+        pet_info_layout.addRow("Actions:", pet_buttons_layout)
         
         pet_info_group.setLayout(pet_info_layout)
         pet_detail_layout.addWidget(pet_info_group)
@@ -488,3 +502,39 @@ class PatientsView(QWidget):
         
         # This would be implemented in a real application
         QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        
+    def edit_pet(self):
+        """Edit the current pet"""
+        if not self.current_pet:
+            return
+            
+        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        
+    def delete_pet(self):
+        """Delete the current pet"""
+        if not self.current_pet:
+            return
+            
+        # Import the delete confirmation dialog
+        from views.delete_confirmation_dialog import DeleteConfirmationDialog
+        
+        # Show confirmation dialog
+        dialog = DeleteConfirmationDialog(
+            parent=self,
+            item_type="pet",
+            item_name=f"{self.current_pet.name} ({self.current_pet.species}, {self.current_pet.breed})",
+            item_id=self.current_pet.id
+        )
+        
+        if dialog.exec() == QDialog.Accepted and dialog.confirmed:
+            # Delete the pet
+            success, result = self.pet_data_access.delete(self.current_pet.id)
+            
+            if success:
+                QMessageBox.information(self, "Success", f"Pet '{self.current_pet.name}' deleted successfully.")
+                # Clear the current pet and refresh the list
+                self.current_pet = None
+                self.detail_widget.setCurrentIndex(0)  # Show empty state
+                self.search_patients()  # Refresh the list
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to delete pet: {result}")

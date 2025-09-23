@@ -1043,3 +1043,58 @@ ImportError: cannot import name 'get_connection' from 'utils.database' (C:\epetc
 2025-09-24 02:29:19,382 - epetcare - INFO - Database connection established successfully
 2025-09-24 02:29:19,382 - epetcare - INFO - Creating main window...
 2025-09-24 02:30:05,575 - epetcare - INFO - Application started successfully
+2025-09-24 02:45:48,901 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:45:48,902 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:45:49,106 - epetcare - INFO - Initializing application...
+2025-09-24 02:45:49,126 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 02:45:49,127 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 02:45:49,127 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 02:45:49,128 - epetcare - INFO - Database sync thread started
+2025-09-24 02:45:49,128 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 02:45:49,131 - epetcare - INFO - Database connection established successfully
+2025-09-24 02:45:49,131 - epetcare - INFO - Creating main window...
+2025-09-24 02:46:10,347 - epetcare - INFO - Application started successfully
+2025-09-24 02:48:48,350 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:48:48,351 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:48:48,546 - epetcare - INFO - Initializing application...
+2025-09-24 02:48:48,566 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 02:48:48,567 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 02:48:48,567 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 02:48:48,568 - epetcare - INFO - Database sync thread started
+2025-09-24 02:48:48,568 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 02:48:48,571 - epetcare - INFO - Database connection established successfully
+2025-09-24 02:48:48,572 - epetcare - INFO - Creating main window...
+2025-09-24 02:48:54,345 - epetcare - INFO - Application started successfully
+2025-09-24 03:05:01,791 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 03:05:01,792 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 03:05:01,977 - epetcare - INFO - Initializing application...
+2025-09-24 03:05:02,002 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 03:05:02,003 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 03:05:02,003 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 03:05:02,003 - epetcare - INFO - Database sync thread started
+2025-09-24 03:05:02,003 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 03:05:02,006 - epetcare - INFO - Database connection established successfully
+2025-09-24 03:05:02,006 - epetcare - INFO - Creating main window...
+2025-09-24 03:05:05,702 - epetcare - INFO - Application started successfully
+2025-09-24 03:05:32,329 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 03:05:32,330 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 03:05:32,527 - epetcare - INFO - Initializing application...
+2025-09-24 03:05:32,550 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 03:05:32,551 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 03:05:32,551 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 03:05:32,552 - epetcare - INFO - Database sync thread started
+2025-09-24 03:05:32,552 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 03:05:32,555 - epetcare - INFO - Database connection established successfully
+2025-09-24 03:05:32,555 - epetcare - INFO - Creating main window...
+2025-09-24 03:05:35,435 - epetcare - INFO - Application started successfully
+2025-09-24 03:13:00,506 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 03:13:00,506 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 03:13:00,695 - epetcare - INFO - Initializing application...
+2025-09-24 03:13:00,719 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 03:13:00,719 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 03:13:00,719 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 03:13:00,720 - epetcare - INFO - Database sync thread started
+2025-09-24 03:13:00,720 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 03:13:00,730 - epetcare - INFO - Database connection established successfully
+2025-09-24 03:13:00,730 - epetcare - INFO - Creating main window...
+2025-09-24 03:13:05,931 - epetcare - INFO - Application started successfully

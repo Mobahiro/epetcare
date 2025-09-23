@@ -16,6 +16,7 @@ from models.data_access import (
     AppointmentDataAccess, PetDataAccess, OwnerDataAccess
 )
 from models.models import Appointment, AppointmentStatus
+from views.delete_confirmation_dialog import DeleteConfirmationDialog
 
 
 class AppointmentsView(QWidget):
@@ -120,6 +121,7 @@ class AppointmentsView(QWidget):
         self.calendar_appointments_table.itemSelectionChanged.connect(self.calendar_appointment_selected)
         appointments_layout.addWidget(self.calendar_appointments_table)
         
+        # Buttons for calendar view
         calendar_buttons_layout = QHBoxLayout()
         calendar_buttons_layout.addStretch()
         
@@ -134,6 +136,11 @@ class AppointmentsView(QWidget):
         self.calendar_cancel_button = QPushButton("Cancel Appointment")
         self.calendar_cancel_button.clicked.connect(lambda: self.cancel_appointment(self.calendar_appointments_table))
         calendar_buttons_layout.addWidget(self.calendar_cancel_button)
+        
+        self.calendar_delete_button = QPushButton("Delete")
+        self.calendar_delete_button.setStyleSheet("background-color: #cc0000; color: white;")
+        self.calendar_delete_button.clicked.connect(lambda: self.delete_appointment(self.calendar_appointments_table))
+        calendar_buttons_layout.addWidget(self.calendar_delete_button)
         
         appointments_layout.addLayout(calendar_buttons_layout)
         appointments_group.setLayout(appointments_layout)
@@ -195,6 +202,11 @@ class AppointmentsView(QWidget):
         self.all_cancel_button.clicked.connect(lambda: self.cancel_appointment(self.all_appointments_table))
         all_buttons_layout.addWidget(self.all_cancel_button)
         
+        self.all_delete_button = QPushButton("Delete")
+        self.all_delete_button.setStyleSheet("background-color: #cc0000; color: white;")
+        self.all_delete_button.clicked.connect(lambda: self.delete_appointment(self.all_appointments_table))
+        all_buttons_layout.addWidget(self.all_delete_button)
+        
         all_appointments_layout.addLayout(all_buttons_layout)
         
         self.tab_widget.addTab(all_appointments_tab, "All Appointments")
@@ -205,6 +217,16 @@ class AppointmentsView(QWidget):
         # Initialize with today's date and load all appointments
         self.go_to_today()
         self.load_all_appointments()
+        
+        # Disable buttons initially
+        self.calendar_edit_button.setEnabled(False)
+        self.calendar_complete_button.setEnabled(False)
+        self.calendar_cancel_button.setEnabled(False)
+        self.calendar_delete_button.setEnabled(False)
+        self.all_edit_button.setEnabled(False)
+        self.all_complete_button.setEnabled(False)
+        self.all_cancel_button.setEnabled(False)
+        self.all_delete_button.setEnabled(False)
     
     def refresh_data(self):
         """Refresh the data displayed in the view"""
@@ -350,6 +372,7 @@ class AppointmentsView(QWidget):
         self.calendar_edit_button.setEnabled(has_selection)
         self.calendar_complete_button.setEnabled(has_selection)
         self.calendar_cancel_button.setEnabled(has_selection)
+        self.calendar_delete_button.setEnabled(has_selection)
     
     def all_appointment_selected(self):
         """Handle appointment selection in all appointments view"""
@@ -359,6 +382,7 @@ class AppointmentsView(QWidget):
         self.all_edit_button.setEnabled(has_selection)
         self.all_complete_button.setEnabled(has_selection)
         self.all_cancel_button.setEnabled(has_selection)
+        self.all_delete_button.setEnabled(has_selection)
     
     def new_appointment(self):
         """Create a new appointment"""
@@ -472,3 +496,48 @@ class AppointmentsView(QWidget):
             self.load_all_appointments()
         else:
             QMessageBox.warning(self, "Error", f"Failed to update appointment: {result}")
+    
+    def delete_appointment(self, table_widget):
+        """Delete the selected appointment"""
+        selected_items = table_widget.selectedItems()
+        if not selected_items:
+            return
+        
+        # Get the appointment ID
+        col_index = 0
+        if table_widget == self.all_appointments_table:
+            col_index = 0  # Date column has the ID in all appointments table
+        else:
+            col_index = 0  # Time column has the ID in calendar appointments table
+            
+        appointment_id = table_widget.item(selected_items[0].row(), col_index).data(Qt.UserRole)
+        
+        # Get the appointment
+        appointment = self.appointment_data_access.get_by_id(appointment_id)
+        if not appointment:
+            QMessageBox.warning(self, "Error", "Appointment not found.")
+            return
+        
+        # Show confirmation dialog
+        pet_name = appointment.pet.name if appointment.pet else "Unknown"
+        reason = appointment.reason
+        item_name = f"{pet_name} - {reason} ({appointment.date_time.strftime('%Y-%m-%d %H:%M')})"
+        
+        dialog = DeleteConfirmationDialog(
+            parent=self,
+            item_type="appointment",
+            item_name=item_name,
+            item_id=appointment_id
+        )
+        
+        if dialog.exec() == QDialog.Accepted and dialog.confirmed:
+            # Delete the appointment
+            success, result = self.appointment_data_access.delete(appointment_id)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Appointment deleted successfully.")
+                # Refresh both views
+                self.load_appointments()
+                self.load_all_appointments()
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to delete appointment: {result}")

@@ -95,10 +95,13 @@ def pet_detail(request, pk: int):
     pet = get_object_or_404(Pet, pk=pk)
     appointments = pet.appointments.all().order_by('-date_time')
     vaccinations = pet.vaccinations.all().order_by('-date_given')
+    medical_records = MedicalRecord.objects.filter(pet=pet).order_by('-date')
+    
     return render(request, 'clinic/pet_detail.html', {
         "pet": pet,
         "appointments": appointments,
         "vaccinations": vaccinations,
+        "medical_records": medical_records,
     })
 
 
@@ -121,6 +124,23 @@ def pet_delete(request, pk: int):
     
     # If GET request, show confirmation page
     return render(request, 'clinic/pet_confirm_delete.html', {"pet": pet})
+
+
+# Medical Records
+
+def medical_record_delete(request, pk: int):
+    record = get_object_or_404(MedicalRecord, pk=pk)
+    pet = record.pet
+    
+    # Check if this is a POST request (form submission)
+    if request.method == 'POST':
+        record_type = record.record_type
+        record.delete()
+        messages.success(request, f"Medical record '{record_type}' has been deleted successfully.")
+        return redirect('pet_detail', pk=pet.pk)
+    
+    # If GET request, show confirmation page
+    return render(request, 'clinic/medical_record_confirm_delete.html', {"record": record})
 
 
 # Appointments

@@ -229,17 +229,58 @@ class SettingsView(QWidget):
         self.config['app']['sync_interval'] = self.sync_interval_spin.value()
         self.config['app']['auto_backup'] = self.auto_backup_check.isChecked()
         
+        # Store previous theme and font size to detect changes
+        previous_theme = self.config['ui']['theme']
+        previous_font_size = self.config['ui']['font_size']
+        
+        # Update UI settings
         self.config['ui']['theme'] = self.theme_combo.currentData()
         self.config['ui']['font_size'] = self.font_size_spin.value()
         
+        # Check if theme or font size changed
+        theme_changed = previous_theme != self.config['ui']['theme']
+        font_size_changed = previous_font_size != self.config['ui']['font_size']
+        
         # Save to file
         if save_config(self.config):
-            QMessageBox.information(
-                self,
-                "Settings Saved",
-                "Settings have been saved successfully.\n"
-                "Some changes may require restarting the application."
-            )
+            # Apply theme changes if needed
+            if theme_changed or font_size_changed:
+                try:
+                    from utils.theme_manager import apply_theme, update_font_size
+                    from PySide6.QtWidgets import QApplication
+                    
+                    app = QApplication.instance()
+                    if app:
+                        if theme_changed:
+                            apply_theme(app)
+                        if font_size_changed:
+                            update_font_size(app)
+                        
+                        QMessageBox.information(
+                            self,
+                            "Settings Saved",
+                            "Settings have been saved and applied successfully."
+                        )
+                    else:
+                        QMessageBox.information(
+                            self,
+                            "Settings Saved",
+                            "Settings have been saved successfully.\n"
+                            "Some changes will take effect after restarting the application."
+                        )
+                except Exception as e:
+                    QMessageBox.information(
+                        self,
+                        "Settings Saved",
+                        f"Settings have been saved, but could not apply theme changes: {e}\n"
+                        "Please restart the application for changes to take effect."
+                    )
+            else:
+                QMessageBox.information(
+                    self,
+                    "Settings Saved",
+                    "Settings have been saved successfully."
+                )
         else:
             QMessageBox.warning(
                 self,

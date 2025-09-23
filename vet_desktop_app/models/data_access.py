@@ -589,6 +589,10 @@ class PetDataAccess(DataAccessBase):
         
         return pets
     
+    def delete(self, pet_id: int) -> Tuple[bool, Union[int, str]]:
+        """Delete a pet"""
+        return self.db.delete('clinic_pet', pet_id)
+    
     def search(self, query: str, limit: int = 50) -> List[Pet]:
         """Search pets by name or breed"""
         search_query = f"%{query}%"

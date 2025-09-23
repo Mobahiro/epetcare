@@ -213,40 +213,67 @@ class MainWindow(QMainWindow):
     def setup_toolbar(self):
         """Set up the toolbar with actions"""
         self.toolbar.clear()
+        self.toolbar.setIconSize(QSize(32, 32))
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         
         # Get resource path
         resource_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources')
         
+        # Use system icons if available, otherwise try to load from resources
         # Dashboard action
-        dashboard_icon = QIcon(os.path.join(resource_path, 'dashboard-icon.png'))
+        dashboard_icon = QIcon.fromTheme("dashboard", QIcon(os.path.join(resource_path, 'dashboard-icon.png')))
+        if dashboard_icon.isNull():
+            dashboard_icon = QIcon.fromTheme("view-grid", QIcon.fromTheme("applications-system"))
         dashboard_action = QAction(dashboard_icon, "Dashboard", self)
         dashboard_action.triggered.connect(lambda: self.show_view("dashboard"))
+        dashboard_action.setStatusTip("View dashboard")
         self.toolbar.addAction(dashboard_action)
         
         # Patients action
-        patients_icon = QIcon(os.path.join(resource_path, 'patients-icon.png'))
+        patients_icon = QIcon.fromTheme("contact-new", QIcon(os.path.join(resource_path, 'patients-icon.png')))
+        if patients_icon.isNull():
+            patients_icon = QIcon.fromTheme("system-users", QIcon.fromTheme("user-info"))
         patients_action = QAction(patients_icon, "Patients", self)
         patients_action.triggered.connect(lambda: self.show_view("patients"))
+        patients_action.setStatusTip("Manage patients")
         self.toolbar.addAction(patients_action)
         
         # Appointments action
-        appointments_icon = QIcon(os.path.join(resource_path, 'appointments-icon.png'))
+        appointments_icon = QIcon.fromTheme("x-office-calendar", QIcon(os.path.join(resource_path, 'appointments-icon.png')))
+        if appointments_icon.isNull():
+            appointments_icon = QIcon.fromTheme("appointment-new", QIcon.fromTheme("office-calendar"))
         appointments_action = QAction(appointments_icon, "Appointments", self)
         appointments_action.triggered.connect(lambda: self.show_view("appointments"))
+        appointments_action.setStatusTip("Manage appointments")
         self.toolbar.addAction(appointments_action)
         
         self.toolbar.addSeparator()
         
         # Settings action
-        settings_icon = QIcon(os.path.join(resource_path, 'settings-icon.png'))
+        settings_icon = QIcon.fromTheme("preferences-system", QIcon(os.path.join(resource_path, 'settings-icon.png')))
+        if settings_icon.isNull():
+            settings_icon = QIcon.fromTheme("configure", QIcon.fromTheme("applications-system"))
         settings_action = QAction(settings_icon, "Settings", self)
         settings_action.triggered.connect(lambda: self.show_view("settings"))
+        settings_action.setStatusTip("Configure application settings")
         self.toolbar.addAction(settings_action)
         
+        # Backup action
+        backup_icon = QIcon.fromTheme("document-save", QIcon(os.path.join(resource_path, 'backup-icon.png')))
+        if backup_icon.isNull():
+            backup_icon = QIcon.fromTheme("media-floppy", QIcon.fromTheme("drive-harddisk"))
+        backup_action = QAction(backup_icon, "Backup", self)
+        backup_action.triggered.connect(self.backup_database)
+        backup_action.setStatusTip("Backup the database")
+        self.toolbar.addAction(backup_action)
+        
         # Logout action
-        logout_icon = QIcon(os.path.join(resource_path, 'logout-icon.png'))
+        logout_icon = QIcon.fromTheme("system-log-out", QIcon(os.path.join(resource_path, 'logout-icon.png')))
+        if logout_icon.isNull():
+            logout_icon = QIcon.fromTheme("application-exit", QIcon.fromTheme("dialog-close"))
         logout_action = QAction(logout_icon, "Logout", self)
         logout_action.triggered.connect(self.logout)
+        logout_action.setStatusTip("Log out of the application")
         self.toolbar.addAction(logout_action)
     
     def show_login_dialog(self):
@@ -264,9 +291,13 @@ class MainWindow(QMainWindow):
             
             # Start monitoring for new appointments
             self.notification_manager.start_monitoring()
+            
+            # Set window title with user name
+            self.setWindowTitle(f"ePetCare Vet Portal - {self.current_user.username}")
         else:
-            # Exit if login is cancelled
-            self.close()
+            # Exit if login is cancelled and no user is logged in
+            if not self.current_user:
+                self.close()
     
     def setup_views(self):
         """Set up the different views"""
@@ -320,8 +351,14 @@ class MainWindow(QMainWindow):
             # Stop monitoring for new appointments
             self.notification_manager.stop_monitoring()
             
+            # Clear current user data
             self.current_user = None
             self.current_vet = None
+            
+            # Reset UI state
+            self.central_widget.setCurrentIndex(0)
+            
+            # Show login dialog
             self.show_login_dialog()
     
     def backup_database(self):
