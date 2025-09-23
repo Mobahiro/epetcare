@@ -8,10 +8,91 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QFont, QIcon
+import sys
+import os
+import importlib.util
+import logging
 
-from models.data_access import UserDataAccess, VeterinarianDataAccess
-from utils.database import get_connection
-from views.register_dialog import RegisterDialog
+logger = logging.getLogger('epetcare')
+
+# Special handling for PyInstaller
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    logger.debug("login_dialog.py: Using special import handling for frozen app")
+    
+    try:
+        # Try normal imports first
+        from models.data_access import UserDataAccess, VeterinarianDataAccess
+        from utils.database import get_connection
+        from views.register_dialog import RegisterDialog
+        logger.debug("Successfully imported modules in login_dialog.py")
+    except ImportError as e:
+        logger.error(f"Import error in login_dialog.py: {e}")
+        
+        # Get the base directory
+        if hasattr(sys, '_MEIPASS'):
+            base_dir = sys._MEIPASS
+        else:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        
+        # Try to import directly from files
+        try:
+            # Import models.data_access
+            try:
+                from models.data_access import UserDataAccess, VeterinarianDataAccess
+            except ImportError:
+                data_access_path = os.path.join(base_dir, 'models', 'data_access.py')
+                if os.path.exists(data_access_path):
+                    spec = importlib.util.spec_from_file_location("models.data_access", data_access_path)
+                    data_access_module = importlib.util.module_from_spec(spec)
+                    sys.modules['models.data_access'] = data_access_module
+                    spec.loader.exec_module(data_access_module)
+                    UserDataAccess = data_access_module.UserDataAccess
+                    VeterinarianDataAccess = data_access_module.VeterinarianDataAccess
+                    logger.debug(f"Imported UserDataAccess and VeterinarianDataAccess from {data_access_path}")
+                else:
+                    logger.error(f"data_access.py not found at {data_access_path}")
+            
+            # Import utils.database
+            try:
+                from utils.database import get_connection
+            except ImportError:
+                database_path = os.path.join(base_dir, 'utils', 'database.py')
+                if os.path.exists(database_path):
+                    spec = importlib.util.spec_from_file_location("utils.database", database_path)
+                    database_module = importlib.util.module_from_spec(spec)
+                    sys.modules['utils.database'] = database_module
+                    spec.loader.exec_module(database_module)
+                    get_connection = database_module.get_connection
+                    logger.debug(f"Imported get_connection from {database_path}")
+                else:
+                    logger.error(f"database.py not found at {database_path}")
+            
+            # Import views.register_dialog
+            try:
+                from views.register_dialog import RegisterDialog
+            except ImportError:
+                register_dialog_path = os.path.join(base_dir, 'views', 'register_dialog.py')
+                if os.path.exists(register_dialog_path):
+                    spec = importlib.util.spec_from_file_location("views.register_dialog", register_dialog_path)
+                    register_dialog_module = importlib.util.module_from_spec(spec)
+                    sys.modules['views.register_dialog'] = register_dialog_module
+                    spec.loader.exec_module(register_dialog_module)
+                    RegisterDialog = register_dialog_module.RegisterDialog
+                    logger.debug(f"Imported RegisterDialog from {register_dialog_path}")
+                else:
+                    logger.error(f"register_dialog.py not found at {register_dialog_path}")
+                    
+        except Exception as e:
+            logger.error(f"Error importing modules in login_dialog.py: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            raise
+else:
+    # Running as a normal Python script
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+    from utils.database import get_connection
+    from views.register_dialog import RegisterDialog
 
 
 class LoginDialog(QDialog):

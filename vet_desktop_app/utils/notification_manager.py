@@ -7,7 +7,8 @@ from PySide6.QtWidgets import QSystemTrayIcon, QMenu, QMessageBox
 from PySide6.QtGui import QAction, QIcon
 from datetime import datetime, timedelta
 
-from models.data_access import AppointmentDataAccess
+# Use lazy import to avoid circular imports
+# We'll import AppointmentDataAccess when needed
 
 
 class NotificationManager(QObject):
@@ -17,6 +18,8 @@ class NotificationManager(QObject):
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        # Lazy import to avoid circular imports
+        from models.data_access import AppointmentDataAccess
         self.appointment_data_access = AppointmentDataAccess()
         self.known_appointment_ids = set()
         self.check_interval = 60000  # 60 seconds by default
@@ -77,13 +80,27 @@ class NotificationManager(QObject):
     
     def load_existing_appointments(self):
         """Load all existing appointment IDs"""
-        appointments = self.appointment_data_access.get_all_appointments()
-        self.known_appointment_ids = {appointment.id for appointment in appointments}
+        try:
+            appointments = self.appointment_data_access.get_all_appointments()
+            self.known_appointment_ids = {appointment.id for appointment in appointments}
+        except Exception as e:
+            print(f"Error loading appointments: {e}")
+            self.known_appointment_ids = set()
     
     def check_for_new_appointments(self):
         """Check for new appointments"""
-        current_appointments = self.appointment_data_access.get_all_appointments()
-        current_ids = {appointment.id for appointment in current_appointments}
+        try:
+            # Ensure the data access object is available
+            if not hasattr(self, 'appointment_data_access') or self.appointment_data_access is None:
+                # Lazy import to avoid circular imports
+                from models.data_access import AppointmentDataAccess
+                self.appointment_data_access = AppointmentDataAccess()
+                
+            current_appointments = self.appointment_data_access.get_all_appointments()
+            current_ids = {appointment.id for appointment in current_appointments}
+        except Exception as e:
+            print(f"Error checking for new appointments: {e}")
+            return
         
         # Find new appointments
         new_appointment_ids = current_ids - self.known_appointment_ids

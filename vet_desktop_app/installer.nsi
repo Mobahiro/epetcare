@@ -17,14 +17,14 @@ Name "${APPNAME}"
 InstallDir "$PROGRAMFILES\${COMPANYNAME}\${APPNAME}"
 InstallDirRegKey HKLM "Software\${COMPANYNAME}\${APPNAME}" "Install_Dir"
 RequestExecutionLevel admin
-Icon "resources\app-icon.png"
+Icon "resources\app-icon.ico"
 OutFile "ePetCare_Vet_Desktop_Setup.exe"
 
 ; Modern interface settings
 !include "MUI2.nsh"
 
 !define MUI_ABORTWARNING
-!define MUI_ICON "resources\app-icon.png"
+!define MUI_ICON "resources\app-icon.ico"
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
@@ -82,7 +82,7 @@ Section "Install"
     ; Create config.json if it doesn't exist
     IfFileExists "$INSTDIR\config.json" +2 0
     FileOpen $0 "$INSTDIR\config.json" w
-    FileWrite $0 '{"database": {"path": "$INSTDIR\data\db.sqlite3", "backup_dir": "$INSTDIR\backups"}, "app": {"offline_mode": false, "sync_interval": 300, "auto_backup": true}, "ui": {"theme": "light", "font_size": 10}}'
+    FileWrite $0 '{"database": {"path": "$INSTDIR\\data\\db.sqlite3", "backup_dir": "$INSTDIR\\backups"}, "app": {"offline_mode": false, "sync_interval": 300, "auto_backup": true}, "ui": {"theme": "light", "font_size": 10}}'
     FileClose $0
     
     ; Create backups directory

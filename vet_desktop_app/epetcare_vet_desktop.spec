@@ -1,16 +1,66 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+import sys
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 block_cipher = None
 
+# Add the current directory to the path to ensure imports work
+sys.path.insert(0, os.path.dirname(os.path.abspath('__file__')))
+
+# Collect all submodules automatically
+views_submodules = collect_submodules('views')
+utils_submodules = collect_submodules('utils')
+models_submodules = collect_submodules('models')
+
+# Ensure these specific modules are included
+critical_modules = [
+    'models.data_access',
+    'models.models',
+    'views.main_window',
+    'views.login_dialog',
+    'utils.database',
+    'utils.config'
+]
+
+# Collect all PySide6 modules
+pyside6_submodules = ['PySide6.QtCore', 'PySide6.QtWidgets', 'PySide6.QtGui', 
+                      'PySide6.QtSvg', 'PySide6.QtNetwork', 'PySide6.QtSql',
+                      'PySide6.support']
+
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=[os.path.dirname(os.path.abspath('__file__'))],
     binaries=[],
-    datas=[],
-    hiddenimports=['PySide6.QtCore', 'PySide6.QtWidgets', 'PySide6.QtGui'],
+    datas=[
+        ('views', 'views'),
+        ('utils', 'utils'),
+        ('models', 'models'),
+        ('controllers', 'controllers'),
+        ('resources', 'resources'),
+        ('config.json', '.'),
+        ('data', 'data'),
+        ('data/db.sqlite3', 'data'),  # Explicitly include the database file
+    ],
+    hiddenimports=[
+        # PySide6 modules
+        *pyside6_submodules,
+        # Application modules
+        *views_submodules,
+        *utils_submodules,
+        *models_submodules,
+        # Critical modules that must be included
+        *critical_modules,
+        # Explicitly include these modules
+        'sqlite3',
+        'json',
+        'datetime',
+        'pathlib',
+        'shutil',
+    ],
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[],
+    runtime_hooks=['hook-runtime.py', 'module_finder.py', 'package_init.py'],
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
@@ -46,13 +96,14 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=True,  # Set to True for debugging, change to False for production
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='resources/app-icon.png',  # Use the app icon
+    icon='resources/app-icon.ico',  # Use the ico file instead of png
+    version='file_version_info.txt',  # Add version info
 )
 
 coll = COLLECT(

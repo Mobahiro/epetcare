@@ -17,19 +17,65 @@ db_connection = None
 def setup_database_connection(db_path):
     """Setup the database connection"""
     global db_connection
+    import logging
+    logger = logging.getLogger('epetcare')
     
-    if not os.path.exists(db_path):
-        QMessageBox.critical(
-            None, 
-            "Database Error",
-            f"Database file not found at {db_path}.\n\n"
-            "Please make sure the ePetCare web application is properly installed "
-            "and the database file exists."
-        )
-        return False
+    # Normalize path for Windows
+    db_path = os.path.normpath(db_path)
+    logger.debug(f"Setting up database connection with path: {db_path}")
+    
+    if not os.path.exists(db_path) or os.path.getsize(db_path) == 0:
+        logger.warning(f"Database not found or empty at {db_path}")
+        # Try to find the database in common locations
+        possible_locations = [
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'db.sqlite3'),
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'db.sqlite3'),
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'db.sqlite3')
+        ]
+        
+        # If running as PyInstaller bundle, add more possible locations
+        if getattr(sys, 'frozen', False):
+            if hasattr(sys, '_MEIPASS'):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                
+            possible_locations.extend([
+                os.path.join(base_dir, 'db.sqlite3'),
+                os.path.join(base_dir, 'data', 'db.sqlite3'),
+                os.path.join(os.path.dirname(base_dir), 'db.sqlite3'),
+                os.path.join(os.path.dirname(base_dir), 'data', 'db.sqlite3'),
+                os.path.join(os.path.dirname(os.path.dirname(base_dir)), 'db.sqlite3')
+            ])
+        
+        # Log all possible locations
+        logger.debug("Searching for database in the following locations:")
+        for path in possible_locations:
+            logger.debug(f"  - {path}")
+        
+        found = False
+        for path in possible_locations:
+            if os.path.exists(path) and os.path.getsize(path) > 0:
+                db_path = path
+                logger.info(f"Found database at: {db_path}")
+                found = True
+                break
+                
+        if not found:
+            logger.error("Database file not found in any common location")
+            QMessageBox.critical(
+                None, 
+                "Database Error",
+                f"Database file not found at {db_path}.\n\n"
+                "Please make sure the ePetCare web application is properly installed "
+                "and the database file exists.\n\n"
+                "You can also manually specify the database location in the config.json file."
+            )
+            return False
     
     try:
         # Connect to the SQLite database
+        logger.debug(f"Attempting to connect to database at: {db_path}")
         db_connection = sqlite3.connect(db_path)
         db_connection.row_factory = sqlite3.Row
         
@@ -40,31 +86,101 @@ def setup_database_connection(db_path):
         
         required_tables = [
             'auth_user', 'clinic_owner', 'clinic_pet', 'clinic_appointment',
-            'clinic_medicalrecord', 'clinic_prescription', 'vet_veterinarian'
+            'clinic_medicalrecord', 'clinic_prescription'
         ]
         
         table_names = [table['name'] for table in tables]
+        logger.debug(f"Found tables: {', '.join(table_names)}")
         
-        for table in required_tables:
-            if table not in table_names:
-                QMessageBox.critical(
-                    None,
-                    "Database Error",
-                    f"The database is missing required table: {table}.\n\n"
-                    "Please make sure you are connecting to the correct ePetCare database."
-                )
-                db_connection.close()
-                db_connection = None
-                return False
+        missing_tables = [table for table in required_tables if table not in table_names]
+        
+        if missing_tables:
+            logger.error(f"Missing required tables: {', '.join(missing_tables)}")
+            QMessageBox.critical(
+                None,
+                "Database Error",
+                f"The database is missing required tables: {', '.join(missing_tables)}.\n\n"
+                "Please make sure you are connecting to the correct ePetCare database."
+            )
+            db_connection.close()
+            db_connection = None
+            return False
                 
+        # Check if vet_veterinarian table exists, if not it might be a new installation
+        if 'vet_veterinarian' not in table_names:
+            logger.warning("vet_veterinarian table not found, attempting to create it")
+            try:
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS vet_veterinarian (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER UNIQUE,
+                    full_name TEXT NOT NULL,
+                    specialization TEXT,
+                    license_number TEXT,
+                    phone TEXT,
+                    bio TEXT,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES auth_user (id)
+                )
+                """)
+                db_connection.commit()
+                logger.info("Created vet_veterinarian table successfully")
+            except sqlite3.Error as e:
+                logger.error(f"Failed to create vet_veterinarian table: {e}")
+                # Continue anyway, as this might not be critical
+        
+        # Check if vet_notification table exists, if not create it
+        if 'vet_notification' not in table_names:
+            logger.warning("vet_notification table not found, attempting to create it")
+            try:
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS vet_notification (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    veterinarian_id INTEGER NOT NULL,
+                    title TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    is_read INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (veterinarian_id) REFERENCES vet_veterinarian (id)
+                )
+                """)
+                db_connection.commit()
+                logger.info("Created vet_notification table successfully")
+            except sqlite3.Error as e:
+                logger.error(f"Failed to create vet_notification table: {e}")
+                # Continue anyway, as this might not be critical
+                
+        # Update the config with the successful path
+        from utils.config import load_config, save_config
+        config = load_config()
+        if config['database']['path'] != db_path:
+            config['database']['path'] = db_path
+            save_config(config)
+            
+        logger.info("Database connection established successfully")
         return True
         
     except sqlite3.Error as e:
+        logger.error(f"SQLite error: {e}")
         QMessageBox.critical(
             None,
             "Database Error",
             f"Failed to connect to database: {str(e)}\n\n"
             "Please make sure the database file is accessible and not corrupted."
+        )
+        if db_connection:
+            db_connection.close()
+            db_connection = None
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error connecting to database: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        QMessageBox.critical(
+            None,
+            "Database Error",
+            f"An unexpected error occurred while connecting to the database: {str(e)}\n\n"
+            "Please check the log file for details."
         )
         if db_connection:
             db_connection.close()

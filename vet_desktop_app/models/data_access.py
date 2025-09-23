@@ -5,11 +5,113 @@ This module provides classes to interact with the database.
 
 from datetime import datetime, date, timedelta
 from typing import List, Dict, Any, Optional, Tuple, Union
-from utils.database import DatabaseManager
-from models.models import (
-    User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
-    Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
-)
+import sys
+import os
+import importlib.util
+import logging
+
+logger = logging.getLogger('epetcare')
+
+# Special handling for PyInstaller
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    logger.debug("data_access.py: Using special import handling for frozen app")
+    
+    # Import DatabaseManager from utils.database
+    try:
+        from utils.database import DatabaseManager
+        logger.debug("Successfully imported DatabaseManager from utils.database")
+    except ImportError:
+        logger.error("Failed to import DatabaseManager from utils.database")
+        # Try to import directly
+        try:
+            if hasattr(sys, '_MEIPASS'):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                
+            database_path = os.path.join(base_dir, 'utils', 'database.py')
+            if os.path.exists(database_path):
+                spec = importlib.util.spec_from_file_location("utils.database", database_path)
+                database_module = importlib.util.module_from_spec(spec)
+                sys.modules['utils.database'] = database_module
+                spec.loader.exec_module(database_module)
+                DatabaseManager = database_module.DatabaseManager
+                logger.debug(f"Imported DatabaseManager from {database_path}")
+            else:
+                logger.error(f"database.py not found at {database_path}")
+                # Define a dummy DatabaseManager as fallback
+                class DatabaseManager:
+                    def __init__(self): pass
+        except Exception as e:
+            logger.error(f"Error importing DatabaseManager: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            # Define a dummy DatabaseManager as fallback
+            class DatabaseManager:
+                def __init__(self): pass
+    
+    # Import model classes
+    try:
+        # Try importing from models.models first
+        try:
+            from models.models import (
+                User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+                Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
+            )
+            logger.debug("Successfully imported model classes from models.models")
+        except ImportError:
+            logger.error("Failed to import model classes from models.models")
+            # Try to import directly
+            if hasattr(sys, '_MEIPASS'):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                
+            models_path = os.path.join(base_dir, 'models', 'models.py')
+            if os.path.exists(models_path):
+                spec = importlib.util.spec_from_file_location("models.models", models_path)
+                models_module = importlib.util.module_from_spec(spec)
+                sys.modules['models.models'] = models_module
+                spec.loader.exec_module(models_module)
+                
+                # Get the classes from the module
+                User = models_module.User
+                Veterinarian = models_module.Veterinarian
+                Owner = models_module.Owner
+                Pet = models_module.Pet
+                Appointment = models_module.Appointment
+                MedicalRecord = models_module.MedicalRecord
+                Prescription = models_module.Prescription
+                Vaccination = models_module.Vaccination
+                Treatment = models_module.Treatment
+                TreatmentRecord = models_module.TreatmentRecord
+                VetNotification = models_module.VetNotification
+                
+                logger.debug(f"Imported model classes from {models_path}")
+            else:
+                logger.error(f"models.py not found at {models_path}")
+                raise ImportError(f"models.py not found at {models_path}")
+    except Exception as e:
+        logger.error(f"Error importing model classes: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise
+else:
+    # Running as a normal Python script - use regular imports
+    from utils.database import DatabaseManager
+    try:
+        # Try relative import first
+        from .models import (
+            User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
+        )
+    except ImportError:
+        # Fall back to absolute import
+        from models.models import (
+            User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
+        )
 
 
 class DataAccessBase:
@@ -89,6 +191,8 @@ class UserDataAccess(DataAccessBase):
     def authenticate(self, username: str, password: str) -> Optional[User]:
         """Authenticate a user"""
         import hashlib
+        import base64
+        import re
         
         query = "SELECT * FROM auth_user WHERE username = ?"
         success, result = self.db.execute_query(query, (username,))
@@ -102,19 +206,65 @@ class UserDataAccess(DataAccessBase):
         # In Django, passwords are stored as: algorithm$iterations$salt$hash
         stored_password = user_dict.get('password', '')
         
-        # For simplicity in this desktop app, we'll just check if passwords match directly
-        # In a real app, you would use Django's password verification
-        if stored_password == password:
-            return User(
-                id=user_dict['id'],
-                username=user_dict['username'],
-                first_name=user_dict['first_name'],
-                last_name=user_dict['last_name'],
-                email=user_dict['email'],
-                is_active=bool(user_dict['is_active']),
-                date_joined=datetime.fromisoformat(user_dict['date_joined']),
-                last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
-            )
+        # Check if this is a Django-style password
+        if '$' in stored_password:
+            try:
+                # Parse the components
+                parts = stored_password.split('$')
+                if len(parts) >= 4:
+                    algorithm = parts[0]
+                    iterations = int(parts[1])
+                    salt = parts[2]
+                    stored_hash = parts[3]
+                    
+                    # Handle PBKDF2 algorithm (most common in Django)
+                    if algorithm == 'pbkdf2_sha256':
+                        import hashlib
+                        import binascii
+                        
+                        # Convert iterations to integer
+                        iterations = int(iterations)
+                        
+                        # Generate hash from the provided password
+                        dk = hashlib.pbkdf2_hmac(
+                            'sha256', 
+                            password.encode('utf-8'), 
+                            salt.encode('utf-8'), 
+                            iterations
+                        )
+                        computed_hash = binascii.hexlify(dk).decode('ascii')
+                        
+                        # Compare the hashes
+                        if computed_hash == stored_hash:
+                            # Password matches
+                            return User(
+                                id=user_dict['id'],
+                                username=user_dict['username'],
+                                first_name=user_dict['first_name'],
+                                last_name=user_dict['last_name'],
+                                email=user_dict['email'],
+                                is_active=bool(user_dict['is_active']),
+                                date_joined=datetime.fromisoformat(user_dict['date_joined']),
+                                last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+                            )
+                    # Handle other algorithms as needed
+            except Exception as e:
+                print(f"Error verifying password: {e}")
+                pass
+        else:
+            # For development/testing only: check if passwords match directly
+            # This should never be used in production
+            if stored_password == password:
+                return User(
+                    id=user_dict['id'],
+                    username=user_dict['username'],
+                    first_name=user_dict['first_name'],
+                    last_name=user_dict['last_name'],
+                    email=user_dict['email'],
+                    is_active=bool(user_dict['is_active']),
+                    date_joined=datetime.fromisoformat(user_dict['date_joined']),
+                    last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+                )
         
         return None
     
@@ -128,11 +278,32 @@ class UserDataAccess(DataAccessBase):
         if self.get_by_email(email):
             return False, "Email already exists"
         
+        # Hash the password using PBKDF2 (similar to Django's default)
+        import hashlib
+        import binascii
+        import os
+        
+        # Generate a random salt
+        salt = os.urandom(16).hex()
+        iterations = 390000  # Django's default iterations as of 2023
+        
+        # Hash the password
+        dk = hashlib.pbkdf2_hmac(
+            'sha256', 
+            password.encode('utf-8'), 
+            salt.encode('utf-8'), 
+            iterations
+        )
+        hashed_password = binascii.hexlify(dk).decode('ascii')
+        
+        # Format the password in Django's format: algorithm$iterations$salt$hash
+        password_string = f"pbkdf2_sha256${iterations}${salt}${hashed_password}"
+        
         # Create user data
         now = datetime.now().isoformat()
         user_data = {
             'username': username,
-            'password': password,  # In a real app, you would hash the password
+            'password': password_string,
             'email': email,
             'first_name': first_name,
             'last_name': last_name,
@@ -757,3 +928,131 @@ class PrescriptionDataAccess(DataAccessBase):
     def delete(self, prescription_id: int) -> Tuple[bool, Union[int, str]]:
         """Delete a prescription"""
         return self.db.delete('clinic_prescription', prescription_id)
+
+
+class TreatmentTypeDataAccess(DataAccessBase):
+    """Data access for TreatmentType model"""
+    
+    def get_by_id(self, treatment_type_id: int) -> Optional[TreatmentType]:
+        """Get a treatment type by ID"""
+        query = """
+            SELECT * FROM vet_treatmenttype WHERE id = ?
+        """
+        success, result = self.db.execute_query(query, (treatment_type_id,))
+        
+        if not success or not result:
+            return None
+        
+        treatment_dict = self._row_to_dict(result[0])
+        return TreatmentType(
+            id=treatment_dict['id'],
+            name=treatment_dict['name'],
+            description=treatment_dict['description'],
+            duration_minutes=treatment_dict['duration_minutes'],
+            price=float(treatment_dict['price']),
+            is_active=bool(treatment_dict['is_active'])
+        )
+    
+    def get_all_active(self) -> List[TreatmentType]:
+        """Get all active treatment types"""
+        query = """
+            SELECT * FROM vet_treatmenttype WHERE is_active = 1 ORDER BY name
+        """
+        success, result = self.db.execute_query(query)
+        
+        if not success:
+            return []
+        
+        treatments = []
+        for row in result:
+            treatment_dict = self._row_to_dict(row)
+            treatments.append(TreatmentType(
+                id=treatment_dict['id'],
+                name=treatment_dict['name'],
+                description=treatment_dict['description'],
+                duration_minutes=treatment_dict['duration_minutes'],
+                price=float(treatment_dict['price']),
+                is_active=bool(treatment_dict['is_active'])
+            ))
+        
+        return treatments
+    
+    def create(self, treatment_type: TreatmentType) -> Tuple[bool, Union[int, str]]:
+        """Create a new treatment type"""
+        data = {
+            'name': treatment_type.name,
+            'description': treatment_type.description,
+            'duration_minutes': treatment_type.duration_minutes,
+            'price': treatment_type.price,
+            'is_active': 1 if treatment_type.is_active else 0
+        }
+        
+        return self.db.insert('vet_treatmenttype', data)
+    
+    def update(self, treatment_type: TreatmentType) -> Tuple[bool, Union[int, str]]:
+        """Update an existing treatment type"""
+        data = {
+            'name': treatment_type.name,
+            'description': treatment_type.description,
+            'duration_minutes': treatment_type.duration_minutes,
+            'price': treatment_type.price,
+            'is_active': 1 if treatment_type.is_active else 0
+        }
+        
+        return self.db.update('vet_treatmenttype', data, treatment_type.id)
+
+
+class ScheduleDataAccess(DataAccessBase):
+    """Data access for Schedule model"""
+    
+    def get_by_vet(self, vet_id: int) -> List[Schedule]:
+        """Get schedule by veterinarian ID"""
+        query = """
+            SELECT * FROM vet_schedule WHERE veterinarian_id = ? ORDER BY day_of_week, start_time
+        """
+        success, result = self.db.execute_query(query, (vet_id,))
+        
+        if not success:
+            return []
+        
+        schedules = []
+        for row in result:
+            schedule_dict = self._row_to_dict(row)
+            schedules.append(Schedule(
+                id=schedule_dict['id'],
+                veterinarian_id=schedule_dict['veterinarian_id'],
+                day_of_week=schedule_dict['day_of_week'],
+                start_time=schedule_dict['start_time'],
+                end_time=schedule_dict['end_time'],
+                is_available=bool(schedule_dict['is_available'])
+            ))
+        
+        return schedules
+    
+    def create(self, schedule: Schedule) -> Tuple[bool, Union[int, str]]:
+        """Create a new schedule entry"""
+        data = {
+            'veterinarian_id': schedule.veterinarian_id,
+            'day_of_week': schedule.day_of_week,
+            'start_time': schedule.start_time,
+            'end_time': schedule.end_time,
+            'is_available': 1 if schedule.is_available else 0
+        }
+        
+        return self.db.insert('vet_schedule', data)
+    
+    def update(self, schedule: Schedule) -> Tuple[bool, Union[int, str]]:
+        """Update an existing schedule entry"""
+        data = {
+            'veterinarian_id': schedule.veterinarian_id,
+            'day_of_week': schedule.day_of_week,
+            'start_time': schedule.start_time,
+            'end_time': schedule.end_time,
+            'is_available': 1 if schedule.is_available else 0
+        }
+        
+        return self.db.update('vet_schedule', data, schedule.id)
+    
+    def delete(self, schedule_id: int) -> Tuple[bool, Union[int, str]]:
+        """Delete a schedule entry"""
+        return self.db.delete('vet_schedule', schedule_id)

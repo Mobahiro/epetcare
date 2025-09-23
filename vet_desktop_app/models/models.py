@@ -161,3 +161,24 @@ class VetNotification:
     message: str
     is_read: bool
     created_at: datetime
+
+
+@dataclass
+class TreatmentType:
+    id: int
+    name: str
+    description: str
+    duration_minutes: int
+    price: float
+    is_active: bool
+
+
+@dataclass
+class Schedule:
+    id: int
+    veterinarian_id: int
+    day_of_week: int  # 0=Monday, 6=Sunday
+    start_time: str   # Format: "HH:MM"
+    end_time: str     # Format: "HH:MM"
+    is_available: bool
+    veterinarian: Optional[Veterinarian] = None

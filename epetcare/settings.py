@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'clinic',
     'vet',
+    'vet_portal',
 ]
 
 MIDDLEWARE = [

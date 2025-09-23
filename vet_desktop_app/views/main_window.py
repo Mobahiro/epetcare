@@ -9,14 +9,119 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon, QFont, QAction
+import sys
+import os
+import importlib.util
+import logging
 
-from views.login_dialog import LoginDialog
-from views.dashboard_view import DashboardView
-from views.patients_view import PatientsView
-from views.appointments_view import AppointmentsView
-from views.settings_view import SettingsView
-from utils.database import backup_database
-from utils.notification_manager import NotificationManager
+logger = logging.getLogger('epetcare')
+
+# Special handling for PyInstaller
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    logger.debug("main_window.py: Using special import handling for frozen app")
+    
+    try:
+        # Try normal imports first
+        from views.login_dialog import LoginDialog
+        from views.dashboard_view import DashboardView
+        from views.patients_view import PatientsView
+        from views.appointments_view import AppointmentsView
+        from views.settings_view import SettingsView
+        from utils.database import backup_database
+        from utils.notification_manager import NotificationManager
+        logger.debug("Successfully imported modules in main_window.py")
+    except ImportError as e:
+        logger.error(f"Import error in main_window.py: {e}")
+        
+        # Get the base directory
+        if hasattr(sys, '_MEIPASS'):
+            base_dir = sys._MEIPASS
+        else:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        
+        # Try to import directly from files
+        try:
+            # Import login_dialog
+            login_dialog_path = os.path.join(base_dir, 'views', 'login_dialog.py')
+            if os.path.exists(login_dialog_path):
+                spec = importlib.util.spec_from_file_location("views.login_dialog", login_dialog_path)
+                login_dialog_module = importlib.util.module_from_spec(spec)
+                sys.modules['views.login_dialog'] = login_dialog_module
+                spec.loader.exec_module(login_dialog_module)
+                LoginDialog = login_dialog_module.LoginDialog
+                logger.debug(f"Imported LoginDialog from {login_dialog_path}")
+            else:
+                logger.error(f"login_dialog.py not found at {login_dialog_path}")
+                
+            # Import dashboard_view
+            dashboard_view_path = os.path.join(base_dir, 'views', 'dashboard_view.py')
+            if os.path.exists(dashboard_view_path):
+                spec = importlib.util.spec_from_file_location("views.dashboard_view", dashboard_view_path)
+                dashboard_view_module = importlib.util.module_from_spec(spec)
+                sys.modules['views.dashboard_view'] = dashboard_view_module
+                spec.loader.exec_module(dashboard_view_module)
+                DashboardView = dashboard_view_module.DashboardView
+                logger.debug(f"Imported DashboardView from {dashboard_view_path}")
+            else:
+                logger.error(f"dashboard_view.py not found at {dashboard_view_path}")
+                
+            # Import patients_view
+            patients_view_path = os.path.join(base_dir, 'views', 'patients_view.py')
+            if os.path.exists(patients_view_path):
+                spec = importlib.util.spec_from_file_location("views.patients_view", patients_view_path)
+                patients_view_module = importlib.util.module_from_spec(spec)
+                sys.modules['views.patients_view'] = patients_view_module
+                spec.loader.exec_module(patients_view_module)
+                PatientsView = patients_view_module.PatientsView
+                logger.debug(f"Imported PatientsView from {patients_view_path}")
+            else:
+                logger.error(f"patients_view.py not found at {patients_view_path}")
+                
+            # Import appointments_view
+            appointments_view_path = os.path.join(base_dir, 'views', 'appointments_view.py')
+            if os.path.exists(appointments_view_path):
+                spec = importlib.util.spec_from_file_location("views.appointments_view", appointments_view_path)
+                appointments_view_module = importlib.util.module_from_spec(spec)
+                sys.modules['views.appointments_view'] = appointments_view_module
+                spec.loader.exec_module(appointments_view_module)
+                AppointmentsView = appointments_view_module.AppointmentsView
+                logger.debug(f"Imported AppointmentsView from {appointments_view_path}")
+            else:
+                logger.error(f"appointments_view.py not found at {appointments_view_path}")
+                
+            # Import settings_view
+            settings_view_path = os.path.join(base_dir, 'views', 'settings_view.py')
+            if os.path.exists(settings_view_path):
+                spec = importlib.util.spec_from_file_location("views.settings_view", settings_view_path)
+                settings_view_module = importlib.util.module_from_spec(spec)
+                sys.modules['views.settings_view'] = settings_view_module
+                spec.loader.exec_module(settings_view_module)
+                SettingsView = settings_view_module.SettingsView
+                logger.debug(f"Imported SettingsView from {settings_view_path}")
+            else:
+                logger.error(f"settings_view.py not found at {settings_view_path}")
+                
+            # Import utils.database
+            from utils.database import backup_database
+            
+            # Import utils.notification_manager
+            from utils.notification_manager import NotificationManager
+            
+        except Exception as e:
+            logger.error(f"Error importing modules in main_window.py: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            raise
+else:
+    # Running as a normal Python script
+    from views.login_dialog import LoginDialog
+    from views.dashboard_view import DashboardView
+    from views.patients_view import PatientsView
+    from views.appointments_view import AppointmentsView
+    from views.settings_view import SettingsView
+    from utils.database import backup_database
+    from utils.notification_manager import NotificationManager
 
 
 class MainWindow(QMainWindow):
@@ -109,30 +214,38 @@ class MainWindow(QMainWindow):
         """Set up the toolbar with actions"""
         self.toolbar.clear()
         
+        # Get resource path
+        resource_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources')
+        
         # Dashboard action
-        dashboard_action = QAction(QIcon("resources/dashboard-icon.png"), "Dashboard", self)
+        dashboard_icon = QIcon(os.path.join(resource_path, 'dashboard-icon.png'))
+        dashboard_action = QAction(dashboard_icon, "Dashboard", self)
         dashboard_action.triggered.connect(lambda: self.show_view("dashboard"))
         self.toolbar.addAction(dashboard_action)
         
         # Patients action
-        patients_action = QAction(QIcon("resources/patients-icon.png"), "Patients", self)
+        patients_icon = QIcon(os.path.join(resource_path, 'patients-icon.png'))
+        patients_action = QAction(patients_icon, "Patients", self)
         patients_action.triggered.connect(lambda: self.show_view("patients"))
         self.toolbar.addAction(patients_action)
         
         # Appointments action
-        appointments_action = QAction(QIcon("resources/appointments-icon.png"), "Appointments", self)
+        appointments_icon = QIcon(os.path.join(resource_path, 'appointments-icon.png'))
+        appointments_action = QAction(appointments_icon, "Appointments", self)
         appointments_action.triggered.connect(lambda: self.show_view("appointments"))
         self.toolbar.addAction(appointments_action)
         
         self.toolbar.addSeparator()
         
         # Settings action
-        settings_action = QAction(QIcon("resources/settings-icon.png"), "Settings", self)
+        settings_icon = QIcon(os.path.join(resource_path, 'settings-icon.png'))
+        settings_action = QAction(settings_icon, "Settings", self)
         settings_action.triggered.connect(lambda: self.show_view("settings"))
         self.toolbar.addAction(settings_action)
         
         # Logout action
-        logout_action = QAction(QIcon("resources/logout-icon.png"), "Logout", self)
+        logout_icon = QIcon(os.path.join(resource_path, 'logout-icon.png'))
+        logout_action = QAction(logout_icon, "Logout", self)
         logout_action.triggered.connect(self.logout)
         self.toolbar.addAction(logout_action)
     
