@@ -15,6 +15,11 @@ urlpatterns = [
     path('patients/', views.PatientListView.as_view(), name='patient_list'),
     path('patients/<int:pk>/', views.PatientDetailView.as_view(), name='patient_detail'),
     
+    # Users
+    path('users/', views.user_list, name='user_list'),
+    path('users/<int:pk>/', views.user_detail, name='user_detail'),
+    path('users/<int:pk>/delete/', views.user_delete, name='user_delete'),
+    
     # API endpoints
     path('api/', include('vet_portal.api.urls')),
 ]

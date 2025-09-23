@@ -1,11 +1,12 @@
 {
     "database": {
-        "path": "data\\db.sqlite3",
-        "backup_dir": "backups"
+        "path": "C:\\epetcare\\db.sqlite3",
+        "backup_dir": "backups",
+        "real_time_sync": true
     },
     "app": {
         "offline_mode": false,
-        "sync_interval": 300,
+        "sync_interval": 5,
         "auto_backup": true
     },
     "ui": {

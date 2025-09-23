@@ -1,0 +1,39 @@
+{% extends 'vet_portal/base.html' %}
+
+{% block title %}User Management - ePetCare Vet Portal{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+  <h2>User Management</h2>
+  <a class="btn" href="#">+ Add User</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+      <tr>
+        <td><a href="{% url 'vet_portal:user_detail' user.pk %}">{{ user.username }}</a></td>
+        <td>{{ user.get_full_name|default:'-' }}</td>
+        <td>{{ user.email|default:'-' }}</td>
+        <td>
+          {% if request.user != user %}
+            <a href="{% url 'vet_portal:user_delete' user.pk %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">Delete</a>
+          {% else %}
+            <span class="muted">(current user)</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">No users found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

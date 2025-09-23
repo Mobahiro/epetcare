@@ -57,7 +57,8 @@ if getattr(sys, 'frozen', False):
         try:
             from models.models import (
                 User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
-                Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
+                Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
+                TreatmentType, Schedule
             )
             logger.debug("Successfully imported model classes from models.models")
         except ImportError:
@@ -87,6 +88,8 @@ if getattr(sys, 'frozen', False):
                 Treatment = models_module.Treatment
                 TreatmentRecord = models_module.TreatmentRecord
                 VetNotification = models_module.VetNotification
+                TreatmentType = models_module.TreatmentType
+                Schedule = models_module.Schedule
                 
                 logger.debug(f"Imported model classes from {models_path}")
             else:
@@ -104,13 +107,15 @@ else:
         # Try relative import first
         from .models import (
             User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
-            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
+            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
+            TreatmentType, Schedule
         )
     except ImportError:
         # Fall back to absolute import
         from models.models import (
             User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
-            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification
+            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
+            TreatmentType, Schedule
         )
 
 

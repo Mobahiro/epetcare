@@ -14,7 +14,7 @@
       {% for pet in pets %}
         <li><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a> — {{ pet.get_species_display }}</li>
       {% empty %}
-        <li class="muted">No pets yet. Add one from your owner profile in the admin or ask the clinic.</li>
+        <li class="muted">No pets yet. Please ask the clinic to add your pets.</li>
       {% endfor %}
     </ul>
   </div>

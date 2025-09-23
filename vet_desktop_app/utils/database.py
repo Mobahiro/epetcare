@@ -1,68 +1,113 @@
 """
-Database utilities for the ePetCare Vet Desktop application.
+Database utility functions for the ePetCare Vet Desktop Application.
 """
 
 import os
 import sqlite3
+import logging
+import time
 import shutil
-import datetime
-from pathlib import Path
-from PySide6.QtWidgets import QMessageBox
-from PySide6.QtCore import QObject, Signal
+from datetime import datetime
+from typing import Dict, Any, List, Tuple, Optional, Union
+
+logger = logging.getLogger('epetcare')
 
 # Global database connection
 db_connection = None
 
+# Import QMessageBox for error dialogs
+try:
+    from PySide6.QtWidgets import QMessageBox
+except ImportError:
+    # Fallback for when PySide6 is not available (e.g., during initial setup)
+    class QMessageBox:
+        @staticmethod
+        def critical(parent, title, message):
+            logger.critical(f"{title}: {message}")
+            print(f"\n{title}: {message}")
 
-def setup_database_connection(db_path):
-    """Setup the database connection"""
+def get_connection():
+    """
+    Get the current database connection.
+    
+    Returns:
+        sqlite3.Connection: The current database connection
+    """
     global db_connection
-    import logging
-    logger = logging.getLogger('epetcare')
+    if db_connection is None:
+        raise ValueError("Database connection not initialized. Call setup_database_connection first.")
+    return db_connection
+
+def backup_database(backup_dir: str = "backups") -> Tuple[bool, str]:
+    """
+    Create a backup of the database.
     
-    # Normalize path for Windows
-    db_path = os.path.normpath(db_path)
-    logger.debug(f"Setting up database connection with path: {db_path}")
+    Args:
+        backup_dir: Directory to store backups
+        
+    Returns:
+        Tuple of (success, backup_path or error_message)
+    """
+    try:
+        global db_connection
+        
+        # Ensure backup directory exists
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        # Get the database path
+        db_path = db_connection.execute("PRAGMA database_list").fetchone()[2]
+        
+        # Create a backup filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_filename = f"backup_{timestamp}.sqlite3"
+        backup_path = os.path.join(backup_dir, backup_filename)
+        
+        # Close the connection temporarily
+        db_connection.close()
+        
+        # Copy the database file
+        shutil.copy2(db_path, backup_path)
+        
+        # Reopen the connection
+        db_connection = sqlite3.connect(db_path)
+        db_connection.row_factory = sqlite3.Row
+        
+        logger.info(f"Database backed up to {backup_path}")
+        return True, backup_path
+        
+    except Exception as e:
+        logger.error(f"Backup failed: {e}")
+        return False, str(e)
+
+def setup_database_connection(db_path: str) -> bool:
+    """
+    Set up a connection to the SQLite database.
     
-    if not os.path.exists(db_path) or os.path.getsize(db_path) == 0:
-        logger.warning(f"Database not found or empty at {db_path}")
-        # Try to find the database in common locations
-        possible_locations = [
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'db.sqlite3'),
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'db.sqlite3'),
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'db.sqlite3')
-        ]
+    Args:
+        db_path: Path to the SQLite database file
         
-        # If running as PyInstaller bundle, add more possible locations
-        if getattr(sys, 'frozen', False):
-            if hasattr(sys, '_MEIPASS'):
-                base_dir = sys._MEIPASS
-            else:
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                
-            possible_locations.extend([
-                os.path.join(base_dir, 'db.sqlite3'),
-                os.path.join(base_dir, 'data', 'db.sqlite3'),
-                os.path.join(os.path.dirname(base_dir), 'db.sqlite3'),
-                os.path.join(os.path.dirname(base_dir), 'data', 'db.sqlite3'),
-                os.path.join(os.path.dirname(os.path.dirname(base_dir)), 'db.sqlite3')
-            ])
+    Returns:
+        bool: True if connection was successful, False otherwise
+    """
+    global db_connection
+    db_connection = None
+    
+    logger.info(f"Setting up database connection to {db_path}")
+    
+    # Check if the database file exists
+    if not os.path.exists(db_path):
+        logger.error(f"Database file not found at {db_path}")
         
-        # Log all possible locations
-        logger.debug("Searching for database in the following locations:")
-        for path in possible_locations:
-            logger.debug(f"  - {path}")
+        # Check if this is a relative path and the file might be in the app directory
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        app_root = os.path.dirname(app_dir)
+        alternative_path = os.path.join(app_root, os.path.basename(db_path))
         
-        found = False
-        for path in possible_locations:
-            if os.path.exists(path) and os.path.getsize(path) > 0:
-                db_path = path
-                logger.info(f"Found database at: {db_path}")
-                found = True
-                break
-                
-        if not found:
-            logger.error("Database file not found in any common location")
+        if os.path.exists(alternative_path):
+            logger.info(f"Found database at alternative path: {alternative_path}")
+            db_path = alternative_path
+        else:
+            logger.error("Database file not found at alternative path either")
             QMessageBox.critical(
                 None, 
                 "Database Error",
@@ -74,10 +119,19 @@ def setup_database_connection(db_path):
             return False
     
     try:
-        # Connect to the SQLite database
+        # Connect to the SQLite database with timeout to handle locking issues
         logger.debug(f"Attempting to connect to database at: {db_path}")
-        db_connection = sqlite3.connect(db_path)
+        db_connection = sqlite3.connect(db_path, timeout=30.0)  # 30 second timeout
         db_connection.row_factory = sqlite3.Row
+        
+        # Enable WAL mode for better concurrency
+        try:
+            db_connection.execute("PRAGMA journal_mode=WAL;")
+            db_connection.execute("PRAGMA synchronous=NORMAL;")
+            db_connection.execute("PRAGMA busy_timeout=30000;")  # 30 seconds
+            logger.debug("SQLite WAL mode enabled for better concurrency")
+        except sqlite3.Error as e:
+            logger.warning(f"Failed to set PRAGMA settings: {e}")
         
         # Test connection
         cursor = db_connection.cursor()
@@ -162,178 +216,230 @@ def setup_database_connection(db_path):
         
     except sqlite3.Error as e:
         logger.error(f"SQLite error: {e}")
-        QMessageBox.critical(
-            None,
-            "Database Error",
-            f"Failed to connect to database: {str(e)}\n\n"
-            "Please make sure the database file is accessible and not corrupted."
-        )
-        if db_connection:
-            db_connection.close()
-            db_connection = None
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error connecting to database: {e}")
         import traceback
         logger.error(traceback.format_exc())
+        
+        error_message = str(e)
+        solution = "Please make sure the database file is accessible and not corrupted."
+        
+        # Provide more specific error messages for common issues
+        if "database is locked" in error_message.lower():
+            solution = "The database is locked by another process. Please close any other applications that might be using the database and try again."
+        elif "no such table" in error_message.lower():
+            solution = "The database schema appears to be incomplete or corrupted. Please check that you're using the correct database file."
+        elif "unable to open database file" in error_message.lower():
+            solution = "Unable to open the database file. Please check file permissions and make sure the path is correct."
+            
         QMessageBox.critical(
             None,
             "Database Error",
-            f"An unexpected error occurred while connecting to the database: {str(e)}\n\n"
-            "Please check the log file for details."
+            f"Failed to connect to the database: {error_message}\n\n{solution}"
         )
-        if db_connection:
-            db_connection.close()
-            db_connection = None
         return False
 
 
-def get_connection():
-    """Get the database connection"""
-    global db_connection
-    return db_connection
-
-
-def close_connection():
-    """Close the database connection"""
-    global db_connection
-    if db_connection:
-        db_connection.close()
-        db_connection = None
-
-
-def backup_database(backup_dir=None):
-    """Create a backup of the database"""
-    global db_connection
+class DatabaseManager:
+    """
+    Manager for database operations.
+    """
     
-    if not db_connection:
-        return False, "No database connection"
+    def __init__(self, db_connection=None):
+        """
+        Initialize the database manager.
+        
+        Args:
+            db_connection: Optional SQLite connection object
+        """
+        self.db_connection = db_connection or globals().get('db_connection')
+        if not self.db_connection:
+            raise ValueError("No database connection available")
     
-    try:
-        # Get the database file path
-        db_path = db_connection.execute("PRAGMA database_list").fetchone()[2]
+    def fetch_by_id(self, table: str, id: int) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        """
+        Fetch a record by ID.
         
-        # Create backup directory if it doesn't exist
-        if not backup_dir:
-            backup_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'backups')
-        
-        os.makedirs(backup_dir, exist_ok=True)
-        
-        # Create backup filename with timestamp
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_file = os.path.join(backup_dir, f"epetcare_backup_{timestamp}.sqlite3")
-        
-        # Create backup
-        shutil.copy2(db_path, backup_file)
-        
-        return True, backup_file
-        
-    except Exception as e:
-        return False, str(e)
-
-
-class DatabaseManager(QObject):
-    """Database manager class for handling database operations"""
-    
-    sync_started = Signal()
-    sync_completed = Signal(bool, str)  # Success, Message
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.offline_changes = []
-    
-    def execute_query(self, query, params=None):
-        """Execute a query and return the results"""
-        conn = get_connection()
-        if not conn:
-            return False, "No database connection"
-        
-        try:
-            cursor = conn.cursor()
-            if params:
-                cursor.execute(query, params)
-            else:
-                cursor.execute(query)
+        Args:
+            table: Table name
+            id: Record ID
             
-            if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
-                conn.commit()
-                return True, cursor.lastrowid
+        Returns:
+            Tuple of (success, record)
+            - success: True if record was found, False otherwise
+            - record: Dictionary with record data if found, None otherwise
+        """
+        try:
+            query = f"SELECT * FROM {table} WHERE id = ?"
+            cursor = self.db_connection.cursor()
+            cursor.execute(query, (id,))
+            result = cursor.fetchone()
+            
+            if result:
+                return True, dict(result)
             else:
-                return True, cursor.fetchall()
-                
+                return False, None
         except sqlite3.Error as e:
+            logger.error(f"Error fetching from {table}: {e}")
+            return False, None
+    
+    def execute_query(self, query: str, params: tuple = (), max_retries: int = 3, retry_delay: float = 1.0) -> Tuple[bool, List[Dict[str, Any]]]:
+        """
+        Execute a SQL query and return the results as a list of dictionaries.
+        
+        Args:
+            query: SQL query to execute
+            params: Parameters for the query
+            max_retries: Maximum number of retries for locked database
+            retry_delay: Delay between retries in seconds
+            
+        Returns:
+            Tuple of (success, results)
+            - success: True if query executed successfully, False otherwise
+            - results: List of dictionaries with query results if successful, empty list otherwise
+        """
+        retry_count = 0
+        while True:
+            try:
+                cursor = self.db_connection.cursor()
+                cursor.execute(query, params)
+                results = [dict(row) for row in cursor.fetchall()]
+                return True, results
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e).lower() and retry_count < max_retries:
+                    retry_count += 1
+                    logger.warning(f"Database locked, retrying ({retry_count}/{max_retries})...")
+                    time.sleep(retry_delay)
+                else:
+                    logger.error(f"Database error: {e}")
+                    return False, []
+    
+    def execute_non_query(self, query: str, params: tuple = ()) -> int:
+        """
+        Execute a non-query SQL statement (INSERT, UPDATE, DELETE).
+        
+        Args:
+            query: SQL statement to execute
+            params: Parameters for the statement
+            
+        Returns:
+            Number of rows affected
+        """
+        cursor = self.db_connection.cursor()
+        cursor.execute(query, params)
+        self.db_connection.commit()
+        return cursor.rowcount
+    
+    def insert(self, table: str, data: Dict[str, Any]) -> Tuple[bool, Union[int, str]]:
+        """
+        Insert data into a table.
+        
+        Args:
+            table: Table name
+            data: Dictionary of column names and values
+            
+        Returns:
+            Tuple of (success, id_or_error_message)
+            - success: True if insertion was successful, False otherwise
+            - id_or_error_message: ID of the inserted row if successful, error message otherwise
+        """
+        try:
+            columns = ', '.join(data.keys())
+            placeholders = ', '.join(['?' for _ in data])
+            values = tuple(data.values())
+            
+            query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+            
+            cursor = self.db_connection.cursor()
+            cursor.execute(query, values)
+            self.db_connection.commit()
+            
+            return True, cursor.lastrowid
+        except sqlite3.Error as e:
+            logger.error(f"Error inserting into {table}: {e}")
             return False, str(e)
     
-    def fetch_all(self, table, conditions=None, order_by=None, limit=None):
-        """Fetch all records from a table with optional conditions"""
-        query = f"SELECT * FROM {table}"
-        params = []
+    def update(self, table: str, data: Dict[str, Any], id: int) -> Tuple[bool, Union[int, str]]:
+        """
+        Update data in a table.
         
-        if conditions:
-            query += " WHERE "
-            clauses = []
-            for key, value in conditions.items():
-                clauses.append(f"{key} = ?")
-                params.append(value)
-            query += " AND ".join(clauses)
+        Args:
+            table: Table name
+            data: Dictionary of column names and values
+            id: ID of the row to update
+            
+        Returns:
+            Tuple of (success, rows_affected or error_message)
+        """
+        set_clause = ', '.join([f"{column} = ?" for column in data.keys()])
+        values = tuple(data.values()) + (id,)
         
-        if order_by:
-            query += f" ORDER BY {order_by}"
+        query = f"UPDATE {table} SET {set_clause} WHERE id = ?"
         
-        if limit:
-            query += f" LIMIT {limit}"
-        
-        return self.execute_query(query, params)
+        try:
+            cursor = self.db_connection.cursor()
+            cursor.execute(query, values)
+            self.db_connection.commit()
+            return True, cursor.rowcount
+        except sqlite3.Error as e:
+            logger.error(f"Error updating {table}: {e}")
+            return False, str(e)
     
-    def fetch_by_id(self, table, id_value, id_column='id'):
-        """Fetch a record by ID"""
-        query = f"SELECT * FROM {table} WHERE {id_column} = ?"
-        success, result = self.execute_query(query, (id_value,))
+    def delete(self, table: str, id: int) -> Tuple[bool, Union[int, str]]:
+        """
+        Delete a row from a table.
         
-        if success and result:
-            return True, result[0]
-        elif success:
-            return False, "Record not found"
-        else:
-            return False, result
-    
-    def insert(self, table, data):
-        """Insert a record into a table"""
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join(['?' for _ in data])
-        query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+        Args:
+            table: Table name
+            id: ID of the row to delete
+            
+        Returns:
+            Tuple of (success, rows_affected or error_message)
+        """
+        query = f"DELETE FROM {table} WHERE id = ?"
         
-        return self.execute_query(query, tuple(data.values()))
+        try:
+            cursor = self.db_connection.cursor()
+            cursor.execute(query, (id,))
+            self.db_connection.commit()
+            return True, cursor.rowcount
+        except sqlite3.Error as e:
+            logger.error(f"Error deleting from {table}: {e}")
+            return False, str(e)
     
-    def update(self, table, data, id_value, id_column='id'):
-        """Update a record in a table"""
-        set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
-        query = f"UPDATE {table} SET {set_clause} WHERE {id_column} = ?"
+    def backup_database(self, backup_dir: str = "backups") -> Tuple[bool, str]:
+        """
+        Create a backup of the database.
         
-        params = list(data.values())
-        params.append(id_value)
-        
-        return self.execute_query(query, params)
-    
-    def delete(self, table, id_value, id_column='id'):
-        """Delete a record from a table"""
-        query = f"DELETE FROM {table} WHERE {id_column} = ?"
-        return self.execute_query(query, (id_value,))
-    
-    def add_offline_change(self, change_type, model_type, model_id, data):
-        """Add an offline change to be synced later"""
-        self.offline_changes.append({
-            'type': change_type,
-            'model': model_type,
-            'id': model_id,
-            'data': data,
-            'timestamp': datetime.datetime.now().isoformat()
-        })
-    
-    def get_offline_changes(self):
-        """Get all offline changes"""
-        return self.offline_changes
-    
-    def clear_offline_changes(self):
-        """Clear all offline changes"""
-        self.offline_changes = []
+        Args:
+            backup_dir: Directory to store backups
+            
+        Returns:
+            Tuple of (success, backup_path or error_message)
+        """
+        try:
+            # Ensure backup directory exists
+            os.makedirs(backup_dir, exist_ok=True)
+            
+            # Get the database path
+            db_path = self.db_connection.execute("PRAGMA database_list").fetchone()[2]
+            
+            # Create a backup filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_filename = f"backup_{timestamp}.sqlite3"
+            backup_path = os.path.join(backup_dir, backup_filename)
+            
+            # Close the connection temporarily
+            self.db_connection.close()
+            
+            # Copy the database file
+            shutil.copy2(db_path, backup_path)
+            
+            # Reopen the connection
+            self.db_connection = sqlite3.connect(db_path)
+            self.db_connection.row_factory = sqlite3.Row
+            
+            logger.info(f"Database backed up to {backup_path}")
+            return True, backup_path
+            
+        except Exception as e:
+            logger.error(f"Backup failed: {e}")
+            return False, str(e)

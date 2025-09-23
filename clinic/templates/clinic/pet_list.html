@@ -7,7 +7,7 @@
 </div>
 <table>
   <thead>
-    <tr><th>Name</th><th>Owner</th><th>Species</th><th>Breed</th></tr>
+    <tr><th>Name</th><th>Owner</th><th>Species</th><th>Breed</th><th>Actions</th></tr>
   </thead>
   <tbody>
     {% for pet in pets %}
@@ -16,9 +16,12 @@
         <td>{{ pet.owner.full_name }}</td>
         <td>{{ pet.get_species_display }}</td>
         <td>{{ pet.breed|default:'-' }}</td>
+        <td>
+          <a href="{% url 'pet_delete' pet.pk %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">Delete</a>
+        </td>
       </tr>
     {% empty %}
-      <tr><td colspan="4">No pets yet.</td></tr>
+      <tr><td colspan="5">No pets yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>

@@ -102,6 +102,27 @@ def pet_detail(request, pk: int):
     })
 
 
+def pet_delete(request, pk: int):
+    pet = get_object_or_404(Pet, pk=pk)
+    
+    # Check if this is a POST request (form submission)
+    if request.method == 'POST':
+        owner_id = pet.owner.id
+        pet_name = pet.name
+        pet.delete()
+        messages.success(request, f"Pet '{pet_name}' has been deleted successfully.")
+        
+        # Redirect to owner detail if coming from there, otherwise to pet list
+        redirect_to = request.POST.get('next', 'pet_list')
+        if redirect_to == 'owner_detail':
+            return redirect('owner_detail', pk=owner_id)
+        else:
+            return redirect('pet_list')
+    
+    # If GET request, show confirmation page
+    return render(request, 'clinic/pet_confirm_delete.html', {"pet": pet})
+
+
 # Appointments
 
 def appointment_list(request):

@@ -1,0 +1,43 @@
+{% extends 'vet_portal/base.html' %}
+
+{% block title %}User Details - ePetCare Vet Portal{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+  <h2>User: {{ user.username }}</h2>
+  <div>
+    <a class="btn btn-secondary" href="{% url 'vet_portal:user_list' %}">← Back</a>
+    {% if request.user != user %}
+      <a class="btn" style="background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);" href="{% url 'vet_portal:user_delete' user.pk %}">Delete User</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h3>User Information</h3>
+  <p>
+    <strong>Username:</strong> {{ user.username }}<br>
+    <strong>Full Name:</strong> {{ user.get_full_name|default:'-' }}<br>
+    <strong>Email:</strong> {{ user.email|default:'-' }}<br>
+    <strong>Last Login:</strong> {{ user.last_login|default:'-' }}<br>
+    <strong>Date Joined:</strong> {{ user.date_joined }}<br>
+  </p>
+</div>
+
+{% if vet %}
+<div class="card" style="margin-top: 20px;">
+  <h3>Veterinarian Information</h3>
+  <p>
+    <strong>Full Name:</strong> {{ vet.full_name }}<br>
+    <strong>Specialization:</strong> {{ vet.specialization }}<br>
+    <strong>License Number:</strong> {{ vet.license_number }}<br>
+    <strong>Phone:</strong> {{ vet.phone|default:'-' }}<br>
+    <strong>Created At:</strong> {{ vet.created_at }}<br>
+  </p>
+  {% if vet.bio %}
+    <h4>Bio</h4>
+    <p>{{ vet.bio|linebreaksbr }}</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,1045 @@
+2025-09-23 23:15:24,570 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:15:24,611 - epetcare - ERROR - Failed to import module: models.data_access - No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:15:24,611 - epetcare - WARNING - Some modules could not be imported. Trying alternative approaches...
+2025-09-23 23:15:24,612 - epetcare - ERROR - Failed to manually load package models: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,613 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,614 - epetcare - ERROR - Failed to manually load models.data_access from C:\epetcare\vet_desktop_app\models\data_access.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,614 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,615 - epetcare - ERROR - Failed to manually load models.models from C:\epetcare\vet_desktop_app\models\models.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,615 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,616 - epetcare - ERROR - Failed to manually load package views: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,616 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,617 - epetcare - ERROR - Failed to manually load views.main_window from C:\epetcare\vet_desktop_app\views\main_window.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,618 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,618 - epetcare - ERROR - Failed to manually load views.login_dialog from C:\epetcare\vet_desktop_app\views\login_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,619 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,619 - epetcare - ERROR - Failed to manually load views.register_dialog from C:\epetcare\vet_desktop_app\views\register_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,620 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,620 - epetcare - ERROR - Failed to manually load package utils: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,620 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,621 - epetcare - ERROR - Failed to manually load utils.database from C:\epetcare\vet_desktop_app\utils\database.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,621 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,622 - epetcare - ERROR - Failed to manually load utils.config from C:\epetcare\vet_desktop_app\utils\config.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,622 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,623 - epetcare - ERROR - Failed to manually load utils.notification_manager from C:\epetcare\vet_desktop_app\utils\notification_manager.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:15:24,623 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:15:24,624 - epetcare - WARNING - Some modules still missing: ['models.data_access', 'models.models', 'views', 'views.main_window', 'views.login_dialog', 'views.register_dialog', 'utils', 'utils.database', 'utils.config', 'utils.notification_manager']
+2025-09-23 23:15:24,963 - epetcare - ERROR - Error importing view modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:15:24,965 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:15:24,995 - epetcare - ERROR - Failed to import application modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:15:25,038 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:15:25,039 - epetcare - ERROR - Error during startup: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:15:25,041 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:37,169 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:20:37,207 - epetcare - ERROR - Failed to import module: models.data_access - No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:37,207 - epetcare - WARNING - Some modules could not be imported. Trying alternative approaches...
+2025-09-23 23:20:37,208 - epetcare - ERROR - Failed to manually load package models: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,208 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,209 - epetcare - ERROR - Failed to manually load models.data_access from C:\epetcare\vet_desktop_app\models\data_access.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,209 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,210 - epetcare - ERROR - Failed to manually load models.models from C:\epetcare\vet_desktop_app\models\models.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,210 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,211 - epetcare - ERROR - Failed to manually load package views: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,212 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,212 - epetcare - ERROR - Failed to manually load views.main_window from C:\epetcare\vet_desktop_app\views\main_window.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,213 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,213 - epetcare - ERROR - Failed to manually load views.login_dialog from C:\epetcare\vet_desktop_app\views\login_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,214 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,215 - epetcare - ERROR - Failed to manually load views.register_dialog from C:\epetcare\vet_desktop_app\views\register_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,216 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,216 - epetcare - ERROR - Failed to manually load package utils: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,217 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,218 - epetcare - ERROR - Failed to manually load utils.database from C:\epetcare\vet_desktop_app\utils\database.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,219 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,219 - epetcare - ERROR - Failed to manually load utils.config from C:\epetcare\vet_desktop_app\utils\config.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,220 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,222 - epetcare - ERROR - Failed to manually load utils.notification_manager from C:\epetcare\vet_desktop_app\utils\notification_manager.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:37,223 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:37,223 - epetcare - WARNING - Some modules still missing: ['models.data_access', 'models.models', 'views', 'views.main_window', 'views.login_dialog', 'views.register_dialog', 'utils', 'utils.database', 'utils.config', 'utils.notification_manager']
+2025-09-23 23:20:37,380 - epetcare - ERROR - Error importing view modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:37,382 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:37,395 - epetcare - ERROR - Failed to import application modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:37,399 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:37,399 - epetcare - ERROR - Error during startup: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:37,402 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:40,427 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:20:40,460 - epetcare - ERROR - Failed to import module: models.data_access - No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:40,460 - epetcare - WARNING - Some modules could not be imported. Trying alternative approaches...
+2025-09-23 23:20:40,461 - epetcare - ERROR - Failed to manually load package models: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,462 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,462 - epetcare - ERROR - Failed to manually load models.data_access from C:\epetcare\vet_desktop_app\models\data_access.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,463 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,463 - epetcare - ERROR - Failed to manually load models.models from C:\epetcare\vet_desktop_app\models\models.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,463 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,464 - epetcare - ERROR - Failed to manually load package views: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,465 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,465 - epetcare - ERROR - Failed to manually load views.main_window from C:\epetcare\vet_desktop_app\views\main_window.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,466 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,466 - epetcare - ERROR - Failed to manually load views.login_dialog from C:\epetcare\vet_desktop_app\views\login_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,467 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,467 - epetcare - ERROR - Failed to manually load views.register_dialog from C:\epetcare\vet_desktop_app\views\register_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,468 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,468 - epetcare - ERROR - Failed to manually load package utils: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,469 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,469 - epetcare - ERROR - Failed to manually load utils.database from C:\epetcare\vet_desktop_app\utils\database.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,472 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,472 - epetcare - ERROR - Failed to manually load utils.config from C:\epetcare\vet_desktop_app\utils\config.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,473 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,473 - epetcare - ERROR - Failed to manually load utils.notification_manager from C:\epetcare\vet_desktop_app\utils\notification_manager.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:40,474 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:40,474 - epetcare - WARNING - Some modules still missing: ['models.data_access', 'models.models', 'views', 'views.main_window', 'views.login_dialog', 'views.register_dialog', 'utils', 'utils.database', 'utils.config', 'utils.notification_manager']
+2025-09-23 23:20:40,619 - epetcare - ERROR - Error importing view modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:40,621 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:40,634 - epetcare - ERROR - Failed to import application modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:40,637 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:40,637 - epetcare - ERROR - Error during startup: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:40,638 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:45,068 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:20:45,101 - epetcare - ERROR - Failed to import module: models.data_access - No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:45,101 - epetcare - WARNING - Some modules could not be imported. Trying alternative approaches...
+2025-09-23 23:20:45,102 - epetcare - ERROR - Failed to manually load package models: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,103 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,103 - epetcare - ERROR - Failed to manually load models.data_access from C:\epetcare\vet_desktop_app\models\data_access.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,104 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,104 - epetcare - ERROR - Failed to manually load models.models from C:\epetcare\vet_desktop_app\models\models.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,104 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,105 - epetcare - ERROR - Failed to manually load package views: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,106 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,106 - epetcare - ERROR - Failed to manually load views.main_window from C:\epetcare\vet_desktop_app\views\main_window.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,106 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,107 - epetcare - ERROR - Failed to manually load views.login_dialog from C:\epetcare\vet_desktop_app\views\login_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,107 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,108 - epetcare - ERROR - Failed to manually load views.register_dialog from C:\epetcare\vet_desktop_app\views\register_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,108 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,109 - epetcare - ERROR - Failed to manually load package utils: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,110 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,110 - epetcare - ERROR - Failed to manually load utils.database from C:\epetcare\vet_desktop_app\utils\database.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,111 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,111 - epetcare - ERROR - Failed to manually load utils.config from C:\epetcare\vet_desktop_app\utils\config.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,111 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,112 - epetcare - ERROR - Failed to manually load utils.notification_manager from C:\epetcare\vet_desktop_app\utils\notification_manager.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:45,113 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:45,113 - epetcare - WARNING - Some modules still missing: ['models.data_access', 'models.models', 'views', 'views.main_window', 'views.login_dialog', 'views.register_dialog', 'utils', 'utils.database', 'utils.config', 'utils.notification_manager']
+2025-09-23 23:20:45,275 - epetcare - ERROR - Error importing view modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:45,277 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:45,290 - epetcare - ERROR - Failed to import application modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:45,293 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:45,293 - epetcare - ERROR - Error during startup: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:45,294 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:53,323 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:20:53,357 - epetcare - ERROR - Failed to import module: models.data_access - No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:53,357 - epetcare - WARNING - Some modules could not be imported. Trying alternative approaches...
+2025-09-23 23:20:53,357 - epetcare - ERROR - Failed to manually load package models: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,358 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,359 - epetcare - ERROR - Failed to manually load models.data_access from C:\epetcare\vet_desktop_app\models\data_access.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,359 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,360 - epetcare - ERROR - Failed to manually load models.models from C:\epetcare\vet_desktop_app\models\models.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,361 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,361 - epetcare - ERROR - Failed to manually load package views: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,362 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,362 - epetcare - ERROR - Failed to manually load views.main_window from C:\epetcare\vet_desktop_app\views\main_window.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,363 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,363 - epetcare - ERROR - Failed to manually load views.login_dialog from C:\epetcare\vet_desktop_app\views\login_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,364 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,364 - epetcare - ERROR - Failed to manually load views.register_dialog from C:\epetcare\vet_desktop_app\views\register_dialog.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,365 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,365 - epetcare - ERROR - Failed to manually load package utils: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,366 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 124, in ensure_modules_importable
+    module = importlib.util.module_from_spec(spec)
+             ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,366 - epetcare - ERROR - Failed to manually load utils.database from C:\epetcare\vet_desktop_app\utils\database.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,367 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,367 - epetcare - ERROR - Failed to manually load utils.config from C:\epetcare\vet_desktop_app\utils\config.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,368 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,368 - epetcare - ERROR - Failed to manually load utils.notification_manager from C:\epetcare\vet_desktop_app\utils\notification_manager.py: module 'importlib' has no attribute 'util'
+2025-09-23 23:20:53,369 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\module_finder.py", line 106, in ensure_modules_importable
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+           ^^^^^^^^^^^^^^
+AttributeError: module 'importlib' has no attribute 'util'
+
+2025-09-23 23:20:53,369 - epetcare - WARNING - Some modules still missing: ['models.data_access', 'models.models', 'views', 'views.main_window', 'views.login_dialog', 'views.register_dialog', 'utils', 'utils.database', 'utils.config', 'utils.notification_manager']
+2025-09-23 23:20:53,512 - epetcare - ERROR - Error importing view modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:53,513 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:53,526 - epetcare - ERROR - Failed to import application modules: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:53,529 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:20:53,530 - epetcare - ERROR - Error during startup: No module named 'models.data_access'; 'models' is not a package
+2025-09-23 23:20:53,531 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+ModuleNotFoundError: No module named 'models.data_access'; 'models' is not a package
+
+2025-09-23 23:26:59,779 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:26:59,780 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-23 23:27:00,013 - epetcare - ERROR - Error during startup: name 'TreatmentType' is not defined
+2025-09-23 23:27:00,020 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 933, in <module>
+    class TreatmentTypeDataAccess(DataAccessBase):
+    ...<68 lines>...
+            return self.db.update('vet_treatmenttype', data, treatment_type.id)
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 936, in TreatmentTypeDataAccess
+    def get_by_id(self, treatment_type_id: int) -> Optional[TreatmentType]:
+                                                            ^^^^^^^^^^^^^
+NameError: name 'TreatmentType' is not defined. Did you mean: 'Treatment'?
+
+2025-09-23 23:27:15,204 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:27:15,204 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-23 23:27:15,388 - epetcare - ERROR - Error during startup: name 'TreatmentType' is not defined
+2025-09-23 23:27:15,393 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 933, in <module>
+    class TreatmentTypeDataAccess(DataAccessBase):
+    ...<68 lines>...
+            return self.db.update('vet_treatmenttype', data, treatment_type.id)
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 936, in TreatmentTypeDataAccess
+    def get_by_id(self, treatment_type_id: int) -> Optional[TreatmentType]:
+                                                            ^^^^^^^^^^^^^
+NameError: name 'TreatmentType' is not defined. Did you mean: 'Treatment'?
+
+2025-09-23 23:37:43,036 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:37:43,037 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-23 23:37:43,320 - epetcare - ERROR - Error during startup: name 'Schedule' is not defined
+2025-09-23 23:37:43,383 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 1009, in <module>
+    class ScheduleDataAccess(DataAccessBase):
+    ...<52 lines>...
+            return self.db.delete('vet_schedule', schedule_id)
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 1012, in ScheduleDataAccess
+    def get_by_vet(self, vet_id: int) -> List[Schedule]:
+                                              ^^^^^^^^
+NameError: name 'Schedule' is not defined
+
+2025-09-23 23:38:01,002 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:38:01,003 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-23 23:38:01,196 - epetcare - ERROR - Error during startup: name 'Schedule' is not defined
+2025-09-23 23:38:01,202 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 1009, in <module>
+    class ScheduleDataAccess(DataAccessBase):
+    ...<52 lines>...
+            return self.db.delete('vet_schedule', schedule_id)
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 1012, in ScheduleDataAccess
+    def get_by_vet(self, vet_id: int) -> List[Schedule]:
+                                              ^^^^^^^^
+NameError: name 'Schedule' is not defined
+
+2025-09-23 23:39:50,463 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-23 23:39:50,464 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-23 23:39:50,760 - epetcare - INFO - Initializing application...
+2025-09-23 23:39:50,816 - epetcare - WARNING - vet_notification table not found, attempting to create it
+2025-09-23 23:39:50,831 - epetcare - INFO - Created vet_notification table successfully
+2025-09-23 23:39:50,831 - epetcare - INFO - Database connection established successfully
+2025-09-23 23:39:50,831 - epetcare - INFO - Creating main window...
+2025-09-23 23:41:19,240 - epetcare - INFO - Application started successfully
+2025-09-24 00:13:38,776 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 00:13:38,777 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 00:13:39,046 - epetcare - INFO - Initializing application...
+2025-09-24 00:13:39,086 - epetcare - INFO - Database connection established successfully
+2025-09-24 00:13:39,086 - epetcare - INFO - Creating main window...
+2025-09-24 00:14:07,388 - epetcare - INFO - Application started successfully
+2025-09-24 00:17:11,054 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 00:17:11,055 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 00:17:11,256 - epetcare - INFO - Initializing application...
+2025-09-24 00:17:11,280 - epetcare - INFO - Database connection established successfully
+2025-09-24 00:17:11,280 - epetcare - INFO - Creating main window...
+2025-09-24 00:17:17,403 - epetcare - INFO - Application started successfully
+2025-09-24 00:21:40,559 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 00:21:40,560 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 00:21:40,793 - epetcare - INFO - Initializing application...
+2025-09-24 00:21:40,819 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 00:21:40,819 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 00:21:40,819 - epetcare - INFO - Database sync thread started
+2025-09-24 00:21:40,822 - epetcare - WARNING - vet_notification table not found, attempting to create it
+2025-09-24 00:21:40,836 - epetcare - INFO - Created vet_notification table successfully
+2025-09-24 00:21:40,837 - epetcare - INFO - Database connection established successfully
+2025-09-24 00:21:40,838 - epetcare - INFO - Creating main window...
+2025-09-24 00:21:45,674 - epetcare - INFO - Application started successfully
+2025-09-24 00:22:04,193 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 00:22:04,193 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 00:22:04,415 - epetcare - INFO - Initializing application...
+2025-09-24 00:22:04,446 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 00:22:04,447 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 00:22:04,447 - epetcare - INFO - Database sync thread started
+2025-09-24 00:22:04,451 - epetcare - INFO - Database connection established successfully
+2025-09-24 00:22:04,452 - epetcare - INFO - Creating main window...
+2025-09-24 00:22:19,381 - epetcare - INFO - Application started successfully
+2025-09-24 00:44:03,029 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 00:44:03,030 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 00:44:03,211 - epetcare - ERROR - Error during startup: expected 'except' or 'finally' block (database.py, line 90)
+2025-09-24 00:44:03,216 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 90
+    cursor = db_connection.cursor()
+    ^^^^^^
+SyntaxError: expected 'except' or 'finally' block
+
+2025-09-24 01:17:35,644 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:17:35,645 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:17:35,837 - epetcare - ERROR - Error during startup: expected 'except' or 'finally' block (database.py, line 90)
+2025-09-24 01:17:35,842 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 90
+    cursor = db_connection.cursor()
+    ^^^^^^
+SyntaxError: expected 'except' or 'finally' block
+
+2025-09-24 01:17:55,913 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:17:55,914 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:17:56,109 - epetcare - ERROR - Error during startup: expected 'except' or 'finally' block (database.py, line 90)
+2025-09-24 01:17:56,116 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 90
+    cursor = db_connection.cursor()
+    ^^^^^^
+SyntaxError: expected 'except' or 'finally' block
+
+2025-09-24 01:18:08,222 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:18:08,223 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:18:08,404 - epetcare - ERROR - Error during startup: expected 'except' or 'finally' block (database.py, line 90)
+2025-09-24 01:18:08,409 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 90
+    cursor = db_connection.cursor()
+    ^^^^^^
+SyntaxError: expected 'except' or 'finally' block
+
+2025-09-24 01:18:12,901 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:18:12,902 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:18:13,107 - epetcare - ERROR - Error during startup: expected 'except' or 'finally' block (database.py, line 90)
+2025-09-24 01:18:13,113 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 90
+    cursor = db_connection.cursor()
+    ^^^^^^
+SyntaxError: expected 'except' or 'finally' block
+
+2025-09-24 01:22:34,267 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:22:34,268 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:22:34,435 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:22:34,439 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:22:46,072 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:22:46,072 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:22:46,243 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:22:46,248 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:24:12,708 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:24:12,709 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:24:12,909 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:24:12,914 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:24:15,880 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:24:15,880 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:24:16,120 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:24:16,127 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:38:13,036 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:38:13,036 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:38:13,207 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:38:13,212 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 132, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\__init__.py", line 90, in <module>
+    from . import data_access
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:52:30,728 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:52:30,729 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:52:30,877 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:52:30,881 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 7, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:56:06,834 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:56:06,834 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:56:07,010 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:56:07,014 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 7, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 01:56:13,413 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 01:56:13,414 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 01:56:13,576 - epetcare - ERROR - Error during startup: invalid syntax (database.py, line 172)
+2025-09-24 01:56:13,580 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 72, in <module>
+    import views
+  File "C:\epetcare\vet_desktop_app\views\__init__.py", line 7, in <module>
+    from . import main_window
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 93, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess
+  File "C:\epetcare\vet_desktop_app\models\data_access.py", line 105, in <module>
+    from utils.database import DatabaseManager
+  File "C:\epetcare\vet_desktop_app\utils\__init__.py", line 7, in <module>
+    from . import database
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 172
+    except sqlite3.Error as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+2025-09-24 02:20:23,602 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:20:23,603 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:20:23,775 - epetcare - ERROR - Failed to import application modules: cannot import name 'get_connection' from 'utils.database' (C:\epetcare\vet_desktop_app\utils\database.py)
+2025-09-24 02:20:23,778 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 94, in <module>
+    from utils.database import get_connection
+ImportError: cannot import name 'get_connection' from 'utils.database' (C:\epetcare\vet_desktop_app\utils\database.py)
+
+2025-09-24 02:20:23,778 - epetcare - ERROR - Error during startup: cannot import name 'get_connection' from 'utils.database' (C:\epetcare\vet_desktop_app\utils\database.py)
+2025-09-24 02:20:23,779 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 78, in <module>
+    from views.main_window import MainWindow
+  File "C:\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\epetcare\vet_desktop_app\views\login_dialog.py", line 94, in <module>
+    from utils.database import get_connection
+ImportError: cannot import name 'get_connection' from 'utils.database' (C:\epetcare\vet_desktop_app\utils\database.py)
+
+2025-09-24 02:22:14,257 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:22:14,257 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:22:14,447 - epetcare - INFO - Initializing application...
+2025-09-24 02:22:14,468 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 02:22:14,469 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 02:22:14,469 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 02:22:14,470 - epetcare - INFO - Database sync thread started
+2025-09-24 02:22:14,470 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 02:22:14,493 - epetcare - INFO - Database connection established successfully
+2025-09-24 02:22:14,493 - epetcare - INFO - Creating main window...
+2025-09-24 02:22:40,192 - epetcare - INFO - Application started successfully
+2025-09-24 02:23:11,901 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:23:11,902 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:23:12,090 - epetcare - INFO - Initializing application...
+2025-09-24 02:23:12,111 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 02:23:12,112 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 02:23:12,112 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 02:23:12,113 - epetcare - INFO - Database sync thread started
+2025-09-24 02:23:12,113 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 02:23:12,116 - epetcare - INFO - Database connection established successfully
+2025-09-24 02:23:12,116 - epetcare - INFO - Creating main window...
+2025-09-24 02:25:57,516 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:25:57,517 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:25:57,694 - epetcare - INFO - Initializing application...
+2025-09-24 02:25:57,714 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 02:25:57,716 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 02:25:57,716 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 02:25:57,716 - epetcare - INFO - Database sync thread started
+2025-09-24 02:25:57,717 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 02:25:57,721 - epetcare - INFO - Database connection established successfully
+2025-09-24 02:25:57,721 - epetcare - INFO - Creating main window...
+2025-09-24 02:26:50,183 - epetcare - INFO - Application started successfully
+2025-09-24 02:29:19,166 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-24 02:29:19,167 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-24 02:29:19,357 - epetcare - INFO - Initializing application...
+2025-09-24 02:29:19,377 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-24 02:29:19,378 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-24 02:29:19,378 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-24 02:29:19,379 - epetcare - INFO - Database sync thread started
+2025-09-24 02:29:19,379 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-24 02:29:19,382 - epetcare - INFO - Database connection established successfully
+2025-09-24 02:29:19,382 - epetcare - INFO - Creating main window...
+2025-09-24 02:30:05,575 - epetcare - INFO - Application started successfully

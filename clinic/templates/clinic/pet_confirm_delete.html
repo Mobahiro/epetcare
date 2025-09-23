@@ -1,0 +1,25 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Delete Pet - ePetCare{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <h2>Delete Pet</h2>
+  <a class="btn btn-secondary" href="{% url 'pet_detail' pet.pk %}">← Cancel</a>
+</div>
+
+<div class="card" style="max-width: 500px; margin: 20px auto;">
+  <h3 style="color: var(--bad);">Are you sure you want to delete?</h3>
+  <p>You are about to delete the pet: <strong>{{ pet.name }}</strong> ({{ pet.get_species_display }}).</p>
+  <p>This action cannot be undone. All data associated with this pet will be permanently removed.</p>
+  
+  <form method="post" style="margin-top: 20px;">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.GET.next|default:'pet_list' }}">
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <a href="{% url 'pet_detail' pet.pk %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn" style="background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">
+        Delete Pet
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

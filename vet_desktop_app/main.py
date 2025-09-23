@@ -191,14 +191,27 @@ def main():
         config = load_config()
         logger.debug(f"Configuration loaded: {config}")
         
-        # Setup database connection
+        # Setup database connection with real-time synchronization
         logger.debug("Setting up database connection...")
-        db_path = config.get('database', {}).get('path', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'db.sqlite3'))
-        logger.debug(f"Initial database path: {db_path}")
+        
+        # Get database paths
+        main_db_path = config.get('database', {}).get('path', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'db.sqlite3'))
+        
+        # Handle absolute and relative paths correctly
+        if os.path.isabs(main_db_path):
+            main_db_path = os.path.normpath(main_db_path)
+        else:
+            main_db_path = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), main_db_path)))
+            
+        logger.debug(f"Main database path: {main_db_path}")
+        
+        # Check if real-time sync is enabled
+        real_time_sync = config.get('database', {}).get('real_time_sync', True)
+        sync_interval = config.get('app', {}).get('sync_interval', 5)
         
         # Check if the database path exists, if not try to find it in common locations
-        if not os.path.exists(db_path) or os.path.getsize(db_path) == 0:
-            logger.warning(f"Database not found at configured path or is empty: {db_path}")
+        if not os.path.exists(main_db_path) or os.path.getsize(main_db_path) == 0:
+            logger.warning(f"Database not found at configured path or is empty: {main_db_path}")
             logger.debug("Searching for database in common locations...")
             
             # Try to find the database in the current directory or parent directory
@@ -228,10 +241,10 @@ def main():
             found = False
             for path in possible_paths:
                 if os.path.exists(path) and os.path.getsize(path) > 0:
-                    db_path = path
-                    logger.info(f"Database found at: {db_path}")
+                    main_db_path = path
+                    logger.info(f"Database found at: {main_db_path}")
                     # Update config with the found path
-                    config['database']['path'] = db_path
+                    config['database']['path'] = main_db_path
                     from utils.config import save_config
                     save_config(config)
                     found = True
@@ -251,7 +264,35 @@ def main():
                 )
                 sys.exit(1)
         else:
-            logger.debug(f"Database found at configured path: {db_path}")
+            logger.debug(f"Database found at configured path: {main_db_path}")
+        
+        # Initialize database sync manager
+        try:
+            from utils.db_sync import DatabaseSyncManager
+            db_sync_manager = DatabaseSyncManager()
+            
+            # If real-time sync is enabled, use the main database directly
+            if real_time_sync:
+                logger.info("Real-time database synchronization enabled")
+                db_path = main_db_path
+                db_sync_manager.setup(main_db_path, sync_interval=sync_interval)
+            else:
+                # Otherwise, use a local copy
+                logger.info("Using local database copy with periodic synchronization")
+                local_db_path = os.path.join(os.path.dirname(__file__), 'data', 'db.sqlite3')
+                db_path = local_db_path
+                db_sync_manager.setup(main_db_path, local_db_path, sync_interval=sync_interval)
+            
+            # Start the sync thread
+            db_sync_manager.start_sync()
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize database sync manager: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            
+            # Fall back to direct connection without sync
+            db_path = main_db_path
         
         # Try to connect to the database
         logger.debug(f"Connecting to database: {db_path}")

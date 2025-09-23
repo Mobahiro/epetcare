@@ -17,7 +17,7 @@ def assign_vet_permissions(sender, instance, created, **kwargs):
         # Add the user to the Veterinarians group
         instance.user.groups.add(vet_group)
         
-        # Ensure the user has staff status to access admin site
+        # Set staff status for permission purposes
         if not instance.user.is_staff:
             instance.user.is_staff = True
             instance.user.save(update_fields=['is_staff'])
