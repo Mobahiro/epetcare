@@ -12,7 +12,7 @@
   <tbody>
     {% for a in appointments %}
       <tr>
-        <td>{{ a.date_time }}</td>
+        <td>{{ a.date_time|date:"Y-m-d H:i" }}</td>
         <td>{{ a.pet.name }}</td>
         <td>{{ a.reason }}</td>
         <td>

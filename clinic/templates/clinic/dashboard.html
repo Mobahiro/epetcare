@@ -22,11 +22,11 @@
     <h3>Upcoming Appointments</h3>
     <p class="muted">Next visits scheduled for your pets.</p>
     <ul>
-      {% for a in appointments %}
-        <li>{{ a.date_time }} — {{ a.pet.name }} ({{ a.reason }})</li>
-      {% empty %}
-        <li class="muted">No upcoming appointments.</li>
-      {% endfor %}
+    {% for a in appointments %}
+      <li>{{ a.date_time|date:"Y-m-d H:i" }} — {{ a.pet.name }} ({{ a.reason }})</li>
+    {% empty %}
+      <li class="muted">No upcoming appointments.</li>
+    {% endfor %}
     </ul>
   </div>
 </div>

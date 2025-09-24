@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Owner, Pet, Appointment
+from .models import MedicalRecord, Owner, Pet, Appointment
 from .forms import OwnerForm, PetForm, AppointmentForm, RegisterForm
 
 
@@ -94,13 +94,13 @@ def pet_create(request):
 def pet_detail(request, pk: int):
     pet = get_object_or_404(Pet, pk=pk)
     appointments = pet.appointments.all().order_by('-date_time')
-    vaccinations = pet.vaccinations.all().order_by('-date_given')
-    medical_records = MedicalRecord.objects.filter(pet=pet).order_by('-date')
+    prescriptions = pet.prescriptions.all().order_by('-date_prescribed')
+    medical_records = MedicalRecord.objects.filter(pet=pet).order_by('-visit_date')
     
     return render(request, 'clinic/pet_detail.html', {
         "pet": pet,
         "appointments": appointments,
-        "vaccinations": vaccinations,
+        "prescriptions": prescriptions,
         "medical_records": medical_records,
     })
 

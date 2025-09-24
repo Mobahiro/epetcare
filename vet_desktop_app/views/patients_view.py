@@ -308,10 +308,13 @@ class PatientsView(QWidget):
         
         # Get the pet ID from the first column
         pet_id = self.results_table.item(selected_items[0].row(), 0).data(Qt.UserRole)
+
+        print(f"DEBUG: Selected pet ID: {pet_id}")
         
         # Load pet details
         self.current_pet = self.pet_data_access.get_by_id(pet_id)
         if not self.current_pet:
+            print(f"DEBUG: No pet found for ID: {pet_id}")
             self.detail_widget.setCurrentIndex(0)  # Show empty state
             return
         
@@ -445,8 +448,20 @@ class PatientsView(QWidget):
         if not self.current_pet:
             return
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        from views.medical_record_dialog import MedicalRecordDialog
+        
+        dialog = MedicalRecordDialog(self, self.current_pet.id)
+        if dialog.exec() == QDialog.Accepted:
+            medical_record = dialog.get_medical_record()
+            
+            # Save the medical record
+            success, result = self.medical_record_data_access.create(medical_record)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Medical record added successfully.")
+                self.load_medical_records()  # Refresh the table
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to add medical record: {result}")
     
     def view_medical_record(self):
         """View details of a medical record"""
@@ -458,16 +473,51 @@ class PatientsView(QWidget):
             QMessageBox.information(self, "No Selection", "Please select a medical record to view.")
             return
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        # Get the record ID from the selected row
+        row = selected_items[0].row()
+        record_id_item = self.medical_table.item(row, 0)
+        record_id = record_id_item.data(Qt.UserRole)
+        
+        # Get the medical record
+        medical_record = self.medical_record_data_access.get_by_id(record_id)
+        if not medical_record:
+            QMessageBox.warning(self, "Error", "Medical record not found.")
+            return
+        
+        from views.medical_record_dialog import MedicalRecordDialog
+        
+        dialog = MedicalRecordDialog(self, self.current_pet.id, medical_record)
+        if dialog.exec() == QDialog.Accepted:
+            updated_record = dialog.get_medical_record()
+            
+            # Update the medical record
+            success, result = self.medical_record_data_access.update(updated_record)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Medical record updated successfully.")
+                self.load_medical_records()  # Refresh the table
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to update medical record: {result}")
     
     def add_prescription(self):
         """Add a new prescription"""
         if not self.current_pet:
             return
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        from views.prescription_dialog import PrescriptionDialog
+        
+        dialog = PrescriptionDialog(self, self.current_pet.id)
+        if dialog.exec() == QDialog.Accepted:
+            prescription = dialog.get_prescription()
+            
+            # Save the prescription
+            success, result = self.prescription_data_access.create(prescription)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Prescription added successfully.")
+                self.load_prescriptions()  # Refresh the table
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to add prescription: {result}")
     
     def view_prescription(self):
         """View details of a prescription"""
@@ -479,16 +529,51 @@ class PatientsView(QWidget):
             QMessageBox.information(self, "No Selection", "Please select a prescription to view.")
             return
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        # Get the prescription ID from the selected row
+        row = selected_items[0].row()
+        prescription_id_item = self.prescriptions_table.item(row, 0)
+        prescription_id = prescription_id_item.data(Qt.UserRole)
+        
+        # Get the prescription
+        prescription = self.prescription_data_access.get_by_id(prescription_id)
+        if not prescription:
+            QMessageBox.warning(self, "Error", "Prescription not found.")
+            return
+        
+        from views.prescription_dialog import PrescriptionDialog
+        
+        dialog = PrescriptionDialog(self, self.current_pet.id, prescription)
+        if dialog.exec() == QDialog.Accepted:
+            updated_prescription = dialog.get_prescription()
+            
+            # Update the prescription
+            success, result = self.prescription_data_access.update(updated_prescription)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Prescription updated successfully.")
+                self.load_prescriptions()  # Refresh the table
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to update prescription: {result}")
     
     def add_appointment(self):
         """Add a new appointment"""
         if not self.current_pet:
             return
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        from views.appointment_dialog import AppointmentDialog
+        
+        dialog = AppointmentDialog(self, self.current_pet.id)
+        if dialog.exec() == QDialog.Accepted:
+            appointment = dialog.get_appointment()
+            
+            # Save the appointment
+            success, result = self.appointment_data_access.create(appointment)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Appointment scheduled successfully.")
+                self.load_appointments()  # Refresh the table
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to schedule appointment: {result}")
     
     def view_appointment(self):
         """View details of an appointment"""
@@ -500,8 +585,31 @@ class PatientsView(QWidget):
             QMessageBox.information(self, "No Selection", "Please select an appointment to view.")
             return
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        # Get the appointment ID from the selected row
+        row = selected_items[0].row()
+        appointment_id_item = self.appointments_table.item(row, 0)
+        appointment_id = appointment_id_item.data(Qt.UserRole)
+        
+        # Get the appointment
+        appointment = self.appointment_data_access.get_by_id(appointment_id)
+        if not appointment:
+            QMessageBox.warning(self, "Error", "Appointment not found.")
+            return
+        
+        from views.appointment_dialog import AppointmentDialog
+        
+        dialog = AppointmentDialog(self, self.current_pet.id, appointment)
+        if dialog.exec() == QDialog.Accepted:
+            updated_appointment = dialog.get_appointment()
+            
+            # Update the appointment
+            success, result = self.appointment_data_access.update(updated_appointment)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Appointment updated successfully.")
+                self.load_appointments()  # Refresh the table
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to update appointment: {result}")
         
     def edit_pet(self):
         """Edit the current pet"""

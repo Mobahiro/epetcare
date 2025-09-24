@@ -1,3 +1,30 @@
+# Core GUI framework
 PySide6>=6.5.0
+
+# Image processing
 Pillow>=9.0.0
+
+# HTTP requests for network features
+requests>=2.25.0
+
+# Additional utilities
+pathlib2>=2.3.0
+typing-extensions>=3.10.0
+
+# Security and SSL
+urllib3>=1.26.0
+certifi>=2021.5.25
+
+# Optional: For building standalone executables
 pyinstaller>=5.0.0
+
+# Built-in Python modules (no installation needed):
+# - sqlite3 (database)
+# - json (configuration)
+# - datetime (date/time handling)
+# - pathlib (file paths)
+# - os, sys (system operations)
+# - logging (application logging)
+# - threading (background tasks)
+# - tempfile (temporary files)
+# - socket (network communication)

@@ -1,15 +1,34 @@
 @echo off
-REM ePetCare Vet Portal Launcher
-REM This script launches the Vet Desktop Application
+echo ========================================
+echo ePetCare Vet Portal - SIMPLE VERSION
+echo ========================================
+echo.
 
 REM Change to the script directory
 cd /d "%~dp0"
+echo Current directory: %CD%
+echo.
 
-REM Install required packages
-echo Installing required packages...
-pip install PySide6>=6.5.0 Pillow>=9.0.0
+REM Check if Python is installed
+echo Checking Python...
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: Python is not installed or not in PATH
+    pause
+    exit /b 1
+)
+echo Python found: 
+python --version
+echo.
 
-REM Create a temporary Python script to run the application
+REM Install dependencies without complex checking
+echo Installing dependencies...
+pip install PySide6 Pillow requests urllib3 certifi --quiet
+echo Dependencies installed!
+echo.
+
+REM Create a simple Python script to run the application
+echo Creating application script...
 echo import os, sys, traceback > run_app.py
 echo # Set up paths >> run_app.py
 echo root_dir = r'%CD%' >> run_app.py
@@ -47,6 +66,7 @@ echo             f.write('# Auto-generated __init__.py file') >> run_app.py
 echo # Run the application >> run_app.py
 echo try: >> run_app.py
 echo     print("Starting ePetCare Vet Portal...") >> run_app.py
+echo     print("Please wait for the application window to appear...") >> run_app.py
 echo     with open('main.py') as f: >> run_app.py
 echo         code = compile(f.read(), 'main.py', 'exec') >> run_app.py
 echo         exec(code) >> run_app.py
@@ -55,11 +75,30 @@ echo     print(f"\nERROR: {e}") >> run_app.py
 echo     traceback.print_exc() >> run_app.py
 echo     input("\nPress Enter to exit...") >> run_app.py
 
+echo Script created successfully!
+echo.
+
 REM Run the Python script
 echo Starting ePetCare Vet Portal...
+echo.
 python run_app.py
 
-REM Clean up
-del run_app.py
+REM Check if the application ran successfully
+if errorlevel 1 (
+    echo.
+    echo ERROR: Application failed to start properly
+    echo Error code: %errorlevel%
+    echo.
+)
 
+REM Clean up
+if exist run_app.py (
+    del run_app.py
+    echo Cleaned up temporary files
+)
+
+echo.
+echo ========================================
+echo Application finished
+echo ========================================
 pause

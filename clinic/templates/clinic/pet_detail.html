@@ -29,7 +29,7 @@
   <tbody>
     {% for a in appointments %}
       <tr>
-        <td>{{ a.date_time }}</td>
+        <td>{{ a.date_time|date:"Y-m-d H:i" }}</td>
         <td>{{ a.reason }}</td>
         <td>
           {% if a.status == 'scheduled' %}
@@ -60,11 +60,11 @@
   <tbody>
     {% for record in medical_records %}
       <tr>
-        <td>{{ record.date }}</td>
-        <td>{{ record.record_type }}</td>
-        <td>{{ record.description|truncatechars:50 }}</td>
+        <td>{{ record.visit_date|date:"Y-m-d" }}</td>
+        <td>{{ record.condition }}</td>
+        <td>{{ record.treatment|truncatechars:50 }}</td>
         <td>
-          <a href="{% url 'medical_record_delete' record.pk %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">Delete</a>
+          <span class="badge">Vet Added</span>
         </td>
       </tr>
     {% empty %}
@@ -74,22 +74,29 @@
 </table>
 
 <div class="toolbar" style="margin-top:16px;">
-  <h3>Vaccinations</h3>
-  <a class="btn" href="#">+ Add Vaccination</a>
+  <h3>Prescriptions</h3>
+  <span class="muted">Prescribed by veterinarians</span>
 </div>
 <table>
   <thead>
-    <tr><th>Vaccine</th><th>Date Given</th><th>Next Due</th></tr>
+    <tr><th>Medication</th><th>Dosage</th><th>Date Prescribed</th><th>Status</th></tr>
   </thead>
   <tbody>
-    {% for v in vaccinations %}
+    {% for p in prescriptions %}
       <tr>
-        <td>{{ v.vaccine_name }}</td>
-        <td>{{ v.date_given }}</td>
-        <td>{{ v.next_due|default:'-' }}</td>
+        <td>{{ p.medication_name }}</td>
+        <td>{{ p.dosage }}</td>
+        <td>{{ p.date_prescribed|date:"Y-m-d" }}</td>
+        <td>
+          {% if p.is_active %}
+            <span class="badge completed">Active</span>
+          {% else %}
+            <span class="badge cancelled">Inactive</span>
+          {% endif %}
+        </td>
       </tr>
     {% empty %}
-      <tr><td colspan="3">No vaccinations yet.</td></tr>
+      <tr><td colspan="4">No prescriptions yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>

@@ -281,6 +281,51 @@ class DatabaseManager:
             logger.error(f"Error fetching from {table}: {e}")
             return False, None
     
+    def fetch_all(self, table: str, conditions: Dict[str, Any] = None, 
+                  order_by: str = None, limit: int = None) -> Tuple[bool, List[Dict[str, Any]]]:
+        """
+        Fetch all records from a table with optional filtering, ordering, and limiting.
+        
+        Args:
+            table: Table name
+            conditions: Dictionary of column names and values for WHERE clause
+            order_by: Column name(s) for ORDER BY clause
+            limit: Maximum number of records to return
+            
+        Returns:
+            Tuple of (success, records)
+            - success: True if query executed successfully, False otherwise
+            - records: List of dictionaries with record data if successful, empty list otherwise
+        """
+        try:
+            query = f"SELECT * FROM {table}"
+            params = []
+            
+            # Add WHERE clause if conditions are provided
+            if conditions:
+                where_clauses = []
+                for column, value in conditions.items():
+                    where_clauses.append(f"{column} = ?")
+                    params.append(value)
+                query += f" WHERE {' AND '.join(where_clauses)}"
+            
+            # Add ORDER BY clause if specified
+            if order_by:
+                query += f" ORDER BY {order_by}"
+            
+            # Add LIMIT clause if specified
+            if limit:
+                query += f" LIMIT {limit}"
+            
+            cursor = self.db_connection.cursor()
+            cursor.execute(query, params)
+            results = [dict(row) for row in cursor.fetchall()]
+            
+            return True, results
+        except sqlite3.Error as e:
+            logger.error(f"Error fetching all from {table}: {e}")
+            return False, []
+    
     def execute_query(self, query: str, params: tuple = (), max_retries: int = 3, retry_delay: float = 1.0) -> Tuple[bool, List[Dict[str, Any]]]:
         """
         Execute a SQL query and return the results as a list of dictionaries.

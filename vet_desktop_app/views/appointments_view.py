@@ -386,8 +386,22 @@ class AppointmentsView(QWidget):
     
     def new_appointment(self):
         """Create a new appointment"""
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        from views.appointment_dialog import AppointmentDialog
+        
+        dialog = AppointmentDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            appointment = dialog.get_appointment()
+            
+            # Save the appointment
+            success, result = self.appointment_data_access.create(appointment)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Appointment scheduled successfully.")
+                # Refresh both views
+                self.load_appointments()
+                self.load_all_appointments()
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to schedule appointment: {result}")
     
     def edit_appointment(self, table_widget):
         """Edit the selected appointment"""
@@ -404,8 +418,28 @@ class AppointmentsView(QWidget):
             
         appointment_id = table_widget.item(selected_items[0].row(), col_index).data(Qt.UserRole)
         
-        # This would be implemented in a real application
-        QMessageBox.information(self, "Not Implemented", "This feature is not yet implemented.")
+        # Get the appointment
+        appointment = self.appointment_data_access.get_by_id(appointment_id)
+        if not appointment:
+            QMessageBox.warning(self, "Error", "Appointment not found.")
+            return
+        
+        from views.appointment_dialog import AppointmentDialog
+        
+        dialog = AppointmentDialog(self, appointment.pet_id if appointment.pet_id else None, appointment)
+        if dialog.exec() == QDialog.Accepted:
+            updated_appointment = dialog.get_appointment()
+            
+            # Update the appointment
+            success, result = self.appointment_data_access.update(updated_appointment)
+            
+            if success:
+                QMessageBox.information(self, "Success", "Appointment updated successfully.")
+                # Refresh both views
+                self.load_appointments()
+                self.load_all_appointments()
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to update appointment: {result}")
     
     def complete_appointment(self, table_widget):
         """Mark the selected appointment as completed"""

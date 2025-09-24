@@ -1,6 +1,0 @@
-Defaulting to user installation because normal site-packages is not writeable
-Requirement already satisfied: PySide6 in c:\users\shiro\appdata\roaming\python\python313\site-packages (6.9.2)
-Requirement already satisfied: Pillow in c:\users\shiro\appdata\roaming\python\python313\site-packages (11.3.0)
-Requirement already satisfied: shiboken6==6.9.2 in c:\users\shiro\appdata\roaming\python\python313\site-packages (from PySide6) (6.9.2)
-Requirement already satisfied: PySide6_Essentials==6.9.2 in c:\users\shiro\appdata\roaming\python\python313\site-packages (from PySide6) (6.9.2)
-Requirement already satisfied: PySide6_Addons==6.9.2 in c:\users\shiro\appdata\roaming\python\python313\site-packages (from PySide6) (6.9.2)
