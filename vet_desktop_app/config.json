@@ -1,17 +1,8 @@
 {
     "database": {
-        "path": "C:\\epetcare\\db.sqlite3",
+        "path": "C:\\epetcare\\data\\db.sqlite3",
         "backup_dir": "backups",
         "real_time_sync": true
-    },
-    "remote_database": {
-        "enabled": false,
-        "url": "https://your-app-name.onrender.com",
-        "username": "",
-        "password": "",
-        "token": "",
-        "sync_interval": 300,
-        "auto_sync": true
     },
     "app": {
         "offline_mode": false,
@@ -21,5 +12,13 @@
     "ui": {
         "theme": "light",
         "font_size": 10
+    },
+    "remote_database": {
+        "enabled": true,
+        "url": "https://epetcare.onrender.com",
+        "username": "YOUR_VET_USERNAME",
+        "password": "YOUR_VET_PASSWORD",
+        "sync_interval": 30,
+        "auto_sync": true
     }
 }

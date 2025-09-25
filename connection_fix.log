@@ -1,0 +1,13 @@
+2025-09-26 01:24:24,824 - epetcare_fix - INFO - Starting ePetCare Render Connection Fix
+2025-09-26 01:24:24,824 - epetcare_fix - INFO - Data directory already exists at C:\epetcare\vet_desktop_app\data
+2025-09-26 01:24:24,827 - epetcare_fix - INFO - Database integrity check passed: C:\epetcare\db.sqlite3
+2025-09-26 01:24:24,828 - epetcare_fix - INFO - Main database is valid
+2025-09-26 01:24:24,843 - epetcare_fix - INFO - Database integrity check passed: C:\epetcare\vet_desktop_app\data\db.sqlite3
+2025-09-26 01:24:24,843 - epetcare_fix - INFO - Local database is valid
+2025-09-26 01:24:24,843 - epetcare_fix - INFO - Current remote database URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:24:24,844 - epetcare_fix - INFO - Removing /vet_portal/api from URL: https://epetcare.onrender.com
+2025-09-26 01:24:24,844 - epetcare_fix - INFO - Checking Render URL: https://epetcare.onrender.com
+2025-09-26 01:24:24,846 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): epetcare.onrender.com:443
+2025-09-26 01:24:35,377 - epetcare_fix - ERROR - Error accessing URL: HTTPSConnectionPool(host='epetcare.onrender.com', port=443): Read timed out. (read timeout=10)
+2025-09-26 01:24:35,377 - epetcare_fix - WARNING - Could not access https://epetcare.onrender.com
+2025-09-26 01:24:35,379 - epetcare_fix - INFO - Installed fixed client to C:\epetcare\vet_desktop_app\utils\remote_db_client.py

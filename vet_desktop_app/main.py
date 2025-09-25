@@ -284,13 +284,36 @@ def main():
             from utils.db_sync import DatabaseSyncManager
             db_sync_manager = DatabaseSyncManager()
             
-            # If real-time sync is enabled, use the main database directly
-            if real_time_sync:
+            # Check if remote database is enabled
+            remote_db_config = config.get('remote_database', {})
+            remote_enabled = remote_db_config.get('enabled', False)
+            
+            if remote_enabled and remote_db_config.get('url'):
+                logger.info(f"Remote database is enabled with URL: {remote_db_config['url']}")
+                
+                # Use a local copy with remote sync
+                data_dir = os.path.join(os.path.dirname(__file__), 'data')
+                os.makedirs(data_dir, exist_ok=True)
+                local_db_path = os.path.join(data_dir, 'db.sqlite3')
+                db_path = local_db_path
+                
+                # Set up the sync manager with remote configuration
+                remote_sync_interval = remote_db_config.get('sync_interval', 30)
+                db_sync_manager.setup(
+                    main_db_path=main_db_path, 
+                    local_db_path=local_db_path, 
+                    sync_interval=remote_sync_interval,
+                    config=config
+                )
+                
+                logger.info(f"Remote database sync configured with interval: {remote_sync_interval} seconds")
+            # If real-time sync is enabled (local), use the main database directly
+            elif real_time_sync:
                 logger.info("Real-time database synchronization enabled")
                 db_path = main_db_path
                 db_sync_manager.setup(main_db_path, sync_interval=sync_interval)
             else:
-                # Otherwise, use a local copy
+                # Otherwise, use a local copy with standard sync
                 logger.info("Using local database copy with periodic synchronization")
                 local_db_path = os.path.join(os.path.dirname(__file__), 'data', 'db.sqlite3')
                 db_path = local_db_path

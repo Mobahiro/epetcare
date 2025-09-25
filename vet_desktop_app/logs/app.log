@@ -1237,3 +1237,82 @@ ImportError: cannot import name 'get_connection' from 'utils.database' (C:\epetc
 2025-09-25 03:08:36,074 - epetcare - INFO - Database connection established successfully
 2025-09-25 03:08:36,075 - epetcare - INFO - Creating main window...
 2025-09-25 03:08:41,842 - epetcare - INFO - Application started successfully
+2025-09-26 00:49:39,116 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 00:49:39,117 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 00:49:39,655 - epetcare - INFO - Initializing application...
+2025-09-26 00:49:39,742 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 00:49:39,743 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-26 00:49:39,743 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-26 00:49:39,743 - epetcare - INFO - Database sync thread started
+2025-09-26 00:49:39,743 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-26 00:49:39,748 - epetcare - INFO - Database connection established successfully
+2025-09-26 00:49:39,748 - epetcare - INFO - Creating main window...
+2025-09-26 00:49:43,225 - epetcare - INFO - Application started successfully
+2025-09-26 01:07:37,803 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 01:07:37,804 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 01:07:38,176 - epetcare - INFO - Initializing application...
+2025-09-26 01:07:38,201 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 01:07:38,202 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:07:38,202 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:07:38,215 - epetcare - INFO - Network database manager set up with remote URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:07:38,215 - epetcare - INFO - Detected Render-deployed application, using API endpoints
+2025-09-26 01:07:38,217 - epetcare - INFO - Setting up remote database client for https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:07:39,580 - epetcare - ERROR - Authentication failed: 404 - 
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Not Found</title>
+</head>
+<body>
+  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+</body>
+</html>
+
+2025-09-26 01:07:39,581 - epetcare - ERROR - Failed to set up remote database client
+2025-09-26 01:07:39,582 - epetcare - ERROR - Failed to set up remote database connection
+2025-09-26 01:07:39,583 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\data\db.sqlite3
+2025-09-26 01:07:39,583 - epetcare - INFO - Creating local database from main database
+2025-09-26 01:07:39,585 - epetcare - INFO - Local database created successfully
+2025-09-26 01:07:39,585 - epetcare - INFO - Remote database sync configured with interval: 30 seconds
+2025-09-26 01:07:39,586 - epetcare - INFO - Database sync thread started
+2025-09-26 01:07:39,586 - epetcare - INFO - Setting up database connection to C:\epetcare\data\db.sqlite3
+2025-09-26 01:07:39,587 - epetcare - INFO - Syncing database from C:\epetcare\db.sqlite3 to C:\epetcare\data\db.sqlite3
+2025-09-26 01:07:39,591 - epetcare - INFO - Database connection established successfully
+2025-09-26 01:07:39,591 - epetcare - INFO - Creating main window...
+2025-09-26 01:07:53,669 - epetcare - INFO - Application started successfully
+2025-09-26 01:08:36,319 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 01:08:36,320 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 01:08:36,635 - epetcare - INFO - Initializing application...
+2025-09-26 01:08:36,660 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 01:08:36,661 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:08:36,661 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:08:36,662 - epetcare - INFO - Network database manager set up with remote URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:08:36,662 - epetcare - INFO - Detected Render-deployed application, using API endpoints
+2025-09-26 01:08:36,663 - epetcare - INFO - Setting up remote database client for https://epetcare.onrender.com/vet_portal/api
+2025-09-26 01:08:37,452 - epetcare - ERROR - Authentication failed: 404 - 
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Not Found</title>
+</head>
+<body>
+  <h1>Not Found</h1><p>The requested resource was not found on this server.</p>
+</body>
+</html>
+
+2025-09-26 01:08:37,453 - epetcare - ERROR - Failed to set up remote database client
+2025-09-26 01:08:37,454 - epetcare - ERROR - Failed to set up remote database connection
+2025-09-26 01:08:37,454 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\data\db.sqlite3
+2025-09-26 01:08:37,455 - epetcare - INFO - Remote database sync configured with interval: 30 seconds
+2025-09-26 01:08:37,456 - epetcare - INFO - Database sync thread started
+2025-09-26 01:08:37,456 - epetcare - INFO - Setting up database connection to C:\epetcare\data\db.sqlite3
+2025-09-26 01:08:37,456 - epetcare - INFO - Syncing database from C:\epetcare\db.sqlite3 to C:\epetcare\data\db.sqlite3
+2025-09-26 01:08:37,460 - epetcare - WARNING - Failed to set PRAGMA settings: database disk image is malformed
+2025-09-26 01:08:37,460 - epetcare - ERROR - SQLite error: database disk image is malformed
+2025-09-26 01:08:37,500 - epetcare - ERROR - Traceback (most recent call last):
+  File "C:\epetcare\vet_desktop_app\utils\database.py", line 138, in setup_database_connection
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+2025-09-26 01:08:41,932 - epetcare - ERROR - Failed to connect to database

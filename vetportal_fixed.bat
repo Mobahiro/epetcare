@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo ePetCare Vet Portal - SIMPLE VERSION
+echo ePetCare Vet Portal - FIXED VERSION
 echo ========================================
 echo.
 
@@ -27,6 +27,35 @@ pip install PySide6 Pillow requests urllib3 certifi --quiet
 echo Dependencies installed!
 echo.
 
+REM Check and repair the database
+echo Checking database integrity...
+python -c "import sqlite3; conn = sqlite3.connect('db.sqlite3'); conn.execute('PRAGMA integrity_check'); conn.close()" 2>nul
+if errorlevel 1 (
+    echo WARNING: Database integrity check failed. Attempting to repair...
+    echo Creating backup of current database...
+    if exist db.sqlite3 (
+        copy db.sqlite3 db.sqlite3.bak
+        echo Backup created as db.sqlite3.bak
+    )
+    
+    echo Attempting to recover data...
+    python -c "import sqlite3; src = sqlite3.connect('db.sqlite3'); dst = sqlite3.connect('db_fixed.sqlite3'); for table in src.execute('SELECT name FROM sqlite_master WHERE type=\"table\"'): try: src.execute('SELECT * FROM ' + table[0]); data = src.execute('SELECT * FROM ' + table[0]).fetchall(); if data: dst.execute('CREATE TABLE IF NOT EXISTS ' + table[0] + ' AS SELECT * FROM src.' + table[0], {'src': src}); dst.commit(); print('Recovered table: ' + table[0]); except: print('Could not recover table: ' + table[0]); src.close(); dst.close();"
+    
+    if exist db_fixed.sqlite3 (
+        echo Fixed database created as db_fixed.sqlite3
+        echo Replacing original database with fixed version...
+        copy db_fixed.sqlite3 db.sqlite3
+        del db_fixed.sqlite3
+        echo Database repair completed.
+    ) else (
+        echo Failed to repair database. Using a new empty database...
+        python -c "import sqlite3; conn = sqlite3.connect('db.sqlite3'); conn.close();"
+    )
+) else (
+    echo Database integrity check passed.
+)
+echo.
+
 REM Create a simple Python script to run the application
 echo Creating application script...
 echo import os, sys, traceback > run_app.py
@@ -46,7 +75,7 @@ echo         "real_time_sync": True >> run_app.py
 echo     }, >> run_app.py
 echo     "remote_database": { >> run_app.py
 echo         "enabled": True, >> run_app.py
-echo         "url": "https://epetcare.onrender.com/vet_portal/api", >> run_app.py
+echo         "url": "https://epetcare.onrender.com", >> run_app.py
 echo         "username": "YOUR_VET_USERNAME", >> run_app.py
 echo         "password": "YOUR_VET_PASSWORD", >> run_app.py
 echo         "sync_interval": 30, >> run_app.py
@@ -71,6 +100,8 @@ echo     init_file = os.path.join(dir_path, '__init__.py') >> run_app.py
 echo     if not os.path.exists(init_file): >> run_app.py
 echo         with open(init_file, 'w') as f: >> run_app.py
 echo             f.write('# Auto-generated __init__.py file') >> run_app.py
+echo # Create data directory if it doesn't exist >> run_app.py
+echo os.makedirs(os.path.join(app_dir, 'data'), exist_ok=True) >> run_app.py
 echo # Run the application >> run_app.py
 echo try: >> run_app.py
 echo     print("Starting ePetCare Vet Portal...") >> run_app.py
