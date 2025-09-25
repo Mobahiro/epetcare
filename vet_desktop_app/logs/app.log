@@ -1502,3 +1502,266 @@ sqlite3.DatabaseError: database disk image is malformed
 2025-09-26 01:41:49,019 - epetcare - ERROR - All attempts to download database failed
 2025-09-26 01:41:49,020 - epetcare - WARNING - Creating a new empty database as fallback
 2025-09-26 01:41:49,023 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_ov8g8q_d.sqlite3
+2025-09-26 01:42:25,301 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 01:42:25,302 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 01:42:25,625 - epetcare - INFO - Initializing application...
+2025-09-26 01:42:25,649 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 01:42:25,650 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com
+2025-09-26 01:42:25,650 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com
+2025-09-26 01:42:25,652 - epetcare - INFO - Network database manager set up with remote URL: https://epetcare.onrender.com
+2025-09-26 01:42:25,652 - epetcare - INFO - Detected Render-deployed application, using API endpoints
+2025-09-26 01:42:25,653 - epetcare - INFO - Setting up remote database client for https://epetcare.onrender.com
+2025-09-26 01:42:27,948 - epetcare - ERROR - All authentication attempts failed
+2025-09-26 01:42:27,948 - epetcare - WARNING - Falling back to anonymous access
+2025-09-26 01:42:27,950 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:42:31,690 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:42:31,691 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:42:31,733 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:42:31,733 - epetcare - INFO - Using remote database at C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:42:31,734 - epetcare - INFO - Database sync manager set up with main DB: C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3, local DB: C:\epetcare\data\db.sqlite3
+2025-09-26 01:42:31,735 - epetcare - INFO - Remote database sync configured with interval: 30 seconds
+2025-09-26 01:42:31,736 - epetcare - INFO - Database sync thread started
+2025-09-26 01:42:31,736 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:42:31,736 - epetcare - INFO - Setting up database connection to C:\epetcare\data\db.sqlite3
+2025-09-26 01:42:31,736 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:42:31,740 - epetcare - INFO - Database connection established successfully
+2025-09-26 01:42:31,740 - epetcare - INFO - Creating main window...
+2025-09-26 01:42:36,004 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:42:36,005 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:42:36,010 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:42:40,582 - epetcare - INFO - Application started successfully
+2025-09-26 01:43:06,022 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:43:06,022 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:43:10,214 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:43:10,215 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:43:10,218 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:43:40,222 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:43:40,223 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:43:44,042 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:43:44,042 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:43:44,046 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:44:14,055 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:44:14,055 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:44:19,102 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:44:19,103 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:44:19,106 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:44:49,110 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:44:49,110 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:44:53,270 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:44:53,272 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:44:53,275 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:45:23,277 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:45:23,277 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:45:28,398 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:45:28,399 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:45:28,402 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:45:58,405 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:45:58,405 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:46:02,761 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:46:02,763 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:46:02,766 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:46:32,770 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:46:32,771 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:46:37,669 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:46:37,669 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:46:37,672 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:47:07,668 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:47:07,669 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:47:12,013 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:47:12,015 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:47:12,018 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:47:42,013 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:47:42,014 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:47:45,918 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:47:45,918 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:47:45,922 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:48:15,928 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:48:15,928 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:48:19,778 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:48:19,779 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:48:19,782 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:48:49,779 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:48:49,779 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:48:55,358 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:48:55,361 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:48:55,364 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:49:25,371 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:49:25,371 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:49:29,587 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:49:29,588 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:49:29,591 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:49:59,596 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:49:59,596 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:50:03,396 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:50:03,397 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:50:03,400 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:50:33,401 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:50:33,401 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:50:37,628 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:50:37,628 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:50:37,631 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:51:07,634 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:51:07,634 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:51:12,514 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:51:12,516 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:51:12,518 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:51:42,521 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:51:42,521 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:51:48,049 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:51:48,050 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:51:48,054 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:52:18,065 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:52:18,065 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:52:21,953 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:52:21,955 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:52:21,957 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:52:51,968 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:52:51,968 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:52:57,793 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:52:57,794 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:52:57,797 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:53:27,803 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:53:27,803 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:53:32,159 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:53:32,165 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:53:32,168 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:54:02,166 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:54:02,168 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:54:06,899 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:54:06,900 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:54:06,903 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:54:36,922 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:54:36,922 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:54:41,631 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:54:41,632 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:54:41,635 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:55:11,637 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:55:11,638 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:55:16,218 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:55:16,218 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:55:16,221 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:55:46,222 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:55:46,222 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:55:51,534 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:55:51,536 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:55:51,539 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:56:21,540 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:56:21,541 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:56:27,638 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:56:27,640 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:56:27,643 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:56:57,644 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:56:57,645 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:57:01,546 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:57:01,547 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:57:01,549 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:57:31,560 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:57:31,560 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:57:35,967 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:57:35,968 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:57:35,971 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:58:05,982 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:58:05,982 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:58:10,907 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:58:10,908 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:58:10,911 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:58:40,923 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:58:40,923 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:58:45,675 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:58:45,676 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:58:45,681 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:59:15,676 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:59:15,677 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:59:19,971 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:59:19,972 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:59:19,975 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 01:59:49,973 - epetcare - INFO - Syncing with remote database
+2025-09-26 01:59:49,973 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 01:59:55,057 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 01:59:55,058 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 01:59:55,061 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:00:25,068 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:00:25,069 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:00:29,324 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:00:29,324 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:00:29,327 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:00:59,323 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:00:59,323 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:01:04,002 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:01:04,002 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:01:04,005 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:01:33,999 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:01:34,000 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:01:37,952 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:01:37,953 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:01:37,956 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:02:07,957 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:02:07,957 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:02:12,341 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:02:12,341 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:02:12,344 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:02:42,341 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:02:42,431 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:02:46,670 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:02:46,670 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:02:46,673 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:03:16,687 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:03:16,687 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:03:21,069 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:03:21,070 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:03:21,072 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:03:51,079 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:03:51,080 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:03:55,469 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:03:55,469 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:03:55,472 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:04:25,470 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:04:25,470 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:04:29,808 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:04:29,808 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:04:29,811 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:04:59,810 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:04:59,810 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:05:03,718 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:05:03,719 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:05:03,722 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:05:33,711 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:05:33,711 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:05:37,837 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:05:37,838 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:05:37,841 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:06:07,838 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:06:07,839 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:06:12,106 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:06:12,107 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:06:12,110 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:06:42,117 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:06:42,117 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:06:46,786 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:06:46,787 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:06:46,790 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:07:16,794 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:07:16,796 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:07:21,115 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:07:21,228 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:07:21,232 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:07:51,234 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:07:51,234 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:07:56,914 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:07:56,914 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:07:56,917 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:08:26,921 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:08:26,921 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:08:31,664 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:08:31,664 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:08:31,667 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:09:01,667 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:09:01,667 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:09:07,782 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:09:07,782 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:09:07,786 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3
+2025-09-26 02:09:37,793 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:09:37,793 - epetcare - INFO - Syncing database from https://epetcare.onrender.com using API
+2025-09-26 02:09:42,152 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:09:42,153 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:09:42,156 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_u2iroxjt.sqlite3

@@ -224,6 +224,21 @@ class RemoteDatabaseClient:
             logger.error(f"Error getting database info: {e}")
             return None
                 
+                for alt_path in alt_paths:
+                    try:
+                        logger.debug(f"Trying alternative path: {alt_path}")
+                        alt_response = self.session.get(alt_path, timeout=10)
+                        
+                        if alt_response.status_code == 200:
+                            try:
+                                return alt_response.json()
+                            except ValueError:
+                                logger.warning(f"Invalid JSON response from {alt_path}")
+                        else:
+                            logger.debug(f"Failed to get data from {alt_path}: {alt_response.status_code}")
+                    except requests.RequestException as e:
+                        logger.debug(f"Request failed for {alt_path}: {e}")
+                
                 # If we get here, all attempts failed
                 logger.error("All attempts to get database info failed")
                 
