@@ -39,11 +39,24 @@ class RemoteDatabaseClient:
         self.base_url = base_url.rstrip('/')
         
         # Ensure we have the correct API endpoint
-        if '/vet_portal/api' not in self.base_url:
-            self.api_url = f"{self.base_url}/vet_portal/api"
-        else:
-            self.api_url = self.base_url
-            self.base_url = self.api_url.replace('/vet_portal/api', '')
+        # First, try to determine the correct API path based on common patterns
+        api_paths = [
+            '/api',                # Standard API path
+            '/vet_portal/api',     # Legacy path
+            '/api/v1',             # Versioned API
+        ]
+        
+        # Set default API URL
+        self.api_url = f"{self.base_url}/api"
+        
+        # Check if any API path is already in the URL
+        path_found = False
+        for path in api_paths:
+            if path in self.base_url:
+                self.api_url = self.base_url
+                self.base_url = self.base_url.split(path)[0]
+                path_found = True
+                break
             
         self.session = requests.Session()
         
@@ -157,25 +170,59 @@ class RemoteDatabaseClient:
             return None
         
         try:
-            # Try the sync endpoint
-            sync_url = f"{self.api_url}/database/sync/"
-            logger.debug(f"Getting database info from {sync_url}")
+            # First check if the API is accessible at all
+            try:
+                test_response = self.session.get(f"{self.base_url}", timeout=5)
+                logger.debug(f"Base URL responded with status {test_response.status_code}")
+            except Exception as e:
+                logger.error(f"Error accessing base URL: {e}")
             
-            response = self.session.get(sync_url, timeout=10)
+            # Try various API endpoints in order of likelihood
+            api_endpoints = [
+                # Standard API patterns
+                f"{self.base_url}/api/database/sync/",
+                f"{self.api_url}/database/sync/",
+                f"{self.base_url}/vet_portal/api/database/sync/",
+                f"{self.base_url}/api/v1/database/sync/",
+                # Direct database endpoints
+                f"{self.base_url}/database/sync/",
+                # Legacy endpoints
+                f"{self.base_url}/vet/api/database/sync/"
+            ]
             
-            if response.status_code == 200:
+            for endpoint in api_endpoints:
+                logger.debug(f"Trying database info endpoint: {endpoint}")
                 try:
-                    return response.json()
-                except ValueError:
-                    logger.error(f"Invalid JSON response: {response.text}")
-                    return None
-            elif response.status_code == 404:
-                # Try alternative paths
-                alt_paths = [
-                    f"{self.base_url}/api/database/sync/",
-                    f"{self.base_url}/vet/api/database/sync/",
-                    f"{self.base_url}/api/v1/database/sync/"
-                ]
+                    response = self.session.get(endpoint, timeout=10)
+                    
+                    if response.status_code == 200:
+                        try:
+                            data = response.json()
+                            logger.info(f"Successfully got database info from {endpoint}")
+                            # Update the API URL to use the successful endpoint path
+                            self.api_url = endpoint.rsplit('/database/sync/', 1)[0]
+                            logger.debug(f"Updated API URL to {self.api_url}")
+                            return data
+                        except ValueError:
+                            logger.warning(f"Invalid JSON response from {endpoint}: {response.text}")
+                    else:
+                        logger.debug(f"Failed to get data from {endpoint}: {response.status_code}")
+                except requests.RequestException as e:
+                    logger.debug(f"Request failed for {endpoint}: {e}")
+            
+            # If we get here, all attempts failed
+            logger.error("All attempts to get database info failed")
+            
+            # Return dummy info as fallback
+            return {
+                "status": "unknown",
+                "timestamp": "",
+                "sync_method": "api",
+                "message": "Could not connect to database API. Check your URL and credentials."
+            }
+        except Exception as e:
+            logger.error(f"Error getting database info: {e}")
+            return None
                 
                 for alt_path in alt_paths:
                     try:
