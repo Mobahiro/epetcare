@@ -8,8 +8,11 @@ import dj_database_url
 from pathlib import Path
 from .settings import *
 
+# Force IS_PRODUCTION to True for Render deployment
+IS_PRODUCTION = True
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', '').lower() == 'true'
 
 # Get the SECRET_KEY from environment variable
 SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)

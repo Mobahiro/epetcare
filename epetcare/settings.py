@@ -25,6 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+# Check if we're on Render.com (production)
+IS_PRODUCTION = os.environ.get('RENDER', '') == 'true'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-=(2hy%htsi*&@2f(#x2tot4m%&3g(68=n%kpe-cd%_kfxa78(%')
 
@@ -86,25 +89,21 @@ WSGI_APPLICATION = 'epetcare.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Check if we're on Render.com (production)
-IS_PRODUCTION = os.environ.get('RENDER', '') == 'true'
+# Default to SQLite for local development
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
-if IS_PRODUCTION:
-    # Use PostgreSQL on Render
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600
-        )
-    }
-else:
-    # Use SQLite for local development
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+# Override with PostgreSQL if DATABASE_URL is provided (on Render)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL and IS_PRODUCTION:
+    DATABASES['default'] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600
+    )
 
 
 # Password validation
