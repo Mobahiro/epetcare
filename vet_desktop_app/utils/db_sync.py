@@ -9,8 +9,10 @@ import time
 import sqlite3
 import logging
 import threading
+import json
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal
+from .network_db import NetworkDatabaseManager, is_url
 
 logger = logging.getLogger('epetcare')
 
@@ -32,8 +34,11 @@ class DatabaseSyncManager(QObject):
         self.local_db_path = None
         self.last_sync_time = 0
         self.is_syncing = False
+        self.network_manager = None
+        self.is_remote_db = False
+        self.config = None
     
-    def setup(self, main_db_path, local_db_path=None, sync_interval=5):
+    def setup(self, main_db_path, local_db_path=None, sync_interval=5, config=None):
         """
         Set up the database synchronization manager.
         
@@ -41,11 +46,53 @@ class DatabaseSyncManager(QObject):
             main_db_path: Path to the main database
             local_db_path: Path to the local database (optional)
             sync_interval: Sync interval in seconds
+            config: Configuration dictionary (optional)
         """
-        self.main_db_path = os.path.normpath(main_db_path)
+        self.config = config or {}
+        
+        # Check if we're using a remote database
+        remote_db_config = self.config.get('remote_database', {})
+        is_remote_enabled = remote_db_config.get('enabled', False)
+        
+        if is_remote_enabled and remote_db_config.get('url'):
+            logger.info(f"Remote database is enabled with URL: {remote_db_config['url']}")
+            self.is_remote_db = True
+            
+            # Set up the network database manager
+            self.network_manager = NetworkDatabaseManager()
+            
+            # If no local path provided, use a default data directory
+            if not local_db_path:
+                data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+                os.makedirs(data_dir, exist_ok=True)
+                local_db_path = os.path.join(data_dir, 'db.sqlite3')
+            
+            # Set up the network manager
+            success = self.network_manager.setup(
+                remote_url=remote_db_config['url'],
+                auth_token=remote_db_config.get('token'),
+                username=remote_db_config.get('username'),
+                password=remote_db_config.get('password')
+            )
+            
+            if success:
+                # Use the downloaded database as our main database
+                main_db_path = self.network_manager.get_local_path()
+                logger.info(f"Using remote database at {main_db_path}")
+                
+                # Override the sync interval with the remote sync interval if specified
+                if 'sync_interval' in remote_db_config:
+                    sync_interval = remote_db_config['sync_interval']
+            else:
+                logger.error("Failed to set up remote database connection")
+                # Fall back to local database if remote setup fails
+                self.is_remote_db = False
+                
+        # Set up paths and interval
+        self.main_db_path = os.path.normpath(main_db_path) if not is_url(main_db_path) else main_db_path
         
         if local_db_path:
-            self.local_db_path = os.path.normpath(local_db_path)
+            self.local_db_path = os.path.normpath(local_db_path) if not is_url(local_db_path) else local_db_path
         else:
             # Use main database directly if no local database specified
             self.local_db_path = self.main_db_path
@@ -54,7 +101,7 @@ class DatabaseSyncManager(QObject):
         logger.info(f"Database sync manager set up with main DB: {self.main_db_path}, local DB: {self.local_db_path}")
         
         # If using a local copy, ensure it exists and is up to date
-        if self.local_db_path != self.main_db_path:
+        if self.local_db_path != self.main_db_path and not is_url(self.main_db_path):
             self._ensure_local_db()
     
     def _ensure_local_db(self):
@@ -85,8 +132,11 @@ class DatabaseSyncManager(QObject):
         if self.sync_thread and self.sync_thread.is_alive():
             logger.warning("Sync thread already running")
             return False
-            
-        if not self.main_db_path or not os.path.exists(self.main_db_path):
+        
+        if self.is_remote_db:
+            # No need to check if the file exists for remote DBs
+            pass
+        elif not self.main_db_path or not os.path.exists(self.main_db_path):
             logger.error(f"Main database not found at {self.main_db_path}")
             return False
             
@@ -110,8 +160,11 @@ class DatabaseSyncManager(QObject):
         """Main synchronization loop"""
         while not self.stop_event.is_set():
             try:
-                # If using the main database directly, just check for changes
-                if self.local_db_path == self.main_db_path:
+                if self.is_remote_db:
+                    # For remote databases, always sync
+                    self._sync_remote_database()
+                elif self.local_db_path == self.main_db_path:
+                    # If using the main database directly, just check for changes
                     self._check_for_changes()
                 else:
                     # Otherwise, synchronize the local database with the main database
@@ -124,6 +177,33 @@ class DatabaseSyncManager(QObject):
                 
             # Wait for the next sync interval
             self.stop_event.wait(self.sync_interval)
+    
+    def _sync_remote_database(self):
+        """Sync with the remote database"""
+        if not self.network_manager or self.is_syncing:
+            return
+            
+        self.is_syncing = True
+        self.sync_started.emit()
+        
+        try:
+            logger.info("Syncing with remote database")
+            success = self.network_manager.sync_database()
+            
+            if success:
+                self.sync_completed.emit(True, "Remote database synchronized successfully")
+                self.db_updated.emit()
+            else:
+                self.sync_completed.emit(False, "Failed to sync with remote database")
+                
+        except Exception as e:
+            logger.error(f"Error syncing with remote database: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            self.sync_completed.emit(False, str(e))
+            
+        finally:
+            self.is_syncing = False
     
     def _check_for_changes(self):
         """Check if the main database has changed"""
@@ -196,10 +276,20 @@ class DatabaseSyncManager(QObject):
     
     def force_sync(self):
         """Force a database synchronization"""
-        if self.local_db_path == self.main_db_path:
+        if self.is_remote_db:
+            return self._sync_remote_database()
+        elif self.local_db_path == self.main_db_path:
             # If using the main database directly, just emit the update signal
             self.db_updated.emit()
             return True
         else:
             # Otherwise, synchronize the local database with the main database
             return self._sync_databases()
+    
+    def upload_changes(self):
+        """Upload changes to the remote database"""
+        if not self.is_remote_db or not self.network_manager:
+            logger.warning("Remote database not configured, can't upload changes")
+            return False
+            
+        return self.network_manager.upload_changes()

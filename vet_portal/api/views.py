@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from clinic.models import Pet, Owner, Appointment, MedicalRecord, Prescription
 from vet.models import Veterinarian, VetNotification
-from ..models import VetSchedule, Treatment, TreatmentRecord, OfflineChange
+from ..models import VetSchedule, Treatment, TreatmentRecord, OfflineChange, VetPortalSettings
 from .serializers import (
     OwnerSerializer, PetSerializer, VeterinarianSerializer,
     AppointmentSerializer, MedicalRecordSerializer, PrescriptionSerializer,
@@ -262,6 +262,213 @@ def sync_offline_changes(request):
         return Response({
             'status': 'success',
             'results': results,
+            'timestamp': timezone.now().isoformat()
+        })
+    
+    except Exception as e:
+        return Response(
+            {'status': 'error', 'message': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+import os
+import shutil
+import tempfile
+from django.http import FileResponse, HttpResponse
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
+
+
+@api_view(['GET'])
+@permission_classes([IsVeterinarian])
+def database_sync(request):
+    """
+    API endpoint for getting database sync information.
+    Returns metadata about the current database state.
+    """
+    try:
+        from django.db import connection
+        
+        # Get the last sync time from settings
+        last_sync = VetPortalSettings.objects.first()
+        if not last_sync:
+            last_sync = VetPortalSettings.objects.create()
+        
+        # Determine what tables have changed since last sync
+        cursor = connection.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall() if not row[0].startswith('sqlite_')]
+        
+        response_data = {
+            'status': 'success',
+            'timestamp': timezone.now().isoformat(),
+            'last_sync': last_sync.last_sync_time.isoformat(),
+            'tables': tables,
+            'db_type': connection.vendor,
+        }
+        
+        # For PostgreSQL, we need to handle this differently
+        if connection.vendor == 'postgresql':
+            response_data['sync_method'] = 'api'
+            response_data['message'] = ('This database is using PostgreSQL. Direct file download '
+                                        'is not available. Use the API endpoints instead.')
+        else:
+            response_data['sync_method'] = 'file'
+        
+        return Response(response_data)
+    
+    except Exception as e:
+        return Response(
+            {'status': 'error', 'message': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsVeterinarian])
+def database_download(request):
+    """
+    API endpoint for downloading the database.
+    For SQLite, it returns the actual database file.
+    For PostgreSQL, it returns a dump of the database.
+    """
+    try:
+        from django.db import connection
+        
+        # For PostgreSQL, we need to generate a dump
+        if connection.vendor == 'postgresql':
+            # This is just a placeholder - in a real scenario, you'd need to implement a proper 
+            # PostgreSQL dump functionality using pg_dump or another solution
+            return Response({
+                'status': 'error',
+                'message': 'Direct PostgreSQL database download not implemented. Use the API endpoints instead.'
+            }, status=status.HTTP_501_NOT_IMPLEMENTED)
+        
+        # For SQLite, we can send the actual file
+        db_path = connection.settings_dict['NAME']
+        
+        if not os.path.exists(db_path):
+            return Response({
+                'status': 'error',
+                'message': f'Database file not found at {db_path}'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Create a temporary copy to avoid locking the database
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite3') as temp:
+            temp_path = temp.name
+            shutil.copy2(db_path, temp_path)
+        
+        # Update the last sync time
+        last_sync = VetPortalSettings.objects.first()
+        if not last_sync:
+            last_sync = VetPortalSettings.objects.create()
+        else:
+            last_sync.save()  # This updates the auto_now field
+        
+        # Return the database file
+        response = FileResponse(
+            open(temp_path, 'rb'),
+            as_attachment=True,
+            filename='epetcare_database.sqlite3'
+        )
+        
+        # We'll delete the temp file after it's served
+        response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
+        
+        # Set a callback to delete the temp file
+        def delete_temp_file(response):
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+            return response
+        
+        response.delete_temp_file = delete_temp_file
+        
+        return response
+    
+    except Exception as e:
+        return Response(
+            {'status': 'error', 'message': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsVeterinarian])
+@parser_classes([MultiPartParser, FormParser])
+def database_upload(request):
+    """
+    API endpoint for uploading database changes.
+    For SQLite, it processes the changes from an uploaded file.
+    For PostgreSQL, it applies changes through the ORM.
+    """
+    try:
+        from django.db import connection
+        
+        # For PostgreSQL, we need to handle changes differently
+        if connection.vendor == 'postgresql':
+            # This would need to be a proper implementation that processes the changes
+            # through the ORM instead of direct file uploads
+            return Response({
+                'status': 'error',
+                'message': 'Direct PostgreSQL database upload not implemented. Use the API endpoints instead.'
+            }, status=status.HTTP_501_NOT_IMPLEMENTED)
+        
+        # For SQLite, we need to process the uploaded file
+        if 'database' not in request.FILES:
+            return Response({
+                'status': 'error',
+                'message': 'No database file provided'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        uploaded_file = request.FILES['database']
+        
+        # Create a temporary file to save the uploaded database
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite3') as temp:
+            temp_path = temp.name
+            for chunk in uploaded_file.chunks():
+                temp.write(chunk)
+        
+        # Validate the uploaded file
+        try:
+            import sqlite3
+            conn = sqlite3.connect(temp_path)
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA integrity_check")
+            result = cursor.fetchone()[0]
+            conn.close()
+            
+            if result != 'ok':
+                os.unlink(temp_path)
+                return Response({
+                    'status': 'error',
+                    'message': f'Uploaded database failed integrity check: {result}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            os.unlink(temp_path)
+            return Response({
+                'status': 'error',
+                'message': f'Uploaded file is not a valid SQLite database: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Here, we would process the changes from the uploaded database
+        # This is a complex task and depends on your specific requirements
+        # For simplicity, we'll just acknowledge the upload
+        
+        # Clean up
+        os.unlink(temp_path)
+        
+        # Update the last sync time
+        last_sync = VetPortalSettings.objects.first()
+        if not last_sync:
+            last_sync = VetPortalSettings.objects.create()
+        else:
+            last_sync.save()  # This updates the auto_now field
+        
+        return Response({
+            'status': 'success',
+            'message': 'Database upload acknowledged. In a real implementation, the changes would be processed.',
             'timestamp': timezone.now().isoformat()
         })
     

@@ -1,102 +1,145 @@
 {% extends 'vet/base.html' %}
 {% block title %}Dashboard - Veterinarian Portal{% endblock %}
 {% block content %}
-<div class="toolbar">
-  <h2>Dashboard</h2>
-  <div>
-    <span class="muted">Welcome, Dr. {{ vet.full_name }}</span>
-  </div>
+<div style="text-align: center; margin-bottom: 20px;">
+  <h1 style="color: #4169E1; margin-bottom: 10px;">Welcome, Dr. {{ vet.full_name }}!</h1>
+  <p style="color: #666666; font-size: 16px;">This is your ePetCare dashboard</p>
+  <hr style="border: 1px dashed #B0C4DE; margin: 20px 0;">
 </div>
 
 <!-- Stats Cards -->
-<div class="dashboard-stats">
-  <div class="stat-card">
-    <div class="stat-label">Total Owners</div>
-    <div class="stat-value">{{ total_owners }}</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+  <div style="border: 2px solid #B0C4DE; border-radius: 5px; padding: 15px; text-align: center; background: white;">
+    <div style="font-weight: bold; margin-bottom: 10px; color: #4169E1; border-bottom: 2px solid #B0C4DE; padding-bottom: 5px;">
+      👨‍👩‍👧‍👦 Total Owners
+    </div>
+    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px; color: #4169E1;">
+      {{ total_owners }}
+    </div>
+    <div style="color: #666666; font-size: 14px;">
+      Registered pet owners
+    </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Total Pets</div>
-    <div class="stat-value">{{ total_pets }}</div>
+  
+  <div style="border: 2px solid #B0C4DE; border-radius: 5px; padding: 15px; text-align: center; background: white;">
+    <div style="font-weight: bold; margin-bottom: 10px; color: #4169E1; border-bottom: 2px solid #B0C4DE; padding-bottom: 5px;">
+      🐾 Total Pets
+    </div>
+    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px; color: #4169E1;">
+      {{ total_pets }}
+    </div>
+    <div style="color: #666666; font-size: 14px;">
+      Registered animals
+    </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Upcoming Appointments</div>
-    <div class="stat-value">{{ upcoming_appointments|length }}</div>
+  
+  <div style="border: 2px solid #B0C4DE; border-radius: 5px; padding: 15px; text-align: center; background: white;">
+    <div style="font-weight: bold; margin-bottom: 10px; color: #4169E1; border-bottom: 2px solid #B0C4DE; padding-bottom: 5px;">
+      📅 Upcoming Appointments
+    </div>
+    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px; color: #4169E1;">
+      {{ upcoming_appointments|length }}
+    </div>
+    <div style="color: #666666; font-size: 14px;">
+      Scheduled visits
+    </div>
   </div>
 </div>
 
 <!-- Upcoming Appointments -->
-<div class="toolbar">
-  <h3>Upcoming Appointments</h3>
-  <a href="{% url 'vet:appointments' %}" class="btn">View All</a>
-</div>
+<div style="background: white; border: 1px solid #cccccc; border-radius: 5px; margin-bottom: 30px;">
+  <div style="background: #B0C4DE; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #cccccc; display: flex; justify-content: space-between; align-items: center;">
+    <div>📅 Upcoming Appointments</div>
+    <a href="{% url 'vet:appointments' %}" style="color: #4169E1; text-decoration: underline;">View All</a>
+  </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Date & Time</th>
-      <th>Pet</th>
-      <th>Owner</th>
-      <th>Reason</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for appointment in upcoming_appointments %}
-      <tr>
-        <td>{{ appointment.date_time }}</td>
-        <td>{{ appointment.pet.name }}</td>
-        <td>{{ appointment.pet.owner.full_name }}</td>
-        <td>{{ appointment.reason }}</td>
-        <td>
-          {% if appointment.status == 'scheduled' %}
-            <span class="badge scheduled">Scheduled</span>
-          {% elif appointment.status == 'completed' %}
-            <span class="badge completed">Completed</span>
-          {% elif appointment.status == 'cancelled' %}
-            <span class="badge cancelled">Cancelled</span>
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="5">No upcoming appointments.</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #f5f5f5;">
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Date & Time</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Pet</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Owner</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Reason</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appointment in upcoming_appointments %}
+          {% cycle '<tr style="background-color: #ffffff;">' '<tr style="background-color: #f9f9f9;">' %}
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.date_time }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.pet.name }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.pet.owner.full_name }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.reason }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">
+              {% if appointment.status == 'scheduled' %}
+                <span style="background-color: #e3f2fd; color: #1976D2; border: 1px solid #bbdefb; padding: 3px 8px; border-radius: 3px; font-size: 12px;">Scheduled</span>
+              {% elif appointment.status == 'completed' %}
+                <span style="background-color: #e8f5e9; color: #388E3C; border: 1px solid #c8e6c9; padding: 3px 8px; border-radius: 3px; font-size: 12px;">Completed</span>
+              {% elif appointment.status == 'cancelled' %}
+                <span style="background-color: #ffebee; color: #D32F2F; border: 1px solid #ffcdd2; padding: 3px 8px; border-radius: 3px; font-size: 12px;">Cancelled</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" style="padding: 30px; text-align: center; color: #666666;">
+              <div style="font-size: 24px; margin-bottom: 10px;">📆</div>
+              No upcoming appointments found
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <div style="text-align: center; padding: 15px; background-color: #f5f5f5; border-top: 1px solid #cccccc;">
+    <a href="#" style="display: inline-block; padding: 8px 15px; background-color: #4169E1; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+      + Add New Appointment
+    </a>
+  </div>
+</div>
 
 <!-- Recent Notifications -->
-<div class="toolbar" style="margin-top:30px;">
-  <h3>Recent Notifications</h3>
-  <a href="{% url 'vet:notifications' %}" class="btn">View All</a>
+<div style="background: white; border: 1px solid #cccccc; border-radius: 5px; margin-bottom: 20px;">
+  <div style="background: #B0C4DE; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #cccccc; display: flex; justify-content: space-between; align-items: center;">
+    <div>🔔 Recent Notifications</div>
+    <a href="{% url 'vet:notifications' %}" style="color: #4169E1; text-decoration: underline;">View All</a>
+  </div>
+
+  <div style="padding: 15px;">
+    {% for notification in notifications %}
+      <div style="padding: 10px; margin-bottom: 15px; border: 1px solid #eeeeee; border-left: 3px solid #4169E1; border-radius: 3px;">
+        <div style="font-weight: bold; color: #333333; margin-bottom: 5px;">{{ notification.title }}</div>
+        <div style="color: #666666; margin-bottom: 5px;">{{ notification.message }}</div>
+        <div style="color: #999999; font-size: 12px; text-align: right;">
+          {{ notification.created_at }}
+        </div>
+      </div>
+    {% empty %}
+      <div style="text-align: center; padding: 30px; color: #666666;">
+        <div style="font-size: 24px; margin-bottom: 10px;">🔕</div>
+        No new notifications
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
-<div class="notifications-list">
-  {% for notification in notifications %}
-    <div class="notification-item">
-      <h4>{{ notification.title }}</h4>
-      <p>{{ notification.message }}</p>
-      <div class="notification-meta">
-        <span class="notification-time">{{ notification.created_at }}</span>
-      </div>
-    </div>
-  {% empty %}
-    <p class="muted">No new notifications.</p>
-  {% endfor %}
+<!-- Footer Message -->
+<div style="text-align: center; margin-top: 30px; color: #666666; font-style: italic;">
+  <p>ePetCare - Student Project Version - Last updated: September 2025</p>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Check for new appointments every 30 seconds
+  // Simple update checker - just prints to console
   function checkForUpdates() {
-    // In a real implementation, this would make an AJAX call to an API endpoint
-    console.log('Checking for updates...');
-    // For demo purposes, we'll just reload the page after 60 seconds
-    // setTimeout(() => { window.location.reload(); }, 60000);
+    console.log('Checking for new notifications...');
+    // This is just for demonstration purposes
   }
   
-  // Start the update check loop
+  // Check every 30 seconds
   setInterval(checkForUpdates, 30000);
 </script>
 {% endblock %}

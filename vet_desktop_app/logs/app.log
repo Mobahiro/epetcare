@@ -1226,3 +1226,14 @@ ImportError: cannot import name 'get_connection' from 'utils.database' (C:\epetc
 2025-09-24 10:30:11,813 - epetcare - INFO - Database connection established successfully
 2025-09-24 10:30:11,814 - epetcare - INFO - Creating main window...
 2025-09-24 10:30:16,197 - epetcare - INFO - Application started successfully
+2025-09-25 03:08:35,625 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-25 03:08:35,626 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-25 03:08:35,985 - epetcare - INFO - Initializing application...
+2025-09-25 03:08:36,070 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-25 03:08:36,071 - epetcare - INFO - Real-time database synchronization enabled
+2025-09-25 03:08:36,071 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\db.sqlite3
+2025-09-25 03:08:36,071 - epetcare - INFO - Database sync thread started
+2025-09-25 03:08:36,071 - epetcare - INFO - Setting up database connection to C:\epetcare\db.sqlite3
+2025-09-25 03:08:36,074 - epetcare - INFO - Database connection established successfully
+2025-09-25 03:08:36,075 - epetcare - INFO - Creating main window...
+2025-09-25 03:08:41,842 - epetcare - INFO - Application started successfully

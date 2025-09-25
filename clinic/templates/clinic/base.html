@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ePetCare{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v=20250926">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -48,8 +48,10 @@
     <main class="container">
         {% block content %}{% endblock %}
     </main>
-    <footer>
-        <small>© 2025 ePetCare · Student Edition</small>
+    <footer style="background: #F1E3D3; padding: 15px; margin-top: 30px; border-top: 2px solid #E6CCB2; text-align: center;">
+        <strong style="color: #6B705C;">ePetCare</strong> - Your Pet's Health Companion
+        <br>
+        <small style="color: #A5A58D;">© 2025 - Made with ❤️ for pets</small>
     </footer>
 
     <script>

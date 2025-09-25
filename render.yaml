@@ -1,0 +1,32 @@
+# Render configuration file
+# This file defines the services for the ePetCare application
+
+services:
+  # Web service for the ePetCare Django application
+  - type: web
+    name: epetcare
+    env: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn epetcare.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: WEB_CONCURRENCY
+        value: 4  # Number of Gunicorn workers
+      - key: DJANGO_SETTINGS_MODULE
+        value: epetcare.settings_production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: epetcare_db
+          property: connectionString
+      - key: ALLOWED_HOST
+        sync: false  # Set this manually in Render dashboard
+
+# Database for the application
+databases:
+  - name: epetcare_db
+    databaseName: epetcare
+    user: epetcare
+    plan: free  # Use the appropriate plan based on your needs

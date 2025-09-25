@@ -4,6 +4,15 @@
         "backup_dir": "backups",
         "real_time_sync": true
     },
+    "remote_database": {
+        "enabled": false,
+        "url": "https://your-app-name.onrender.com",
+        "username": "",
+        "password": "",
+        "token": "",
+        "sync_interval": 300,
+        "auto_sync": true
+    },
     "app": {
         "offline_mode": false,
         "sync_interval": 5,
