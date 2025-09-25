@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo ePetCare Vet Portal - SIMPLE VERSION
+echo ePetCare Vet Portal - ENHANCED VERSION
 echo ========================================
 echo.
 
@@ -21,10 +21,37 @@ echo Python found:
 python --version
 echo.
 
+REM Check for and fix common issues before starting
+echo Checking for common issues...
+if exist "vet_desktop_app\utils\remote_db_client.py" (
+    echo Verifying remote_db_client.py...
+    python -m py_compile "vet_desktop_app\utils\remote_db_client.py" >nul 2>&1
+    if errorlevel 1 (
+        echo WARNING: Issues detected in remote_db_client.py
+        echo Attempting to fix...
+        if exist "diagnose_db_sync.py" (
+            python diagnose_db_sync.py --quick-fix >nul 2>&1
+            echo Fixes applied.
+        )
+    ) else (
+        echo remote_db_client.py looks good.
+    )
+)
+echo.
+
 REM Install dependencies without complex checking
 echo Installing dependencies...
-pip install PySide6 Pillow requests urllib3 certifi --quiet
+pip install PySide6 Pillow requests urllib3 certifi psycopg2-binary --quiet
 echo Dependencies installed!
+echo.
+
+REM Check PostgreSQL configuration
+echo Checking PostgreSQL configuration...
+if exist "vet_desktop_app\config.json" (
+    python -c "import json; c=json.load(open('vet_desktop_app/config.json')); print('PostgreSQL enabled' if c.get('db_sync',{}).get('postgres',{}).get('enabled',False) else 'PostgreSQL not configured')"
+) else (
+    echo No config file found.
+)
 echo.
 
 REM Create a simple Python script to run the application
@@ -97,12 +124,22 @@ if errorlevel 1 (
     echo ERROR: Application failed to start properly
     echo Error code: %errorlevel%
     echo.
+    echo Launching diagnostic tool...
+    if exist "diagnose_db_sync.py" (
+        python diagnose_db_sync.py
+        echo.
+        echo If you want to fix these issues automatically, run:
+        echo fix_db_sync.bat
+    ) else (
+        echo Diagnostic tools not found. Please run setup_sync_tools.bat first.
+    )
+) else (
+    echo Application ran successfully
 )
 
 REM Clean up
 if exist run_app.py (
-    del run_app.py
-    echo Cleaned up temporary files
+    del run_app.py >nul 2>&1
 )
 
 echo.

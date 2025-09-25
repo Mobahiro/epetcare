@@ -1,9 +1,12 @@
 from django.urls import path, include
 from . import views
+from .deploy_hooks import deploy_hook
 
 app_name = 'vet_portal'
 
 urlpatterns = [
+    # Deploy hook for Render
+    path('deploy/', deploy_hook, name='deploy_hook'),
     # Authentication
     path('login/', views.VetLoginView.as_view(), name='login'),
     path('logout/', views.VetLogoutView.as_view(), name='logout'),

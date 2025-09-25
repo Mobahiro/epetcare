@@ -8,23 +8,25 @@ services:
     env: python
     repo: https://github.com/Mobahiro/epetcare.git
     branch: main
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    buildCommand: ./build.sh
     startCommand: gunicorn epetcare.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.0
       - key: WEB_CONCURRENCY
         value: 4  # Number of Gunicorn workers
-      - key: DJANGO_SETTINGS_MODULE
-        value: epetcare.settings_production
+      - key: RENDER
+        value: true
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
           name: epetcare_db
           property: connectionString
-      - key: ALLOWED_HOST
-        sync: false  # Set this manually in Render dashboard
+    healthCheckPath: /vet_portal/
+    autoDeploy: true
+    # Deployment hook for client app sync
+    # https://api.render.com/deploy/srv-d3an3j95pdvs73d1co40?key=Zay8YidqwKg
 
 # Database for the application
 databases:

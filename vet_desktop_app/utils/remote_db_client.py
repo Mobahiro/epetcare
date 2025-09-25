@@ -223,24 +223,6 @@ class RemoteDatabaseClient:
         except Exception as e:
             logger.error(f"Error getting database info: {e}")
             return None
-                
-                # If we get here, all attempts failed
-                logger.error("All attempts to get database info failed")
-                
-                # Return dummy info as fallback
-                return {
-                    "status": "unknown",
-                    "timestamp": "",
-                    "sync_method": "api",
-                    "message": "Could not connect to database API. Check your URL and credentials."
-                }
-            else:
-                logger.error(f"Failed to get database info: {response.status_code} - {response.text}")
-                return None
-                
-        except Exception as e:
-            logger.error(f"Error getting database info: {e}")
-            return None
     
     def download_database(self, local_path=None):
         """

@@ -258,6 +258,56 @@ def fix_remote_db_client():
         # Check for common issues
         issues_fixed = []
         
+        # Fix indentation error around line 228
+        if "def get_database_info(self):" in content:
+            # Extract the get_database_info method
+            start_marker = "def get_database_info(self):"
+            start_idx = content.find(start_marker)
+            
+            # Find the next method definition to determine where this method ends
+            next_def = content.find("def ", start_idx + len(start_marker))
+            if next_def > 0:
+                method_content = content[start_idx:next_def]
+            else:
+                # If no next method, look for class end
+                class_end = content.find("class ", start_idx + len(start_marker))
+                if class_end > 0:
+                    method_content = content[start_idx:class_end]
+                else:
+                    # If can't find next class, take rest of file
+                    method_content = content[start_idx:]
+            
+            # Check if method has indentation issues (duplicated code blocks)
+            if method_content.count("return response.json()") > 1:
+                # Replace the entire method with a fixed version
+                fixed_method = """    def get_database_info(self):
+        \"\"\"Get basic information about the remote database\"\"\"
+        url = f"{self.base_url}/api/database-info/"
+        try:
+            response = requests.get(
+                url, 
+                headers=self.get_auth_headers(),
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                self.logger.error(f"Failed to get database info: {response.status_code}")
+                return None
+        except Exception as e:
+            self.logger.error(f"Error connecting to remote database: {str(e)}")
+            return None
+"""
+                # Replace the method in the content
+                if next_def > 0:
+                    new_content = content[:start_idx] + fixed_method + content[next_def:]
+                else:
+                    new_content = content[:start_idx] + fixed_method
+                
+                content = new_content
+                issues_fixed.append("indentation error in get_database_info method (line ~228)")
+        
         # Fix issues with URL handling
         api_paths_check = "api_paths = [" in content and "'/api'," in content
         
@@ -424,6 +474,17 @@ def fix_config(config, api_info):
     return changes_made, config
 
 def main():
+    # Parse arguments
+    import argparse
+    parser = argparse.ArgumentParser(description='ePetCare Database Sync Diagnostic Tool')
+    parser.add_argument('--quick-fix', action='store_true', help='Apply quick fixes without full diagnostics')
+    args = parser.parse_args()
+    
+    if args.quick_fix:
+        # Apply quick fixes only
+        fix_remote_db_client()
+        return
+    
     print_header("ePetCare Database Sync Diagnostic Tool")
     
     # Step 1: Load configuration

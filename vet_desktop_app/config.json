@@ -1,6 +1,6 @@
 {
     "database": {
-        "path": "C:\\epetcare\\db.sqlite3",
+        "path": "C:\\epetcare\\data\\db.sqlite3",
         "backup_dir": "backups",
         "real_time_sync": true
     },
@@ -15,9 +15,9 @@
     },
     "remote_database": {
         "enabled": true,
-        "url": "https://epetcare.onrender.com",
-        "username": "admin",
-        "password": "admin",
+        "url": "https://epetcare.onrender.com/vet_portal/api",
+        "username": "YOUR_VET_USERNAME",
+        "password": "YOUR_VET_PASSWORD",
         "sync_interval": 30,
         "auto_sync": true
     }

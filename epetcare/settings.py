@@ -10,7 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=(2hy%htsi*&@2f(#x2tot4m%&3g(68=n%kpe-cd%_kfxa78(%'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-=(2hy%htsi*&@2f(#x2tot4m%&3g(68=n%kpe-cd%_kfxa78(%')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Turn off debug in production
+DEBUG = not IS_PRODUCTION
 
-ALLOWED_HOSTS = []
+# Add render.com domain to allowed hosts for production
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+if IS_PRODUCTION:
+    ALLOWED_HOSTS.extend(['epetcare.onrender.com', '.onrender.com'])
 
 
 # Application definition
@@ -44,6 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add whitenoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,12 +86,25 @@ WSGI_APPLICATION = 'epetcare.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Check if we're on Render.com (production)
+IS_PRODUCTION = os.environ.get('RENDER', '') == 'true'
+
+if IS_PRODUCTION:
+    # Use PostgreSQL on Render
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600
+        )
     }
-}
+else:
+    # Use SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -118,9 +142,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Disable caching of static files during development
-if DEBUG:
+# Add middleware for serving static files with whitenoise
+if IS_PRODUCTION:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Default primary key field type
