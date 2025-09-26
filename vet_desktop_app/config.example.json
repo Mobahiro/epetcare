@@ -1,0 +1,16 @@
+{
+  "database": {
+    "type": "postgres",
+    "database_url": "postgresql://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=require",
+    "host": "HOST",
+    "port": 5432,
+    "database": "DBNAME",
+    "user": "USER",
+    "password": "PASSWORD",
+    "sslmode": "require"
+  },
+  "app": {
+    "theme": "light",
+    "auto_refresh_seconds": 15
+  }
+}

@@ -2281,3 +2281,13 @@ HINT:  You will need to rewrite or cast the expression.
 2025-09-26 17:00:17,688 - epetcare - INFO - Connected to PostgreSQL successfully
 2025-09-26 17:00:18,036 - epetcare - INFO - Creating main window...
 2025-09-26 17:00:24,026 - epetcare - INFO - Application started successfully
+2025-09-26 17:04:35,189 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 17:04:35,190 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 17:04:35,359 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 17:04:35,531 - epetcare - INFO - Initializing application...
+2025-09-26 17:04:35,557 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 17:04:35,582 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 17:04:36,471 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 17:04:36,471 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 17:04:36,800 - epetcare - INFO - Creating main window...
+2025-09-26 17:04:45,659 - epetcare - INFO - Application started successfully

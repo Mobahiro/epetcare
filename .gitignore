@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django/SQLite artifacts
+*.sqlite3
+local_settings.py
+media/
+staticfiles/
+
+# VS Code
+.vscode/
+
+# Environments
+.env
+.env.*
+*.env
+
+# Desktop app secrets and artifacts
+vet_desktop_app/config.json
+vet_desktop_app/logs/
+vet_desktop_app/backups/
+vet_desktop_app/data/
+
+# OS junk
+.DS_Store
+Thumbs.db

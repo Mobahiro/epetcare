@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QComboBox, QGroupBox, QFormLayout, QLineEdit, QTextEdit,
     QDateTimeEdit, QMessageBox, QSplitter, QDialog, QTabWidget
 )
-from PySide6.QtCore import Qt, QDate, QDateTime
+from PySide6.QtCore import Qt, QDate, QDateTime, QTimer
 from PySide6.QtGui import QFont, QIcon
 
 from datetime import datetime, timedelta
@@ -32,6 +32,12 @@ class AppointmentsView(QWidget):
         
         self.current_date = QDate.currentDate()
         self.setup_ui()
+        
+        # Auto-refresh timer (every 15 seconds) to reflect external changes
+        self._refresh_timer = QTimer(self)
+        self._refresh_timer.setInterval(15_000)
+        self._refresh_timer.timeout.connect(self.refresh_data)
+        self._refresh_timer.start()
     
     def setup_ui(self):
         """Set up the user interface"""
@@ -230,8 +236,33 @@ class AppointmentsView(QWidget):
     
     def refresh_data(self):
         """Refresh the data displayed in the view"""
+        # Preserve selection for both tables
+        selected_calendar_ids = self._get_selected_ids(self.calendar_appointments_table, id_col=0)
+        selected_all_ids = self._get_selected_ids(self.all_appointments_table, id_col=0)
+
         self.load_appointments()
         self.load_all_appointments()
+
+        # Restore selection
+        self._restore_selection(self.calendar_appointments_table, id_col=0, ids=selected_calendar_ids)
+        self._restore_selection(self.all_appointments_table, id_col=0, ids=selected_all_ids)
+
+    def _get_selected_ids(self, table_widget: QTableWidget, id_col: int = 0):
+        ids = []
+        for item in table_widget.selectedItems():
+            if item.column() == id_col:
+                ids.append(item.data(Qt.UserRole))
+        return ids
+
+    def _restore_selection(self, table_widget: QTableWidget, id_col: int = 0, ids=None):
+        if not ids:
+            return
+        ids = set(ids)
+        table_widget.clearSelection()
+        for row in range(table_widget.rowCount()):
+            item = table_widget.item(row, id_col)
+            if item and item.data(Qt.UserRole) in ids:
+                item.setSelected(True)
     
     def go_to_today(self):
         """Go to today's date"""
