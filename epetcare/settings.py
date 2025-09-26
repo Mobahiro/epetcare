@@ -92,7 +92,9 @@ WSGI_APPLICATION = 'epetcare.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if not DATABASE_URL:
     raise RuntimeError(
-        "DATABASE_URL environment variable is required. Set it in your .env file."
+        "DATABASE_URL environment variable is required.\n"
+        "- For local dev: set it in your .env file.\n"
+        "- On Render: add DATABASE_URL in the service's Environment (or link a Render Postgres 'External Database URL')."
     )
 
 DATABASES = {

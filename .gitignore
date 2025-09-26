@@ -16,6 +16,7 @@ staticfiles/
 .env
 .env.*
 *.env
+!.env.example
 
 # Desktop app secrets and artifacts
 vet_desktop_app/config.json
