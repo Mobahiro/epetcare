@@ -54,63 +54,46 @@ if exist "vet_desktop_app\config.json" (
 )
 echo.
 
-REM Create a simple Python script to run the application
+REM Create runner script (will NOT overwrite existing Postgres config)
 echo Creating application script...
-echo import os, sys, traceback > run_app.py
-echo # Set up paths >> run_app.py
+echo import os, sys, json, traceback > run_app.py
 echo root_dir = r'%CD%' >> run_app.py
 echo app_dir = os.path.join(root_dir, 'vet_desktop_app') >> run_app.py
 echo sys.path.insert(0, root_dir) >> run_app.py
 echo sys.path.insert(0, app_dir) >> run_app.py
-echo # Change to the app directory >> run_app.py
 echo os.chdir(app_dir) >> run_app.py
-echo # Create config.json >> run_app.py
-echo config = { >> run_app.py
-echo     "database": { >> run_app.py
-echo         "path": os.path.join(root_dir, "db.sqlite3").replace("\\", "\\\\"), >> run_app.py
-echo         "backup_dir": "backups", >> run_app.py
-echo         "real_time_sync": True >> run_app.py
-echo     }, >> run_app.py
-echo     "remote_database": { >> run_app.py
-echo         "enabled": True, >> run_app.py
-echo         "url": "https://epetcare.onrender.com/vet_portal/api", >> run_app.py
-echo         "username": "YOUR_VET_USERNAME", >> run_app.py
-echo         "password": "YOUR_VET_PASSWORD", >> run_app.py
-echo         "sync_interval": 30, >> run_app.py
-echo         "auto_sync": True >> run_app.py
-echo     }, >> run_app.py
-echo     "app": { >> run_app.py
-echo         "offline_mode": False, >> run_app.py
-echo         "sync_interval": 5, >> run_app.py
-echo         "auto_backup": True >> run_app.py
-echo     }, >> run_app.py
-echo     "ui": { >> run_app.py
-echo         "theme": "light", >> run_app.py
-echo         "font_size": 10 >> run_app.py
+echo cfg_path = os.path.join(app_dir, 'config.json') >> run_app.py
+echo needs_template = False >> run_app.py
+echo if not os.path.exists(cfg_path): >> run_app.py
+echo     needs_template = True >> run_app.py
+echo else: >> run_app.py
+echo     try: >> run_app.py
+echo         data = json.load(open(cfg_path, 'r')) >> run_app.py
+echo         if 'postgres' not in data: >> run_app.py
+echo             needs_template = True >> run_app.py
+echo     except Exception: >> run_app.py
+echo         needs_template = True >> run_app.py
+echo if needs_template: >> run_app.py
+echo     template = { >> run_app.py
+echo         'postgres': { >> run_app.py
+echo             'host': '', 'port': 5432, 'database': '', 'user': '', 'password': '', 'sslmode': 'require', 'database_url': '' >> run_app.py
+echo         }, >> run_app.py
+echo         'app': {'auto_backup': False, 'read_only_mode': False}, >> run_app.py
+echo         'ui': {'theme': 'light', 'font_size': 10} >> run_app.py
 echo     } >> run_app.py
-echo } >> run_app.py
-echo import json >> run_app.py
-echo with open('config.json', 'w') as f: >> run_app.py
-echo     json.dump(config, f, indent=4) >> run_app.py
-echo # Create __init__.py files if they don't exist >> run_app.py
-echo for dir_path in ['', 'models', 'views', 'utils']: >> run_app.py
-echo     init_file = os.path.join(dir_path, '__init__.py') >> run_app.py
-echo     if not os.path.exists(init_file): >> run_app.py
-echo         with open(init_file, 'w') as f: >> run_app.py
-echo             f.write('# Auto-generated __init__.py file') >> run_app.py
-echo # Run the application >> run_app.py
+echo     with open(cfg_path, 'w') as f: json.dump(template, f, indent=4) >> run_app.py
+echo     print('Created Postgres config template at config.json - please fill credentials.') >> run_app.py
+echo else: >> run_app.py
+echo     print('Using existing config.json') >> run_app.py
 echo try: >> run_app.py
-echo     print("Starting ePetCare Vet Portal...") >> run_app.py
-echo     print("Please wait for the application window to appear...") >> run_app.py
-echo     with open('main.py') as f: >> run_app.py
-echo         code = compile(f.read(), 'main.py', 'exec') >> run_app.py
-echo         exec(code) >> run_app.py
+echo     print('Starting ePetCare Vet Portal...') >> run_app.py
+echo     with open('main.py','r',encoding='utf-8') as f: code = compile(f.read(),'main.py','exec'); exec(code) >> run_app.py
 echo except Exception as e: >> run_app.py
-echo     print(f"\nERROR: {e}") >> run_app.py
+echo     print('\nERROR:', e) >> run_app.py
 echo     traceback.print_exc() >> run_app.py
-echo     input("\nPress Enter to exit...") >> run_app.py
+echo     input('\nPress Enter to exit...') >> run_app.py
 
-echo Script created successfully!
+echo Script created (non-destructive).
 echo.
 
 REM Run the Python script

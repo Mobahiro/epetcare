@@ -2018,3 +2018,266 @@ IndentationError: unexpected indent
 2025-09-26 02:37:23,221 - epetcare - WARNING - Creating a new empty database as fallback
 2025-09-26 02:37:23,225 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_8ciiio4w.sqlite3
 2025-09-26 02:37:23,775 - epetcare - INFO - Application started successfully
+2025-09-26 02:52:57,670 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 02:52:57,671 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 02:52:57,973 - epetcare - INFO - Initializing application...
+2025-09-26 02:52:57,995 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 02:52:57,996 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 02:52:57,996 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 02:52:57,997 - epetcare - INFO - Network database manager set up with remote URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 02:52:57,998 - epetcare - INFO - Detected Render-deployed application, using API endpoints
+2025-09-26 02:52:57,998 - epetcare - INFO - Setting up remote database client for https://epetcare.onrender.com/vet_portal
+2025-09-26 02:52:59,969 - epetcare - ERROR - All authentication attempts failed
+2025-09-26 02:52:59,969 - epetcare - WARNING - Falling back to anonymous access
+2025-09-26 02:52:59,970 - epetcare - INFO - Syncing database from https://epetcare.onrender.com/vet_portal/api using API
+2025-09-26 02:53:03,481 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:53:03,481 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:53:03,529 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_aqw3cuc8.sqlite3
+2025-09-26 02:53:03,529 - epetcare - INFO - Using remote database at C:\Users\Shiro\AppData\Local\Temp\epetcare_aqw3cuc8.sqlite3
+2025-09-26 02:53:03,530 - epetcare - INFO - Database sync manager set up with main DB: C:\Users\Shiro\AppData\Local\Temp\epetcare_aqw3cuc8.sqlite3, local DB: C:\epetcare\data\db.sqlite3
+2025-09-26 02:53:03,531 - epetcare - INFO - Remote database sync configured with interval: 30 seconds
+2025-09-26 02:53:03,532 - epetcare - INFO - Database sync thread started
+2025-09-26 02:53:03,532 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:53:03,532 - epetcare - INFO - Setting up database connection to C:\epetcare\data\db.sqlite3
+2025-09-26 02:53:03,533 - epetcare - INFO - Syncing database from https://epetcare.onrender.com/vet_portal/api using API
+2025-09-26 02:53:03,536 - epetcare - INFO - Database connection established successfully
+2025-09-26 02:53:03,536 - epetcare - INFO - Creating main window...
+2025-09-26 02:53:07,101 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:53:07,123 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:53:07,128 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_aqw3cuc8.sqlite3
+2025-09-26 02:53:07,499 - epetcare - INFO - Application started successfully
+2025-09-26 02:55:49,579 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 02:55:49,579 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 02:55:49,903 - epetcare - INFO - Initializing application...
+2025-09-26 02:55:49,926 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 02:55:49,926 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 02:55:49,927 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 02:55:49,928 - epetcare - INFO - Network database manager set up with remote URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 02:55:49,928 - epetcare - INFO - Detected Render-deployed application, using API endpoints
+2025-09-26 02:55:49,929 - epetcare - INFO - Setting up remote database client for https://epetcare.onrender.com/vet_portal
+2025-09-26 02:55:51,612 - epetcare - ERROR - All authentication attempts failed
+2025-09-26 02:55:51,612 - epetcare - WARNING - Falling back to anonymous access
+2025-09-26 02:55:51,613 - epetcare - INFO - Syncing database from https://epetcare.onrender.com/vet_portal/api using API
+2025-09-26 02:55:55,172 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:55:55,172 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:55:55,223 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_bert99rg.sqlite3
+2025-09-26 02:55:55,223 - epetcare - INFO - Using remote database at C:\Users\Shiro\AppData\Local\Temp\epetcare_bert99rg.sqlite3
+2025-09-26 02:55:55,225 - epetcare - INFO - Database sync manager set up with main DB: C:\Users\Shiro\AppData\Local\Temp\epetcare_bert99rg.sqlite3, local DB: C:\epetcare\data\db.sqlite3
+2025-09-26 02:55:55,225 - epetcare - INFO - Remote database sync configured with interval: 30 seconds
+2025-09-26 02:55:55,226 - epetcare - INFO - Database sync thread started
+2025-09-26 02:55:55,226 - epetcare - INFO - Syncing with remote database
+2025-09-26 02:55:55,226 - epetcare - INFO - Setting up database connection to C:\epetcare\data\db.sqlite3
+2025-09-26 02:55:55,227 - epetcare - INFO - Syncing database from https://epetcare.onrender.com/vet_portal/api using API
+2025-09-26 02:55:55,230 - epetcare - INFO - Database connection established successfully
+2025-09-26 02:55:55,231 - epetcare - INFO - Creating main window...
+2025-09-26 02:55:58,949 - epetcare - ERROR - All attempts to download database failed
+2025-09-26 02:55:58,950 - epetcare - WARNING - Creating a new empty database as fallback
+2025-09-26 02:55:58,954 - epetcare - INFO - Database synced successfully to C:\Users\Shiro\AppData\Local\Temp\epetcare_bert99rg.sqlite3
+2025-09-26 02:56:03,076 - epetcare - INFO - Application started successfully
+2025-09-26 03:19:08,910 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 03:19:08,911 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 03:19:09,253 - epetcare - INFO - Initializing application...
+2025-09-26 03:19:09,276 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 03:19:09,277 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 03:19:09,278 - epetcare - INFO - Remote database is enabled with URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 03:19:09,280 - epetcare - INFO - Network database manager set up with remote URL: https://epetcare.onrender.com/vet_portal/api
+2025-09-26 03:19:09,280 - epetcare - INFO - Detected Render-deployed application, using API endpoints
+2025-09-26 03:19:09,281 - epetcare - INFO - Setting up remote database client for https://epetcare.onrender.com/vet_portal
+2025-09-26 03:19:14,759 - epetcare - ERROR - Error connecting to server: HTTPSConnectionPool(host='epetcare.onrender.com', port=443): Read timed out. (read timeout=5)
+2025-09-26 03:19:14,759 - epetcare - ERROR - Failed to set up remote database client
+2025-09-26 03:19:14,759 - epetcare - ERROR - Failed to set up remote database connection
+2025-09-26 03:19:14,760 - epetcare - INFO - Database sync manager set up with main DB: C:\epetcare\db.sqlite3, local DB: C:\epetcare\data\db.sqlite3
+2025-09-26 03:19:14,760 - epetcare - INFO - Remote database sync configured with interval: 30 seconds
+2025-09-26 03:19:14,761 - epetcare - INFO - Database sync thread started
+2025-09-26 03:19:14,761 - epetcare - INFO - Syncing database from C:\epetcare\db.sqlite3 to C:\epetcare\data\db.sqlite3
+2025-09-26 03:19:14,761 - epetcare - INFO - Setting up database connection to C:\epetcare\data\db.sqlite3
+2025-09-26 03:19:14,777 - epetcare - INFO - Database connection established successfully
+2025-09-26 03:19:14,777 - epetcare - INFO - Creating main window...
+2025-09-26 03:19:26,076 - epetcare - INFO - Application started successfully
+2025-09-26 11:41:50,295 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 11:41:50,296 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 11:41:51,138 - epetcare - INFO - Initializing application...
+2025-09-26 11:41:51,218 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 11:41:51,219 - epetcare - ERROR - Postgres config missing keys: ['host', 'port', 'database', 'user', 'password']
+2025-09-26 11:41:59,683 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 11:41:59,684 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 11:42:00,025 - epetcare - INFO - Initializing application...
+2025-09-26 11:42:00,046 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 11:42:00,047 - epetcare - ERROR - Postgres config missing keys: ['host', 'port', 'database', 'user', 'password']
+2025-09-26 11:46:32,303 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 11:46:32,303 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 11:46:32,689 - epetcare - INFO - Initializing application...
+2025-09-26 11:46:32,711 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 11:46:32,712 - epetcare - ERROR - No 'postgres' section found in config.json; cannot connect.
+2025-09-26 11:46:52,506 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 11:46:52,507 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 11:46:52,842 - epetcare - INFO - Initializing application...
+2025-09-26 11:46:52,864 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 11:46:52,865 - epetcare - ERROR - No 'postgres' section found in config.json; cannot connect.
+2025-09-26 11:58:00,275 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 11:58:00,276 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 11:58:00,475 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 11:58:00,697 - epetcare - INFO - Initializing application...
+2025-09-26 11:58:00,725 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 11:58:01,753 - epetcare - ERROR - Failed to connect to PostgreSQL: could not translate host name "dpg-d3an6aggjchc73cpr5i0-a" to address: Name or service not known
+
+2025-09-26 11:58:44,247 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 11:58:44,248 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 11:58:44,445 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 11:58:44,609 - epetcare - INFO - Initializing application...
+2025-09-26 11:58:44,635 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 11:58:45,641 - epetcare - ERROR - Failed to connect to PostgreSQL: could not translate host name "dpg-d3an6aggjchc73cpr5i0-a" to address: Name or service not known
+
+2025-09-26 12:04:33,715 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:04:33,716 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:04:33,893 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:04:34,085 - epetcare - INFO - Initializing application...
+2025-09-26 12:04:34,121 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:04:34,137 - epetcare - CRITICAL - Unhandled exception in main(): 'idna' codec can't encode characters in position 0-95: label too long
+2025-09-26 12:04:34,189 - epetcare - CRITICAL - Traceback (most recent call last):
+  File "main.py", line 220, in main
+    if not setup_postgres_connection(pg_cfg):
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\epetcare\vet_desktop_app\utils\pg_db.py", line 81, in setup_postgres_connection
+    resolved = socket.getaddrinfo(connect_kwargs['host'], connect_kwargs['port'])
+  File "C:\Python313\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\idna.py", line 203, in encode
+    raise UnicodeEncodeError("idna", input, offset, offset+len(label),
+                             "label too long")
+UnicodeEncodeError: 'idna' codec can't encode characters in position 0-95: label too long
+encoding with 'idna' codec failed
+
+2025-09-26 12:07:15,842 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:07:15,843 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:07:16,018 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:07:16,224 - epetcare - INFO - Initializing application...
+2025-09-26 12:07:16,278 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:07:17,295 - epetcare - ERROR - DNS resolution failed for host 'dpg-d3an6aggjchc73cpr5i0-a': [Errno 11001] getaddrinfo failed. If this is a Render host, use the exact host value from the Render dashboard (Connections tab).
+2025-09-26 12:07:57,382 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:07:57,382 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:07:57,556 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:07:57,727 - epetcare - INFO - Initializing application...
+2025-09-26 12:07:57,753 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:07:57,754 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-26 12:08:29,275 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:08:29,276 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:08:29,440 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:08:29,621 - epetcare - INFO - Initializing application...
+2025-09-26 12:08:29,646 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:08:29,647 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-26 12:09:12,145 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:09:12,146 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:09:12,318 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:09:12,476 - epetcare - INFO - Initializing application...
+2025-09-26 12:09:12,554 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:09:13,562 - epetcare - ERROR - DNS resolution failed for host 'dpg-d3an6aggjchc73cpr5i0-a': [Errno 11001] getaddrinfo failed. If this is a Render host, use the exact host value from the Render dashboard (Connections tab).
+2025-09-26 12:12:09,757 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:12:09,757 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:12:09,924 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:12:10,102 - epetcare - INFO - Initializing application...
+2025-09-26 12:12:10,128 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:12:10,129 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-26 12:12:53,816 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:12:53,816 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:12:53,989 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:12:54,149 - epetcare - INFO - Initializing application...
+2025-09-26 12:12:54,173 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:12:54,343 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 12:12:55,272 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 12:12:55,272 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 12:12:55,273 - epetcare - INFO - Creating main window...
+2025-09-26 12:13:46,553 - epetcare - ERROR - execute_query error: relation "auth_user" does not exist
+LINE 1: SELECT * FROM auth_user WHERE username = 'tito'
+                      ^
+; query=SELECT * FROM auth_user WHERE username = ?
+2025-09-26 12:13:46,722 - epetcare - ERROR - execute_query error: current transaction is aborted, commands ignored until end of transaction block
+; query=SELECT * FROM auth_user WHERE email = ?
+2025-09-26 12:13:46,896 - epetcare - ERROR - execute_query error: current transaction is aborted, commands ignored until end of transaction block
+; query=SELECT * FROM vet_veterinarian WHERE license_number = ?
+2025-09-26 12:13:47,066 - epetcare - ERROR - execute_query error: current transaction is aborted, commands ignored until end of transaction block
+; query=SELECT * FROM auth_user WHERE username = ?
+2025-09-26 12:13:47,230 - epetcare - ERROR - execute_query error: current transaction is aborted, commands ignored until end of transaction block
+; query=SELECT * FROM auth_user WHERE email = ?
+2025-09-26 12:13:47,906 - epetcare - ERROR - insert error (auth_user): current transaction is aborted, commands ignored until end of transaction block
+
+2025-09-26 12:13:56,843 - epetcare - INFO - Application started successfully
+2025-09-26 12:18:52,206 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 12:18:52,207 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 12:18:52,409 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 12:18:52,596 - epetcare - INFO - Initializing application...
+2025-09-26 12:18:52,627 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 12:18:52,655 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 12:18:53,574 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 12:18:53,574 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 12:18:53,904 - epetcare - ERROR - Core table auth_user not found. Django migrations likely not run on this database.
+2025-09-26 16:29:47,082 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 16:29:47,090 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 16:29:47,486 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 16:29:47,930 - epetcare - INFO - Initializing application...
+2025-09-26 16:29:48,025 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 16:29:48,063 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 16:29:49,062 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 16:29:49,063 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 16:29:49,414 - epetcare - ERROR - Core table auth_user not found. Django migrations likely not run on this database.
+2025-09-26 16:35:17,994 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 16:35:17,995 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 16:35:18,231 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 16:35:18,410 - epetcare - INFO - Initializing application...
+2025-09-26 16:35:18,437 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 16:35:18,477 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 16:35:19,386 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 16:35:19,386 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 16:35:19,786 - epetcare - INFO - Creating main window...
+2025-09-26 16:35:50,755 - epetcare - ERROR - insert error (auth_user): column "is_active" is of type boolean but expression is of type integer
+LINE 1: ...3dcc8ea99492f55', '12@gmail.com', 'kiyo', 'aber', 1, 0, 0, '...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+2025-09-26 16:36:04,537 - epetcare - ERROR - insert error (auth_user): column "is_active" is of type boolean but expression is of type integer
+LINE 1: ...72341ac4fe4', 'kiyo12@gmail.com', 'kiyo', 'aber', 1, 0, 0, '...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+2025-09-26 16:36:22,824 - epetcare - ERROR - insert error (auth_user): column "is_active" is of type boolean but expression is of type integer
+LINE 1: ...6258e246ca3', 'kiyo12@gmail.com', 'kiyo', 'aber', 1, 0, 0, '...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+2025-09-26 16:36:45,724 - epetcare - ERROR - insert error (auth_user): column "is_active" is of type boolean but expression is of type integer
+LINE 1: ...6ad54a974098bcb740c99', 'dadada', 'kiyo', 'aber', 1, 0, 0, '...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+2025-09-26 16:37:11,027 - epetcare - ERROR - insert error (auth_user): column "is_active" is of type boolean but expression is of type integer
+LINE 1: ...8740eadb', 'Michael12@yahoo.com', 'kiyo', 'aber', 1, 0, 0, '...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+2025-09-26 16:39:36,563 - epetcare - ERROR - insert error (auth_user): column "is_active" is of type boolean but expression is of type integer
+LINE 1: ...3261bccdb8d', 'mikael@gmail.com', 'Kiyo', 'Aber', 1, 0, 0, '...
+                                                             ^
+HINT:  You will need to rewrite or cast the expression.
+
+2025-09-26 16:39:50,111 - epetcare - INFO - Application started successfully
+2025-09-26 16:46:33,047 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 16:46:33,048 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 16:46:33,270 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 16:46:33,442 - epetcare - INFO - Initializing application...
+2025-09-26 16:46:33,466 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 16:46:33,534 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 16:46:34,503 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 16:46:34,503 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 16:46:34,843 - epetcare - INFO - Creating main window...
+2025-09-26 16:48:06,534 - epetcare - INFO - Application started successfully
+2025-09-26 17:00:16,317 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 17:00:16,318 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 17:00:16,495 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 17:00:16,656 - epetcare - INFO - Initializing application...
+2025-09-26 17:00:16,679 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 17:00:16,710 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 17:00:17,688 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 17:00:17,688 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 17:00:18,036 - epetcare - INFO - Creating main window...
+2025-09-26 17:00:24,026 - epetcare - INFO - Application started successfully

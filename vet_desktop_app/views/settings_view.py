@@ -11,7 +11,7 @@ from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QFont
 
 from utils.config import load_config, save_config, get_config_value, set_config_value
-from utils.database import backup_database
+from utils.pg_db import get_connection as get_pg_connection
 
 
 class SettingsView(QWidget):
@@ -43,40 +43,43 @@ class SettingsView(QWidget):
         general_tab = QWidget()
         general_layout = QVBoxLayout(general_tab)
         
-        # Database settings
-        db_group = QGroupBox("Database")
-        db_layout = QFormLayout()
-        
-        self.db_path_edit = QLineEdit(self.config['database']['path'])
-        self.db_path_edit.setReadOnly(True)
-        
-        db_path_layout = QHBoxLayout()
-        db_path_layout.addWidget(self.db_path_edit)
-        
-        self.browse_db_button = QPushButton("Browse...")
-        self.browse_db_button.clicked.connect(self.browse_db_path)
-        db_path_layout.addWidget(self.browse_db_button)
-        
-        db_layout.addRow("Database Path:", db_path_layout)
-        
-        self.backup_dir_edit = QLineEdit(self.config['database']['backup_dir'])
-        self.backup_dir_edit.setReadOnly(True)
-        
-        backup_dir_layout = QHBoxLayout()
-        backup_dir_layout.addWidget(self.backup_dir_edit)
-        
-        self.browse_backup_button = QPushButton("Browse...")
-        self.browse_backup_button.clicked.connect(self.browse_backup_dir)
-        backup_dir_layout.addWidget(self.browse_backup_button)
-        
-        db_layout.addRow("Backup Directory:", backup_dir_layout)
-        
-        self.backup_now_button = QPushButton("Backup Now")
-        self.backup_now_button.clicked.connect(self.backup_now)
-        db_layout.addRow("", self.backup_now_button)
-        
-        db_group.setLayout(db_layout)
-        general_layout.addWidget(db_group)
+        # PostgreSQL settings (read-only summary for now; editing via config.json)
+        pg_group = QGroupBox("PostgreSQL Connection")
+        pg_layout = QFormLayout()
+        pg_cfg = self.config.get('postgres', {})
+
+        self.pg_host_edit = QLineEdit(pg_cfg.get('host', ''))
+        self.pg_host_edit.setReadOnly(True)
+        pg_layout.addRow("Host:", self.pg_host_edit)
+
+        self.pg_db_edit = QLineEdit(pg_cfg.get('database', ''))
+        self.pg_db_edit.setReadOnly(True)
+        pg_layout.addRow("Database:", self.pg_db_edit)
+
+        self.pg_user_edit = QLineEdit(pg_cfg.get('user', ''))
+        self.pg_user_edit.setReadOnly(True)
+        pg_layout.addRow("User:", self.pg_user_edit)
+
+        masked_pw = '********' if pg_cfg.get('password') else ''
+        self.pg_pass_edit = QLineEdit(masked_pw)
+        self.pg_pass_edit.setReadOnly(True)
+        pg_layout.addRow("Password:", self.pg_pass_edit)
+
+        self.pg_status_label = QLabel("Not Connected")
+        try:
+            conn = get_pg_connection()
+            if conn:
+                self.pg_status_label.setText("Connected")
+        except Exception:
+            pass
+        pg_layout.addRow("Status:", self.pg_status_label)
+
+        hint = QLabel("Edit credentials directly in config.json then restart application.")
+        hint.setWordWrap(True)
+        pg_layout.addRow("", hint)
+
+        pg_group.setLayout(pg_layout)
+        general_layout.addWidget(pg_group)
         
         # Application settings
         app_group = QGroupBox("Application")
@@ -179,52 +182,11 @@ class SettingsView(QWidget):
         
         layout.addLayout(buttons_layout)
     
-    def browse_db_path(self):
-        """Browse for database file"""
-        file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Select Database File",
-            self.db_path_edit.text(),
-            "SQLite Database (*.sqlite3);;All Files (*)"
-        )
-        
-        if file_path:
-            self.db_path_edit.setText(file_path)
-    
-    def browse_backup_dir(self):
-        """Browse for backup directory"""
-        dir_path = QFileDialog.getExistingDirectory(
-            self,
-            "Select Backup Directory",
-            self.backup_dir_edit.text()
-        )
-        
-        if dir_path:
-            self.backup_dir_edit.setText(dir_path)
-    
-    def backup_now(self):
-        """Backup the database immediately"""
-        success, result = backup_database(self.backup_dir_edit.text())
-        
-        if success:
-            QMessageBox.information(
-                self,
-                "Backup Successful",
-                f"Database backup created successfully at:\n{result}"
-            )
-        else:
-            QMessageBox.critical(
-                self,
-                "Backup Failed",
-                f"Failed to create database backup:\n{result}"
-            )
+    # Removed browse / backup actions (SQLite legacy)
     
     def save_settings(self):
         """Save the settings"""
         # Update config
-        self.config['database']['path'] = self.db_path_edit.text()
-        self.config['database']['backup_dir'] = self.backup_dir_edit.text()
-        
         self.config['app']['offline_mode'] = self.offline_mode_check.isChecked()
         self.config['app']['sync_interval'] = self.sync_interval_spin.value()
         self.config['app']['auto_backup'] = self.auto_backup_check.isChecked()
@@ -293,9 +255,6 @@ class SettingsView(QWidget):
         self.config = load_config()
         
         # Update UI
-        self.db_path_edit.setText(self.config['database']['path'])
-        self.backup_dir_edit.setText(self.config['database']['backup_dir'])
-        
         self.offline_mode_check.setChecked(self.config['app']['offline_mode'])
         self.sync_interval_spin.setValue(self.config['app']['sync_interval'])
         self.auto_backup_check.setChecked(self.config['app']['auto_backup'])

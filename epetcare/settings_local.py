@@ -7,28 +7,13 @@ Usage:
     python manage.py runserver
 """
 
-from .settings import *
+from .settings import *  # noqa
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=(2hy%htsi*&@2f(#x2tot4m%&3g(68=n%kpe-cd%_kfxa78(%'
-
-# SECURITY WARNING: don't run with debug turned on in production!
+# Local overrides (PostgreSQL enforced in base settings).
 DEBUG = True
-
-# Force IS_PRODUCTION to False for local development
 IS_PRODUCTION = False
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# Allow local hosts
+ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
 
-# Disable whitenoise storage in development
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
-# Add localhost to allowed hosts
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# Static files: use default storage locally (already set in base when not production)

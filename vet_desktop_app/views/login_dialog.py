@@ -23,7 +23,10 @@ if getattr(sys, 'frozen', False):
     try:
         # Try normal imports first
         from models.data_access import UserDataAccess, VeterinarianDataAccess
-        from utils.database import get_connection
+        try:
+            from utils.pg_db import get_connection
+        except ImportError:
+            from utils.database import get_connection  # fallback (legacy)
         from views.register_dialog import RegisterDialog
         logger.debug("Successfully imported modules in login_dialog.py")
     except ImportError as e:
@@ -53,10 +56,17 @@ if getattr(sys, 'frozen', False):
                 else:
                     logger.error(f"data_access.py not found at {data_access_path}")
             
-            # Import utils.database
+            # Import connection getter (prefer pg_db)
             try:
-                from utils.database import get_connection
+                from utils.pg_db import get_connection
             except ImportError:
+                try:
+                    from utils.database import get_connection
+                except ImportError:
+                    get_connection = lambda: None  # placeholder
+            
+            # Fallback manual load of database.py if still needed
+            if 'get_connection' not in locals() or get_connection is None:
                 database_path = os.path.join(base_dir, 'utils', 'database.py')
                 if os.path.exists(database_path):
                     spec = importlib.util.spec_from_file_location("utils.database", database_path)
@@ -91,7 +101,10 @@ if getattr(sys, 'frozen', False):
 else:
     # Running as a normal Python script
     from models.data_access import UserDataAccess, VeterinarianDataAccess
-    from utils.database import get_connection
+    try:
+        from utils.pg_db import get_connection
+    except ImportError:
+        from utils.database import get_connection
     from views.register_dialog import RegisterDialog
 
 

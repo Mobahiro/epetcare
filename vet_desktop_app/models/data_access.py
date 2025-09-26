@@ -2,6 +2,7 @@
 Data access layer for the ePetCare Vet Desktop application.
 This module provides classes to interact with the database.
 """
+from __future__ import annotations
 
 from datetime import datetime, date, timedelta
 from typing import List, Dict, Any, Optional, Tuple, Union
@@ -19,7 +20,11 @@ if getattr(sys, 'frozen', False):
     
     # Import DatabaseManager from utils.database
     try:
-        from utils.database import DatabaseManager
+        try:
+            # Prefer Postgres manager if pg_db is configured
+            from utils.pg_db import PostgresDatabaseManager as DatabaseManager
+        except ImportError:
+            from utils.database import DatabaseManager
         logger.debug("Successfully imported DatabaseManager from utils.database")
     except ImportError:
         logger.error("Failed to import DatabaseManager from utils.database")
@@ -102,7 +107,10 @@ if getattr(sys, 'frozen', False):
         raise
 else:
     # Running as a normal Python script - use regular imports
-    from utils.database import DatabaseManager
+    try:
+        from utils.pg_db import PostgresDatabaseManager as DatabaseManager
+    except ImportError:
+        from utils.database import DatabaseManager
     try:
         # Try relative import first
         from .models import (
@@ -131,11 +139,55 @@ class DataAccessBase:
             return None
         return {key: row[key] for key in row.keys()}
 
+    # Parsing helpers to handle both strings (SQLite style) and native Python types (psycopg2)
+    def _parse_datetime(self, value: Any) -> Optional[datetime]:
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value
+        # If it's a date, upcast to datetime at midnight
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return datetime.combine(value, datetime.min.time())
+        if isinstance(value, str):
+            v = value.strip()
+            # Normalize trailing Z to +00:00
+            if v.endswith('Z'):
+                v = v[:-1] + '+00:00'
+            try:
+                return datetime.fromisoformat(v)
+            except Exception:
+                # Try without fractional seconds if present
+                if '.' in v:
+                    try:
+                        base = v.split('.')[0]
+                        return datetime.fromisoformat(base)
+                    except Exception:
+                        pass
+        return None
+
+    def _parse_date(self, value: Any) -> Optional[date]:
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        if isinstance(value, str):
+            v = value.strip()
+            # Accept full ISO strings by splitting date portion
+            if 'T' in v:
+                v = v.split('T')[0]
+            try:
+                return date.fromisoformat(v)
+            except Exception:
+                pass
+        return None
+
 
 class UserDataAccess(DataAccessBase):
     """Data access for User model"""
     
-    def get_by_id(self, user_id: int) -> Optional[User]:
+    def get_by_id(self, user_id: int) -> 'Optional[User]':
         """Get a user by ID"""
         success, result = self.db.fetch_by_id('auth_user', user_id)
         if not success:
@@ -149,11 +201,11 @@ class UserDataAccess(DataAccessBase):
             last_name=user_dict['last_name'],
             email=user_dict['email'],
             is_active=bool(user_dict['is_active']),
-            date_joined=datetime.fromisoformat(user_dict['date_joined']),
-            last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+            date_joined=self._parse_datetime(user_dict['date_joined']),
+            last_login=self._parse_datetime(user_dict['last_login'])
         )
     
-    def get_by_username(self, username: str) -> Optional[User]:
+    def get_by_username(self, username: str) -> 'Optional[User]':
         """Get a user by username"""
         query = "SELECT * FROM auth_user WHERE username = ?"
         success, result = self.db.execute_query(query, (username,))
@@ -169,11 +221,11 @@ class UserDataAccess(DataAccessBase):
             last_name=user_dict['last_name'],
             email=user_dict['email'],
             is_active=bool(user_dict['is_active']),
-            date_joined=datetime.fromisoformat(user_dict['date_joined']),
-            last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+            date_joined=self._parse_datetime(user_dict['date_joined']),
+            last_login=self._parse_datetime(user_dict['last_login'])
         )
     
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> 'Optional[User]':
         """Get a user by email"""
         query = "SELECT * FROM auth_user WHERE email = ?"
         success, result = self.db.execute_query(query, (email,))
@@ -189,11 +241,11 @@ class UserDataAccess(DataAccessBase):
             last_name=user_dict['last_name'],
             email=user_dict['email'],
             is_active=bool(user_dict['is_active']),
-            date_joined=datetime.fromisoformat(user_dict['date_joined']),
-            last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+            date_joined=self._parse_datetime(user_dict['date_joined']),
+            last_login=self._parse_datetime(user_dict['last_login'])
         )
     
-    def authenticate(self, username: str, password: str) -> Optional[User]:
+    def authenticate(self, username: str, password: str) -> 'Optional[User]':
         """Authenticate a user"""
         import hashlib
         import base64
@@ -249,8 +301,8 @@ class UserDataAccess(DataAccessBase):
                                 last_name=user_dict['last_name'],
                                 email=user_dict['email'],
                                 is_active=bool(user_dict['is_active']),
-                                date_joined=datetime.fromisoformat(user_dict['date_joined']),
-                                last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+                                date_joined=self._parse_datetime(user_dict['date_joined']),
+                                last_login=self._parse_datetime(user_dict['last_login'])
                             )
                     # Handle other algorithms as needed
             except Exception as e:
@@ -267,8 +319,8 @@ class UserDataAccess(DataAccessBase):
                     last_name=user_dict['last_name'],
                     email=user_dict['email'],
                     is_active=bool(user_dict['is_active']),
-                    date_joined=datetime.fromisoformat(user_dict['date_joined']),
-                    last_login=datetime.fromisoformat(user_dict['last_login']) if user_dict['last_login'] else None
+                    date_joined=self._parse_datetime(user_dict['date_joined']),
+                    last_login=self._parse_datetime(user_dict['last_login'])
                 )
         
         return None
@@ -312,9 +364,9 @@ class UserDataAccess(DataAccessBase):
             'email': email,
             'first_name': first_name,
             'last_name': last_name,
-            'is_active': 1,
-            'is_staff': 0,
-            'is_superuser': 0,
+            'is_active': True,
+            'is_staff': False,
+            'is_superuser': False,
             'date_joined': now,
             'last_login': None
         }
@@ -348,7 +400,7 @@ class VeterinarianDataAccess(DataAccessBase):
             license_number=vet_dict['license_number'],
             phone=vet_dict['phone'],
             bio=vet_dict['bio'],
-            created_at=datetime.fromisoformat(vet_dict['created_at'])
+            created_at=self._parse_datetime(vet_dict['created_at'])
         )
     
     def get_by_user_id(self, user_id: int) -> Optional[Veterinarian]:
@@ -368,7 +420,7 @@ class VeterinarianDataAccess(DataAccessBase):
             license_number=vet_dict['license_number'],
             phone=vet_dict['phone'],
             bio=vet_dict['bio'],
-            created_at=datetime.fromisoformat(vet_dict['created_at'])
+            created_at=self._parse_datetime(vet_dict['created_at'])
         )
     
     def get_by_license_number(self, license_number: str) -> Optional[Veterinarian]:
@@ -388,7 +440,7 @@ class VeterinarianDataAccess(DataAccessBase):
             license_number=vet_dict['license_number'],
             phone=vet_dict['phone'],
             bio=vet_dict['bio'],
-            created_at=datetime.fromisoformat(vet_dict['created_at'])
+            created_at=self._parse_datetime(vet_dict['created_at'])
         )
     
     def get_all(self) -> List[Veterinarian]:
@@ -408,7 +460,7 @@ class VeterinarianDataAccess(DataAccessBase):
                 license_number=vet_dict['license_number'],
                 phone=vet_dict['phone'],
                 bio=vet_dict['bio'],
-                created_at=datetime.fromisoformat(vet_dict['created_at'])
+                created_at=self._parse_datetime(vet_dict['created_at'])
             ))
         
         return vets
@@ -490,7 +542,7 @@ class OwnerDataAccess(DataAccessBase):
             email=owner_dict['email'],
             phone=owner_dict['phone'],
             address=owner_dict['address'],
-            created_at=datetime.fromisoformat(owner_dict['created_at']),
+            created_at=self._parse_datetime(owner_dict['created_at']),
             user_id=owner_dict['user_id']
         )
     
@@ -516,7 +568,7 @@ class OwnerDataAccess(DataAccessBase):
                 email=owner_dict['email'],
                 phone=owner_dict['phone'],
                 address=owner_dict['address'],
-                created_at=datetime.fromisoformat(owner_dict['created_at']),
+                created_at=self._parse_datetime(owner_dict['created_at']),
                 user_id=owner_dict['user_id']
             ))
         
@@ -537,7 +589,7 @@ class OwnerDataAccess(DataAccessBase):
                 email=owner_dict['email'],
                 phone=owner_dict['phone'],
                 address=owner_dict['address'],
-                created_at=datetime.fromisoformat(owner_dict['created_at']),
+                created_at=self._parse_datetime(owner_dict['created_at']),
                 user_id=owner_dict['user_id']
             ))
         
@@ -561,7 +613,7 @@ class PetDataAccess(DataAccessBase):
             species=pet_dict['species'],
             breed=pet_dict['breed'],
             sex=pet_dict['sex'],
-            birth_date=date.fromisoformat(pet_dict['birth_date']) if pet_dict['birth_date'] else None,
+            birth_date=self._parse_date(pet_dict['birth_date']) if pet_dict['birth_date'] else None,
             weight_kg=float(pet_dict['weight_kg']) if pet_dict['weight_kg'] else None,
             notes=pet_dict['notes']
         )
@@ -582,7 +634,7 @@ class PetDataAccess(DataAccessBase):
                 species=pet_dict['species'],
                 breed=pet_dict['breed'],
                 sex=pet_dict['sex'],
-                birth_date=date.fromisoformat(pet_dict['birth_date']) if pet_dict['birth_date'] else None,
+                birth_date=self._parse_date(pet_dict['birth_date']) if pet_dict['birth_date'] else None,
                 weight_kg=float(pet_dict['weight_kg']) if pet_dict['weight_kg'] else None,
                 notes=pet_dict['notes']
             ))
@@ -617,7 +669,7 @@ class PetDataAccess(DataAccessBase):
                 species=pet_dict['species'],
                 breed=pet_dict['breed'],
                 sex=pet_dict['sex'],
-                birth_date=date.fromisoformat(pet_dict['birth_date']) if pet_dict['birth_date'] else None,
+                birth_date=self._parse_date(pet_dict['birth_date']) if pet_dict['birth_date'] else None,
                 weight_kg=float(pet_dict['weight_kg']) if pet_dict['weight_kg'] else None,
                 notes=pet_dict['notes']
             ))
@@ -638,7 +690,7 @@ class AppointmentDataAccess(DataAccessBase):
         return Appointment(
             id=appt_dict['id'],
             pet_id=appt_dict['pet_id'],
-            date_time=datetime.fromisoformat(appt_dict['date_time']),
+            date_time=self._parse_datetime(appt_dict['date_time']),
             reason=appt_dict['reason'],
             notes=appt_dict['notes'],
             status=appt_dict['status']
@@ -656,7 +708,7 @@ class AppointmentDataAccess(DataAccessBase):
             appointments.append(Appointment(
                 id=appt_dict['id'],
                 pet_id=appt_dict['pet_id'],
-                date_time=datetime.fromisoformat(appt_dict['date_time']),
+                date_time=self._parse_datetime(appt_dict['date_time']),
                 reason=appt_dict['reason'],
                 notes=appt_dict['notes'],
                 status=appt_dict['status']
@@ -684,7 +736,7 @@ class AppointmentDataAccess(DataAccessBase):
             appointment = Appointment(
                 id=appt_dict['id'],
                 pet_id=appt_dict['pet_id'],
-                date_time=datetime.fromisoformat(appt_dict['date_time']),
+                date_time=self._parse_datetime(appt_dict['date_time']),
                 reason=appt_dict['reason'],
                 notes=appt_dict['notes'],
                 status=appt_dict['status']
@@ -704,7 +756,6 @@ class AppointmentDataAccess(DataAccessBase):
             appointments.append(appointment)
         
         return appointments
-    
     def get_upcoming(self, days: int = 7) -> List[Appointment]:
         """Get upcoming appointments for the next X days"""
         now = datetime.now()
@@ -733,7 +784,7 @@ class AppointmentDataAccess(DataAccessBase):
             appointment = Appointment(
                 id=appt_dict['id'],
                 pet_id=appt_dict['pet_id'],
-                date_time=datetime.fromisoformat(appt_dict['date_time']),
+                date_time=self._parse_datetime(appt_dict['date_time']),
                 reason=appt_dict['reason'],
                 notes=appt_dict['notes'],
                 status=appt_dict['status']
@@ -796,7 +847,7 @@ class MedicalRecordDataAccess(DataAccessBase):
         return MedicalRecord(
             id=record_dict['id'],
             pet_id=record_dict['pet_id'],
-            visit_date=date.fromisoformat(record_dict['visit_date']),
+            visit_date=self._parse_date(record_dict['visit_date']),
             condition=record_dict['condition'],
             treatment=record_dict['treatment'],
             vet_notes=record_dict['vet_notes']
@@ -818,7 +869,7 @@ class MedicalRecordDataAccess(DataAccessBase):
             records.append(MedicalRecord(
                 id=record_dict['id'],
                 pet_id=record_dict['pet_id'],
-                visit_date=date.fromisoformat(record_dict['visit_date']),
+                visit_date=self._parse_date(record_dict['visit_date']),
                 condition=record_dict['condition'],
                 treatment=record_dict['treatment'],
                 vet_notes=record_dict['vet_notes']
@@ -871,7 +922,7 @@ class PrescriptionDataAccess(DataAccessBase):
             medication_name=prescription_dict['medication_name'],
             dosage=prescription_dict['dosage'],
             instructions=prescription_dict['instructions'],
-            date_prescribed=date.fromisoformat(prescription_dict['date_prescribed']),
+            date_prescribed=self._parse_date(prescription_dict['date_prescribed']),
             duration_days=prescription_dict['duration_days'],
             is_active=bool(prescription_dict['is_active'])
         )
@@ -880,7 +931,7 @@ class PrescriptionDataAccess(DataAccessBase):
         """Get prescriptions by pet ID"""
         conditions = {'pet_id': pet_id}
         if active_only:
-            conditions['is_active'] = 1
+            conditions['is_active'] = True
             
         success, result = self.db.fetch_all(
             'clinic_prescription', 
@@ -899,7 +950,7 @@ class PrescriptionDataAccess(DataAccessBase):
                 medication_name=prescription_dict['medication_name'],
                 dosage=prescription_dict['dosage'],
                 instructions=prescription_dict['instructions'],
-                date_prescribed=date.fromisoformat(prescription_dict['date_prescribed']),
+                date_prescribed=self._parse_date(prescription_dict['date_prescribed']),
                 duration_days=prescription_dict['duration_days'],
                 is_active=bool(prescription_dict['is_active'])
             ))
@@ -915,7 +966,7 @@ class PrescriptionDataAccess(DataAccessBase):
             'instructions': prescription.instructions,
             'date_prescribed': prescription.date_prescribed.isoformat(),
             'duration_days': prescription.duration_days,
-            'is_active': 1 if prescription.is_active else 0
+            'is_active': bool(prescription.is_active)
         }
         
         return self.db.insert('clinic_prescription', data)
@@ -929,7 +980,7 @@ class PrescriptionDataAccess(DataAccessBase):
             'instructions': prescription.instructions,
             'date_prescribed': prescription.date_prescribed.isoformat(),
             'duration_days': prescription.duration_days,
-            'is_active': 1 if prescription.is_active else 0
+            'is_active': bool(prescription.is_active)
         }
         
         return self.db.update('clinic_prescription', data, prescription.id)
@@ -965,7 +1016,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
     def get_all_active(self) -> List[TreatmentType]:
         """Get all active treatment types"""
         query = """
-            SELECT * FROM vet_treatmenttype WHERE is_active = 1 ORDER BY name
+            SELECT * FROM vet_treatmenttype WHERE is_active = TRUE ORDER BY name
         """
         success, result = self.db.execute_query(query)
         
@@ -993,7 +1044,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
             'description': treatment_type.description,
             'duration_minutes': treatment_type.duration_minutes,
             'price': treatment_type.price,
-            'is_active': 1 if treatment_type.is_active else 0
+            'is_active': bool(treatment_type.is_active)
         }
         
         return self.db.insert('vet_treatmenttype', data)
@@ -1005,7 +1056,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
             'description': treatment_type.description,
             'duration_minutes': treatment_type.duration_minutes,
             'price': treatment_type.price,
-            'is_active': 1 if treatment_type.is_active else 0
+            'is_active': bool(treatment_type.is_active)
         }
         
         return self.db.update('vet_treatmenttype', data, treatment_type.id)
@@ -1045,7 +1096,7 @@ class ScheduleDataAccess(DataAccessBase):
             'day_of_week': schedule.day_of_week,
             'start_time': schedule.start_time,
             'end_time': schedule.end_time,
-            'is_available': 1 if schedule.is_available else 0
+            'is_available': bool(schedule.is_available)
         }
         
         return self.db.insert('vet_schedule', data)
@@ -1057,7 +1108,7 @@ class ScheduleDataAccess(DataAccessBase):
             'day_of_week': schedule.day_of_week,
             'start_time': schedule.start_time,
             'end_time': schedule.end_time,
-            'is_available': 1 if schedule.is_available else 0
+            'is_available': bool(schedule.is_available)
         }
         
         return self.db.update('vet_schedule', data, schedule.id)

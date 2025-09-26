@@ -1,5 +1,9 @@
 """
-Database utility functions for the ePetCare Vet Desktop Application.
+DEPRECATED: Legacy SQLite database utilities.
+
+This module is retained temporarily only to avoid breaking imports while the
+application transitions fully to PostgreSQL via utils.pg_db. New code MUST NOT
+import from utils.database. It will be removed in a subsequent cleanup.
 """
 
 import os
@@ -11,6 +15,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional, Union
 
 logger = logging.getLogger('epetcare')
+logger.warning("utils.database (SQLite) module is deprecated and not used for active data access.")
 
 # Global database connection
 db_connection = None

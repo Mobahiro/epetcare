@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QComboBox, QGroupBox, QTabWidget, QFormLayout, QTextEdit,
     QDateEdit, QMessageBox, QSplitter, QStackedWidget, QDialog
 )
-from PySide6.QtCore import Qt, QDate
+from PySide6.QtCore import Qt, QDate, QTimer
 from PySide6.QtGui import QFont
 
 from models.data_access import (
@@ -35,6 +35,12 @@ class PatientsView(QWidget):
         self.current_owner = None
         
         self.setup_ui()
+        
+        # Auto-refresh timer to keep patients list in sync with website updates
+        self._auto_refresh_timer = QTimer(self)
+        self._auto_refresh_timer.setInterval(15000)  # 15 seconds
+        self._auto_refresh_timer.timeout.connect(self._auto_refresh)
+        self._auto_refresh_timer.start()
     
     def setup_ui(self):
         """Set up the user interface"""
@@ -255,6 +261,28 @@ class PatientsView(QWidget):
     def refresh_data(self):
         """Refresh the data displayed in the view"""
         self.search_patients()
+
+    def _auto_refresh(self):
+        """Periodically refresh patients when the view is visible"""
+        if not self.isVisible():
+            return
+        # Preserve selection if any
+        selected_items = self.results_table.selectedItems()
+        selected_pet_id = None
+        if selected_items:
+            try:
+                selected_pet_id = self.results_table.item(selected_items[0].row(), 0).data(Qt.UserRole)
+            except Exception:
+                selected_pet_id = None
+        # Refresh list
+        self.search_patients()
+        # Restore selection
+        if selected_pet_id is not None:
+            for row in range(self.results_table.rowCount()):
+                item = self.results_table.item(row, 0)
+                if item and item.data(Qt.UserRole) == selected_pet_id:
+                    self.results_table.selectRow(row)
+                    break
     
     def search_patients(self):
         """Search for patients based on the search criteria"""

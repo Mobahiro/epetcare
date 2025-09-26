@@ -204,149 +204,48 @@ def main():
         config = load_config()
         logger.debug(f"Configuration loaded: {config}")
         
-        # Setup database connection with real-time synchronization
-        logger.debug("Setting up database connection...")
-        
-        # Get database paths
-        main_db_path = config.get('database', {}).get('path', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'db.sqlite3'))
-        
-        # Handle absolute and relative paths correctly
-        if os.path.isabs(main_db_path):
-            main_db_path = os.path.normpath(main_db_path)
-        else:
-            main_db_path = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), main_db_path)))
-            
-        logger.debug(f"Main database path: {main_db_path}")
-        
-        # Check if real-time sync is enabled
-        real_time_sync = config.get('database', {}).get('real_time_sync', True)
-        sync_interval = config.get('app', {}).get('sync_interval', 5)
-        
-        # Check if the database path exists, if not try to find it in common locations
-        if not os.path.exists(main_db_path) or os.path.getsize(main_db_path) == 0:
-            logger.warning(f"Database not found at configured path or is empty: {main_db_path}")
-            logger.debug("Searching for database in common locations...")
-            
-            # Try to find the database in the current directory or parent directory
-            possible_paths = [
-                os.path.join(os.path.dirname(__file__), 'db.sqlite3'),
-                os.path.join(os.path.dirname(__file__), 'data', 'db.sqlite3'),
-                os.path.join(os.path.dirname(os.path.dirname(__file__)), 'db.sqlite3'),
-                os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'db.sqlite3')
-            ]
-            
-            # If running as PyInstaller bundle, add more possible locations
-            if getattr(sys, 'frozen', False):
-                if hasattr(sys, '_MEIPASS'):
-                    base_dir = sys._MEIPASS
-                else:
-                    base_dir = os.path.dirname(os.path.abspath(__file__))
-                    
-                possible_paths.extend([
-                    os.path.join(base_dir, 'db.sqlite3'),
-                    os.path.join(base_dir, 'data', 'db.sqlite3'),
-                    os.path.join(os.path.dirname(base_dir), 'db.sqlite3'),
-                    os.path.join(os.path.dirname(base_dir), 'data', 'db.sqlite3')
-                ])
-            
-            logger.debug(f"Checking paths: {possible_paths}")
-            
-            found = False
-            for path in possible_paths:
-                if os.path.exists(path) and os.path.getsize(path) > 0:
-                    main_db_path = path
-                    logger.info(f"Database found at: {main_db_path}")
-                    # Update config with the found path
-                    config['database']['path'] = main_db_path
-                    from utils.config import save_config
-                    save_config(config)
-                    found = True
-                    break
-            
-            if not found:
-                logger.error("Database not found in any common locations")
-                
-                # Show error message to user
-                QMessageBox.critical(
-                    None,
-                    "Database Error",
-                    "Could not find the database file.\n\n"
-                    "Please make sure the ePetCare web application is properly installed "
-                    "and the database file exists.\n\n"
-                    "You can also manually specify the database location in the config.json file."
-                )
-                sys.exit(1)
-        else:
-            logger.debug(f"Database found at configured path: {main_db_path}")
-        
-        # Initialize database sync manager
+        # Setup PostgreSQL connection (new unified path)
+        logger.debug("Setting up PostgreSQL connection...")
+        pg_cfg = config.get('postgres') or {}
+        if not pg_cfg:
+            logger.error("No 'postgres' section found in config.json; cannot connect.")
+            QMessageBox.critical(None, "Configuration Error", "config.json is missing the 'postgres' section.")
+            sys.exit(1)
         try:
-            from utils.db_sync import DatabaseSyncManager
-            db_sync_manager = DatabaseSyncManager()
-            
-            # Check if remote database is enabled
-            remote_db_config = config.get('remote_database', {})
-            remote_enabled = remote_db_config.get('enabled', False)
-            
-            if remote_enabled and remote_db_config.get('url'):
-                logger.info(f"Remote database is enabled with URL: {remote_db_config['url']}")
-                
-                # Use a local copy with remote sync
-                data_dir = os.path.join(os.path.dirname(__file__), 'data')
-                os.makedirs(data_dir, exist_ok=True)
-                local_db_path = os.path.join(data_dir, 'db.sqlite3')
-                db_path = local_db_path
-                
-                # Set up the sync manager with remote configuration
-                remote_sync_interval = remote_db_config.get('sync_interval', 30)
-                db_sync_manager.setup(
-                    main_db_path=main_db_path, 
-                    local_db_path=local_db_path, 
-                    sync_interval=remote_sync_interval,
-                    config=config
-                )
-                
-                logger.info(f"Remote database sync configured with interval: {remote_sync_interval} seconds")
-            # If real-time sync is enabled (local), use the main database directly
-            elif real_time_sync:
-                logger.info("Real-time database synchronization enabled")
-                db_path = main_db_path
-                db_sync_manager.setup(main_db_path, sync_interval=sync_interval)
-            else:
-                # Otherwise, use a local copy with standard sync
-                logger.info("Using local database copy with periodic synchronization")
-                local_db_path = os.path.join(os.path.dirname(__file__), 'data', 'db.sqlite3')
-                db_path = local_db_path
-                db_sync_manager.setup(main_db_path, local_db_path, sync_interval=sync_interval)
-            
-            # Start the sync thread
-            db_sync_manager.start_sync()
-            
-        except Exception as e:
-            logger.error(f"Failed to initialize database sync manager: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            # Fall back to direct connection without sync
-            db_path = main_db_path
-        
-        # Try to connect to the database
-        logger.debug(f"Connecting to database: {db_path}")
-        connection_result = setup_database_connection(db_path)
-        if not connection_result:
-            logger.error("Failed to connect to database")
-            
-            # Show error message to user
+            from utils.pg_db import setup_postgres_connection
+        except ImportError:
+            QMessageBox.critical(None, "Missing Dependency", "psycopg2 not installed. Install requirements and retry.")
+            sys.exit(1)
+
+        if not setup_postgres_connection(pg_cfg):
             QMessageBox.critical(
                 None,
                 "Database Error",
-                "Failed to connect to the database.\n\n"
-                "Please make sure the database file is not corrupted or in use by another process.\n\n"
-                "You can try restarting the application or specifying a different database location in the config.json file."
+                "Failed to connect to PostgreSQL.\n\nFill in host, database, user, password (or database_url) in config.json under 'postgres'.\nYou can copy these from the Render PostgreSQL instance (Connections tab)."
             )
             sys.exit(1)
-        
-        logger.debug("Database connection successful")
+        logger.info("Connected to PostgreSQL successfully")
+
+        # Basic schema sanity check (auth_user is a core Django table)
+        try:
+            from utils.pg_db import get_connection as _pg_get_conn
+            conn = _pg_get_conn()
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 FROM information_schema.tables WHERE table_name = 'auth_user'")
+                if cur.fetchone() is None:
+                    logger.error("Core table auth_user not found. Django migrations likely not run on this database.")
+                    QMessageBox.critical(
+                        None,
+                        "Schema Missing",
+                        "The PostgreSQL database is empty or migrations have not been run.\n\n"
+                        "Run Django migrations first:\n"
+                        "1. Set DATABASE_URL to this database.\n"
+                        "2. Run: python manage.py migrate\n\n"
+                        "After migrations complete, restart the desktop app."
+                    )
+                    sys.exit(1)
+        except Exception as e:
+            logger.error(f"Schema check failed: {e}")
         
         # Create and show the main window
         logger.info("Creating main window...")

@@ -86,24 +86,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'epetcare.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# Default to SQLite for local development
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# Override with PostgreSQL if DATABASE_URL is provided (on Render)
+# Database (PostgreSQL only)
+# We now REQUIRE a DATABASE_URL for all environments to avoid divergence between
+# desktop app and web backend. Provide one in your .env for local development.
 DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL and IS_PRODUCTION:
-    DATABASES['default'] = dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is required. Set it in your .env file."
     )
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+    )
+}
 
 
 # Password validation

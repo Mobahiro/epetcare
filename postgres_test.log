@@ -1,2 +1,0 @@
-2025-09-26 02:36:43,358 - postgres_test - ERROR - Error loading config: Extra data: line 36 column 1 (char 973)
-2025-09-26 02:36:57,878 - postgres_test - ERROR - Error loading config: Extra data: line 36 column 1 (char 973)
