@@ -2291,3 +2291,15 @@ HINT:  You will need to rewrite or cast the expression.
 2025-09-26 17:04:36,471 - epetcare - INFO - Connected to PostgreSQL successfully
 2025-09-26 17:04:36,800 - epetcare - INFO - Creating main window...
 2025-09-26 17:04:45,659 - epetcare - INFO - Application started successfully
+2025-09-26 17:38:48,610 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 17:38:48,611 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 17:38:48,793 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 17:38:48,981 - epetcare - INFO - Initializing application...
+2025-09-26 17:38:49,013 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 17:38:49,041 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 17:38:49,982 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 17:38:49,982 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 17:38:50,334 - epetcare - INFO - Creating main window...
+2025-09-26 17:39:01,104 - epetcare - INFO - Application started successfully
+2025-09-26 17:41:08,947 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
+2025-09-26 17:41:31,998 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
