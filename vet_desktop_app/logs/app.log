@@ -2303,3 +2303,36 @@ HINT:  You will need to rewrite or cast the expression.
 2025-09-26 17:39:01,104 - epetcare - INFO - Application started successfully
 2025-09-26 17:41:08,947 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
 2025-09-26 17:41:31,998 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
+2025-09-26 18:49:41,832 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-26 18:49:41,833 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-26 18:49:42,011 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-26 18:49:42,190 - epetcare - INFO - Initializing application...
+2025-09-26 18:49:42,214 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-26 18:49:42,263 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-26 18:49:43,166 - epetcare - INFO - PostgreSQL connection established
+2025-09-26 18:49:43,166 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-26 18:49:43,486 - epetcare - INFO - Creating main window...
+2025-09-26 18:49:48,935 - epetcare - INFO - Application started successfully
+2025-09-27 09:00:21,088 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-27 09:00:21,097 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-27 09:00:21,670 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-27 09:00:22,319 - epetcare - INFO - Initializing application...
+2025-09-27 09:00:22,428 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-27 09:00:22,495 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-27 09:00:23,505 - epetcare - INFO - PostgreSQL connection established
+2025-09-27 09:00:23,505 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-27 09:00:23,862 - epetcare - INFO - Creating main window...
+2025-09-27 09:01:17,746 - epetcare - INFO - Application started successfully
+2025-09-27 09:10:47,418 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-27 09:10:47,419 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-27 09:10:47,644 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-27 09:10:47,894 - epetcare - INFO - Initializing application...
+2025-09-27 09:10:47,937 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-27 09:10:47,952 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-27 09:10:48,931 - epetcare - INFO - PostgreSQL connection established
+2025-09-27 09:10:48,932 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-27 09:10:49,291 - epetcare - INFO - Creating main window...
+2025-09-27 09:11:01,508 - epetcare - INFO - Application started successfully
+2025-09-27 09:11:17,231 - epetcare - ERROR - delete error (clinic_pet): update or delete on table "clinic_pet" violates foreign key constraint "clinic_prescription_pet_id_2e51eb72_fk_clinic_pet_id" on table "clinic_prescription"
+DETAIL:  Key (id)=(1) is still referenced from table "clinic_prescription".
+

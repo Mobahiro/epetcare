@@ -7,7 +7,6 @@
 </div>
 <form method="post">
   {% csrf_token %}
-  <div class="field">{{ form.owner.label_tag }}{{ form.owner }}</div>
   <div class="field">{{ form.name.label_tag }}{{ form.name }}</div>
   <div class="field">{{ form.species.label_tag }}{{ form.species }}</div>
   <div class="field">{{ form.breed.label_tag }}{{ form.breed }}</div>

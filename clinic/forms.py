@@ -14,7 +14,6 @@ class PetForm(forms.ModelForm):
     class Meta:
         model = Pet
         fields = [
-            "owner",
             "name",
             "species",
             "breed",
@@ -23,6 +22,21 @@ class PetForm(forms.ModelForm):
             "weight_kg",
             "notes",
         ]
+        widgets = {
+            "birth_date": forms.DateInput(attrs={"type": "date"}),
+        }
+
+
+class PetCreateForm(forms.ModelForm):
+    """Form used when adding a pet from the website.
+
+    The owner is automatically set to the currently logged-in user's Owner
+    profile in the view, so we intentionally exclude the 'owner' field here.
+    """
+
+    class Meta:
+        model = Pet
+        exclude = ["owner"]
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
         }
