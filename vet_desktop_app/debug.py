@@ -82,8 +82,8 @@ def check_required_modules():
 
 
 def check_database():
-    """Check the database connection."""
-    print_header("Database")
+    """Check the PostgreSQL database connection."""
+    print_header("PostgreSQL Database")
     
     # Try to find config.json
     config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
@@ -94,44 +94,65 @@ def check_database():
             with open(config_path, 'r') as f:
                 config = json.load(f)
             
-            db_path = config.get('database', {}).get('path')
-            if db_path:
-                print(f"Database path from config: {db_path}")
-                if os.path.exists(db_path):
-                    print(f"Database file exists at the configured path.")
-                    try:
-                        conn = sqlite3.connect(db_path)
-                        cursor = conn.cursor()
-                        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            pg_config = config.get('postgres', {})
+            if pg_config:
+                print("PostgreSQL configuration found:")
+                # Print the configuration (redacting password)
+                safe_config = pg_config.copy()
+                if 'password' in safe_config:
+                    safe_config['password'] = '********'
+                if 'database_url' in safe_config:
+                    url = safe_config['database_url']
+                    # Replace password in URL with *** if present
+                    if url and '://' in url:
+                        import re
+                        safe_config['database_url'] = re.sub(r'(://[^:]+:)[^@]+(@)', r'\1********\2', url)
+                
+                for key, value in safe_config.items():
+                    if key not in ('password', 'database_url'):  # Skip displaying actual secrets
+                        print(f"  - {key}: {value}")
+                
+                # Try to connect to PostgreSQL
+                try:
+                    import psycopg2
+                    from psycopg2 import sql
+                    
+                    # Create connection
+                    conn_params = {}
+                    for key in ('host', 'port', 'database', 'user', 'password'):
+                        if key in pg_config:
+                            conn_params[key] = pg_config[key]
+                    
+                    print(f"Attempting to connect to PostgreSQL at {conn_params.get('host')}:{conn_params.get('port')}...")
+                    conn = psycopg2.connect(**conn_params)
+                    print("✓ Connection successful")
+                    
+                    # Check for some important tables
+                    with conn.cursor() as cursor:
+                        cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
                         tables = cursor.fetchall()
-                        print(f"Database contains {len(tables)} tables:")
-                        for table in tables:
-                            print(f"  - {table[0]}")
-                        conn.close()
-                    except sqlite3.Error as e:
-                        print(f"Error connecting to database: {str(e)}")
-                else:
-                    print(f"WARNING: Database file does not exist at the configured path.")
+                        print(f"Database contains {len(tables)} tables in public schema")
+                        
+                        # Check for core tables
+                        core_tables = ['auth_user', 'clinic_owner', 'clinic_pet', 'clinic_appointment']
+                        for table in core_tables:
+                            cursor.execute("SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = %s)", (table,))
+                            exists = cursor.fetchone()[0]
+                            print(f"  {'✓' if exists else '✗'} {table}")
+                    
+                    conn.close()
+                    print("Connection closed properly")
+                    
+                except ImportError:
+                    print("✗ Could not import psycopg2. Please install it with: pip install psycopg2-binary")
+                except Exception as e:
+                    print(f"✗ Error connecting to PostgreSQL: {str(e)}")
             else:
-                print("Database path not found in config.")
+                print("✗ PostgreSQL configuration not found in config.json")
         except Exception as e:
             print(f"Error reading config: {str(e)}")
     else:
-        print(f"Config file not found at {config_path}")
-    
-    # Try to find database in common locations
-    common_paths = [
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'db.sqlite3'),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'db.sqlite3'),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'db.sqlite3')
-    ]
-    
-    print("\nChecking for database in common locations:")
-    for path in common_paths:
-        if os.path.exists(path):
-            print(f"  ✓ {path} - EXISTS")
-        else:
-            print(f"  ✗ {path} - NOT FOUND")
+        print(f"✗ Config file not found at {config_path}")
 
 
 def check_resource_files():

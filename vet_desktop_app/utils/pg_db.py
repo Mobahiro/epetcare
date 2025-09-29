@@ -54,17 +54,20 @@ def setup_postgres_connection(cfg: Dict[str, Any]) -> bool:
             parsed = urlparse(url)
             if parsed.scheme not in ('postgres', 'postgresql'):
                 logger.warning("Unexpected scheme '%s' in database_url", parsed.scheme)
+            # Overwrite blank/falsy existing keys with parsed values.
+            # Note: dict.setdefault only sets when the key is missing; here we
+            # intentionally assign when value is empty (e.g., '').
             if parsed.username and not cfg.get('user'):
-                cfg.setdefault('user', parsed.username)
+                cfg['user'] = parsed.username
             if parsed.password and not cfg.get('password'):
-                cfg.setdefault('password', parsed.password)
+                cfg['password'] = parsed.password
             if parsed.hostname and not cfg.get('host'):
-                cfg.setdefault('host', parsed.hostname)
+                cfg['host'] = parsed.hostname
             if parsed.port and not cfg.get('port'):
-                cfg.setdefault('port', parsed.port)
+                cfg['port'] = parsed.port
             # Path usually like '/dbname'
             if parsed.path and len(parsed.path) > 1 and not cfg.get('database'):
-                cfg.setdefault('database', parsed.path.lstrip('/'))
+                cfg['database'] = parsed.path.lstrip('/')
             # sslmode might appear in query
             if not cfg.get('sslmode'):
                 qs = parse_qs(parsed.query)

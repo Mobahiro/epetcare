@@ -17,7 +17,7 @@ class VetLoginForm(AuthenticationForm):
                 "Please contact the administrator."
             )
         
-        # Call the parent method to perform standard checks
+        
         super().confirm_login_allowed(user)
 
 

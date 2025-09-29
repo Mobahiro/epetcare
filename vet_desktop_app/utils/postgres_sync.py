@@ -1,8 +1,12 @@
 """
-PostgreSQL Sync Utility for ePetCare
+DEPRECATED: PostgreSQL Sync Utility for ePetCare
 
-This module provides functions to synchronize data between the local SQLite database
-and the remote PostgreSQL database on Render.com
+This module previously provided functions to synchronize data between the local SQLite database
+and the remote PostgreSQL database on Render.com.
+
+It is now DEPRECATED and should not be used, as the application has been migrated to use 
+PostgreSQL directly via utils.pg_db. This file is kept temporarily for reference only and
+will be removed in a future update.
 """
 
 import os

@@ -1,10 +1,3 @@
-"""
-Deploy Hook Handler for ePetCare
-
-This script handles the deploy hooks from Render.
-URL: https://api.render.com/deploy/srv-d3an3j95pdvs73d1co40?key=Zay8YidqwKg
-"""
-
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST

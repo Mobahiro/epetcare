@@ -28,7 +28,7 @@ if getattr(sys, 'frozen', False):
         from views.patients_view import PatientsView
         from views.appointments_view import AppointmentsView
         from views.settings_view import SettingsView
-        from utils.database import backup_database
+        from utils.pg_backup import backup_postgres_data
         from utils.notification_manager import NotificationManager
         logger.debug("Successfully imported modules in main_window.py")
     except ImportError as e:
@@ -102,8 +102,8 @@ if getattr(sys, 'frozen', False):
             else:
                 logger.error(f"settings_view.py not found at {settings_view_path}")
                 
-            # Import utils.database
-            from utils.database import backup_database
+            # Import utils.pg_backup
+            from utils.pg_backup import backup_postgres_data
             
             # Import utils.notification_manager
             from utils.notification_manager import NotificationManager
@@ -120,7 +120,7 @@ else:
     from views.patients_view import PatientsView
     from views.appointments_view import AppointmentsView
     from views.settings_view import SettingsView
-    from utils.database import backup_database
+    from utils.pg_backup import backup_postgres_data
     from utils.notification_manager import NotificationManager
 
 
@@ -362,8 +362,8 @@ class MainWindow(QMainWindow):
             self.show_login_dialog()
     
     def backup_database(self):
-        """Backup the database"""
-        success, result = backup_database()
+        """Backup the PostgreSQL database"""
+        success, result = backup_postgres_data()
         
         if success:
             QMessageBox.information(

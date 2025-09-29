@@ -1,8 +1,3 @@
-"""
-Production settings for epetcare project deployed on Render.
-These settings override or extend the base settings.py.
-"""
-
 import os
 import dj_database_url
 from pathlib import Path
@@ -31,10 +26,6 @@ SECURE_HSTS_SECONDS = 31536000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# Use PostgreSQL database on Render
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
@@ -44,9 +35,6 @@ if DATABASE_URL:
             conn_health_checks=True,
         )
     }
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

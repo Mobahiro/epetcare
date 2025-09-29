@@ -2336,3 +2336,164 @@ HINT:  You will need to rewrite or cast the expression.
 2025-09-27 09:11:17,231 - epetcare - ERROR - delete error (clinic_pet): update or delete on table "clinic_pet" violates foreign key constraint "clinic_prescription_pet_id_2e51eb72_fk_clinic_pet_id" on table "clinic_prescription"
 DETAIL:  Key (id)=(1) is still referenced from table "clinic_prescription".
 
+2025-09-27 09:49:23,378 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-27 09:49:23,379 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-27 09:49:23,555 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-27 09:49:23,720 - epetcare - INFO - Initializing application...
+2025-09-27 09:49:23,745 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-27 09:49:23,779 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-27 09:49:24,726 - epetcare - INFO - PostgreSQL connection established
+2025-09-27 09:49:24,726 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-27 09:49:25,086 - epetcare - INFO - Creating main window...
+2025-09-27 09:49:33,054 - epetcare - INFO - Application started successfully
+2025-09-27 09:50:32,110 - epetcare - ERROR - execute_query error: SSL connection has been closed unexpectedly
+; query=
+            SELECT a.*, p.name as pet_name, o.full_name as owner_name 
+            FROM clinic_appointment a
+            JOIN clinic_pet p ON a.pet_id = p.id
+            JOIN clinic_owner o ON p.owner_id = o.id
+            ORDER BY a.date_time DESC
+        
+2025-09-27 09:50:32,110 - epetcare - ERROR - execute_query error: connection already closed; query=
+            SELECT a.*, p.name as pet_name, o.full_name as owner_name 
+            FROM clinic_appointment a
+            JOIN clinic_pet p ON a.pet_id = p.id
+            JOIN clinic_owner o ON p.owner_id = o.id
+            ORDER BY a.date_time DESC
+        
+2025-09-27 09:50:33,044 - epetcare - ERROR - execute_query error: connection already closed; query=
+            SELECT a.*, p.name as pet_name, o.full_name as owner_name 
+            FROM clinic_appointment a
+            JOIN clinic_pet p ON a.pet_id = p.id
+            JOIN clinic_owner o ON p.owner_id = o.id
+            ORDER BY a.date_time DESC
+        
+2025-09-27 09:50:47,134 - epetcare - ERROR - execute_query error: connection already closed; query=
+            SELECT a.*, p.name as pet_name, o.full_name as owner_name 
+            FROM clinic_appointment a
+            JOIN clinic_pet p ON a.pet_id = p.id
+            JOIN clinic_owner o ON p.owner_id = o.id
+            ORDER BY a.date_time DESC
+        
+2025-09-27 09:50:47,135 - epetcare - ERROR - execute_query error: connection already closed; query=
+            SELECT a.*, p.name as pet_name, o.full_name as owner_name 
+            FROM clinic_appointment a
+            JOIN clinic_pet p ON a.pet_id = p.id
+            JOIN clinic_owner o ON p.owner_id = o.id
+            ORDER BY a.date_time DESC
+        
+2025-09-27 10:07:44,170 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-27 10:07:44,171 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-27 10:07:44,351 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-27 10:07:44,520 - epetcare - INFO - Initializing application...
+2025-09-27 10:07:44,547 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-27 10:07:44,577 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-27 10:07:45,575 - epetcare - INFO - PostgreSQL connection established
+2025-09-27 10:07:45,575 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-27 10:07:45,965 - epetcare - INFO - Creating main window...
+2025-09-27 10:07:54,493 - epetcare - INFO - Application started successfully
+2025-09-27 10:26:53,025 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-27 10:26:53,026 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-27 10:26:53,208 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-27 10:26:53,373 - epetcare - INFO - Initializing application...
+2025-09-27 10:26:53,400 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-27 10:26:53,434 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-27 10:26:54,382 - epetcare - INFO - PostgreSQL connection established
+2025-09-27 10:26:54,383 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-27 10:26:54,743 - epetcare - INFO - Creating main window...
+2025-09-27 10:28:41,097 - epetcare - INFO - Application started successfully
+2025-09-27 13:37:01,297 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-27 13:37:01,298 - epetcare - WARNING - Could not import module_finder. Continuing without it.
+2025-09-27 13:37:01,491 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-27 13:37:01,686 - epetcare - INFO - Initializing application...
+2025-09-27 13:37:01,712 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-27 13:37:01,728 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-27 13:37:02,690 - epetcare - INFO - PostgreSQL connection established
+2025-09-27 13:37:02,690 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-27 13:37:03,039 - epetcare - INFO - Creating main window...
+2025-09-27 13:37:15,061 - epetcare - INFO - Application started successfully
+2025-09-29 11:16:25,493 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:16:25,493 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:16:25,984 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:16:26,471 - epetcare - INFO - Initializing application...
+2025-09-29 11:16:26,561 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:16:26,563 - epetcare - ERROR - Postgres config missing keys after parsing: ['host', 'database', 'user', 'password']
+2025-09-29 11:21:19,857 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:21:19,857 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:21:20,031 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:21:20,194 - epetcare - INFO - Initializing application...
+2025-09-29 11:21:20,217 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:21:20,218 - epetcare - ERROR - Host 'dpg-d3an6aggjchc73cpr5i0-a' lacks a domain component. Use the External Database URL host (e.g. dpg-xxxxx-region.a.region-postgres.render.com).
+2025-09-29 11:22:47,000 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:22:47,001 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:22:47,185 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:22:47,352 - epetcare - INFO - Initializing application...
+2025-09-29 11:22:47,375 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:22:47,376 - epetcare - ERROR - Host 'dpg-d3an6aggjchc73cpr5i0-a' lacks a domain component. Use the External Database URL host (e.g. dpg-xxxxx-region.a.region-postgres.render.com).
+2025-09-29 11:24:45,974 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:24:45,974 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:24:46,152 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:24:46,323 - epetcare - INFO - Initializing application...
+2025-09-29 11:24:46,346 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:24:46,347 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-29 11:25:22,239 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:25:22,239 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:25:22,415 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:25:22,582 - epetcare - INFO - Initializing application...
+2025-09-29 11:25:22,604 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:25:22,605 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-29 11:25:58,751 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:25:58,752 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:25:58,925 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:25:59,160 - epetcare - INFO - Initializing application...
+2025-09-29 11:25:59,188 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:25:59,201 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-29 11:26:56,327 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:26:56,328 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:26:56,492 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:26:56,659 - epetcare - INFO - Initializing application...
+2025-09-29 11:26:56,685 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:26:56,686 - epetcare - ERROR - Postgres config missing keys after parsing: ['host']
+2025-09-29 11:31:26,647 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:31:26,647 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:31:26,824 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:31:27,015 - epetcare - INFO - Initializing application...
+2025-09-29 11:31:27,038 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:31:27,094 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-29 11:31:28,312 - epetcare - INFO - PostgreSQL connection established
+2025-09-29 11:31:28,312 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-29 11:31:28,682 - epetcare - INFO - Creating main window...
+2025-09-29 11:32:14,274 - epetcare - INFO - Application started successfully
+2025-09-29 11:43:05,268 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 11:43:05,268 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 11:43:05,436 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 11:43:05,600 - epetcare - INFO - Initializing application...
+2025-09-29 11:43:05,623 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 11:43:05,650 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-29 11:43:06,609 - epetcare - INFO - PostgreSQL connection established
+2025-09-29 11:43:06,609 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-29 11:43:06,969 - epetcare - INFO - Creating main window...
+2025-09-29 11:43:16,124 - epetcare - INFO - Application started successfully
+2025-09-29 12:57:38,044 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-29 12:57:38,044 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-29 12:57:38,227 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-29 12:57:38,412 - epetcare - INFO - Initializing application...
+2025-09-29 12:57:38,439 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-29 12:57:38,848 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-29 12:57:39,929 - epetcare - INFO - PostgreSQL connection established
+2025-09-29 12:57:39,929 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-29 12:57:40,287 - epetcare - INFO - Creating main window...
+2025-09-29 12:57:49,639 - epetcare - INFO - Application started successfully
+2025-09-29 13:03:48,571 - epetcare - ERROR - delete error (clinic_pet): update or delete on table "clinic_pet" violates foreign key constraint "clinic_prescription_pet_id_2e51eb72_fk_clinic_pet_id" on table "clinic_prescription"
+DETAIL:  Key (id)=(7) is still referenced from table "clinic_prescription".
+
+2025-09-30 00:47:38,509 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-30 00:47:38,509 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-30 00:47:38,863 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-30 00:47:39,078 - epetcare - INFO - Initializing application...
+2025-09-30 00:47:39,176 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-30 00:47:39,195 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-30 00:47:40,173 - epetcare - INFO - PostgreSQL connection established
+2025-09-30 00:47:40,174 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-30 00:47:40,534 - epetcare - INFO - Creating main window...
+2025-09-30 00:47:51,147 - epetcare - INFO - Application started successfully

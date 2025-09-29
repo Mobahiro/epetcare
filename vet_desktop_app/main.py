@@ -55,8 +55,13 @@ try:
     # Import and use the module finder to ensure all modules are importable
     try:
         logger.debug("Using module finder to ensure modules are importable...")
-        from module_finder import ensure_modules_importable
-        ensure_modules_importable()
+        # Only try to import if the file exists
+        module_finder_path = os.path.join(current_dir, 'module_finder.py')
+        if os.path.exists(module_finder_path):
+            from module_finder import ensure_modules_importable
+            ensure_modules_importable()
+        else:
+            logger.warning("module_finder.py not found. Continuing without it.")
     except ImportError:
         logger.warning("Could not import module_finder. Continuing without it.")
     
@@ -76,7 +81,6 @@ try:
         
         # Now import specific modules
         from views.main_window import MainWindow
-        from utils.database import setup_database_connection
         from utils.config import load_config
         logger.debug("Successfully imported application modules")
         

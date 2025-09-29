@@ -56,27 +56,12 @@ if getattr(sys, 'frozen', False):
                 else:
                     logger.error(f"data_access.py not found at {data_access_path}")
             
-            # Import connection getter (prefer pg_db)
+                # Import PostgreSQL connection (required - no fallback)
             try:
                 from utils.pg_db import get_connection
             except ImportError:
-                try:
-                    from utils.database import get_connection
-                except ImportError:
-                    get_connection = lambda: None  # placeholder
-            
-            # Fallback manual load of database.py if still needed
-            if 'get_connection' not in locals() or get_connection is None:
-                database_path = os.path.join(base_dir, 'utils', 'database.py')
-                if os.path.exists(database_path):
-                    spec = importlib.util.spec_from_file_location("utils.database", database_path)
-                    database_module = importlib.util.module_from_spec(spec)
-                    sys.modules['utils.database'] = database_module
-                    spec.loader.exec_module(database_module)
-                    get_connection = database_module.get_connection
-                    logger.debug(f"Imported get_connection from {database_path}")
-                else:
-                    logger.error(f"database.py not found at {database_path}")
+                logger.error("Failed to import pg_db.get_connection")
+                get_connection = lambda: None  # placeholder that will cause login to fail
             
             # Import views.register_dialog
             try:
@@ -101,10 +86,7 @@ if getattr(sys, 'frozen', False):
 else:
     # Running as a normal Python script
     from models.data_access import UserDataAccess, VeterinarianDataAccess
-    try:
-        from utils.pg_db import get_connection
-    except ImportError:
-        from utils.database import get_connection
+    from utils.pg_db import get_connection  # PostgreSQL is required
     from views.register_dialog import RegisterDialog
 
 
