@@ -2497,3 +2497,13 @@ DETAIL:  Key (id)=(7) is still referenced from table "clinic_prescription".
 2025-09-30 00:47:40,174 - epetcare - INFO - Connected to PostgreSQL successfully
 2025-09-30 00:47:40,534 - epetcare - INFO - Creating main window...
 2025-09-30 00:47:51,147 - epetcare - INFO - Application started successfully
+2025-09-30 01:20:23,181 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-09-30 01:20:23,181 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-09-30 01:20:23,450 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-09-30 01:20:23,844 - epetcare - INFO - Initializing application...
+2025-09-30 01:20:23,879 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-09-30 01:20:23,924 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-09-30 01:20:24,929 - epetcare - INFO - PostgreSQL connection established
+2025-09-30 01:20:24,929 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-09-30 01:20:25,310 - epetcare - INFO - Creating main window...
+2025-09-30 01:20:31,877 - epetcare - INFO - Application started successfully
