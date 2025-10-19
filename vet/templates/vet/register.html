@@ -16,7 +16,7 @@
 
 <form method="post">
   {% csrf_token %}
-  
+
   <div class="field">
     {{ form.username.label_tag }}
     {{ form.username }}
@@ -24,7 +24,7 @@
       <div class="error-text">{{ form.username.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.email.label_tag }}
     {{ form.email }}
@@ -32,7 +32,7 @@
       <div class="error-text">{{ form.email.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.password1.label_tag }}
     {{ form.password1 }}
@@ -40,7 +40,7 @@
       <div class="error-text">{{ form.password1.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.password2.label_tag }}
     {{ form.password2 }}
@@ -48,9 +48,9 @@
       <div class="error-text">{{ form.password2.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <hr>
-  
+
   <div class="field">
     {{ form.full_name.label_tag }}
     {{ form.full_name }}
@@ -58,7 +58,7 @@
       <div class="error-text">{{ form.full_name.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.specialization.label_tag }}
     {{ form.specialization }}
@@ -66,7 +66,7 @@
       <div class="error-text">{{ form.specialization.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.license_number.label_tag }}
     {{ form.license_number }}
@@ -74,7 +74,7 @@
       <div class="error-text">{{ form.license_number.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.phone.label_tag }}
     {{ form.phone }}
@@ -82,7 +82,7 @@
       <div class="error-text">{{ form.phone.errors.0 }}</div>
     {% endif %}
   </div>
-  
+
   <div class="field">
     {{ form.bio.label_tag }}
     {{ form.bio }}
@@ -90,7 +90,91 @@
       <div class="error-text">{{ form.bio.errors.0 }}</div>
     {% endif %}
   </div>
-  
-  <button class="btn" type="submit">Create Account</button>
+    <div class="field">
+      <label>
+        {{ form.accept_terms }} I have read and agree to the <a href="#" id="tosToggle">Terms &amp; Privacy Notice</a>
+      </label>
+      {% if form.accept_terms.errors %}
+        <div class="error-text">{{ form.accept_terms.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+  <button class="btn" id="vet-register-submit" type="submit" disabled>Create Account</button>
 </form>
+
+<!-- Terms Modal Overlay -->
+<div class="terms-overlay" id="termsOverlay">
+  <div class="terms-modal">
+    <div class="close-btn" id="closeTerms">&times;</div>
+    <h3 class="terms-header">Terms &amp; Privacy Notice <span class="terms-updated">Updated</span></h3>
+
+    <div class="terms-content">
+      <h4>1. Professional Use</h4>
+      <p>Access to clinical data is restricted to authorized veterinary professionals. You must handle client and patient data confidentially.</p>
+
+      <h4>2. Data Handling</h4>
+      <p>Data is processed for delivering veterinary services: scheduling, medical records, prescriptions, compliance reporting.</p>
+
+      <h4>3. Security Duties</h4>
+      <p>You agree to protect credentials, avoid sharing logins, and report suspected breaches immediately.</p>
+
+      <h4>4. Regulatory Compliance</h4>
+      <p>You are responsible for ensuring usage complies with local veterinary record-keeping regulations.</p>
+
+      <h4>5. Credential Verification</h4>
+      <p>You confirm that the license number and professional credentials you've provided are accurate, current, and belong to you. Use of false credentials is strictly prohibited.</p>
+
+      <h4>6. Acceptance</h4>
+      <p>By checking the box above, you agree to these Terms &amp; Conditions.</p>
+    </div>
+  </div>
+</div>
+<script>
+  (function(){
+    const termsToggle = document.getElementById('tosToggle');
+    const termsOverlay = document.getElementById('termsOverlay');
+    const termsModal = document.querySelector('.terms-modal');
+    const closeTerms = document.getElementById('closeTerms');
+    const acceptTerms = document.querySelector('input[name="accept_terms"]');
+    const submitBtn = document.getElementById('vet-register-submit');
+
+    // Enable submit button when terms are accepted
+    acceptTerms.addEventListener('change', function() {
+      if (this.checked) {
+        submitBtn.disabled = false;
+      } else {
+        submitBtn.disabled = true;
+      }
+    });
+
+    // Toggle terms visibility
+    termsToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      termsOverlay.style.display = 'flex';
+      termsModal.classList.add('modal-enter');
+    });
+
+    // Close terms when clicking the X button
+    closeTerms.addEventListener('click', function() {
+      termsModal.classList.remove('modal-enter');
+      termsModal.classList.add('modal-exit');
+      setTimeout(() => {
+        termsOverlay.style.display = 'none';
+        termsModal.classList.remove('modal-exit');
+      }, 300);
+    });
+
+    // Close terms when clicking outside the modal
+    termsOverlay.addEventListener('click', function(e) {
+      if (e.target === termsOverlay) {
+        termsModal.classList.remove('modal-enter');
+        termsModal.classList.add('modal-exit');
+        setTimeout(() => {
+          termsOverlay.style.display = 'none';
+          termsModal.classList.remove('modal-exit');
+        }, 300);
+      }
+    });
+  })();
+</script>
 {% endblock %}

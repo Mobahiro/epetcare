@@ -1,29 +1,40 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
 {% block title %}Pets - ePetCare{% endblock %}
-{% block content %}
-<div class="toolbar">
-  <h2>Pets</h2>
-  <a class="btn" href="{% url 'pet_create' %}">+ New Pet</a>
-</div>
-<table>
-  <thead>
-    <tr><th>Name</th><th>Owner</th><th>Species</th><th>Breed</th><th>Actions</th></tr>
-  </thead>
-  <tbody>
+{% block head %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
+{% endblock %}
+{% block dash_content %}
+
+<section class="page-hero">
+  <div class="page-hero__content">
+    <div class="page-hero__text">
+      <h1>Your Pets</h1>
+      <p>Manage your registered pets.</p>
+    </div>
+    <div class="page-hero__cta">
+      <a class="btn btn-primary dash-cta" href="{% url 'pet_create' %}">+ New Pet</a>
+    </div>
+  </div>
+</section>
+
+<section class="panel panel--pets">
+  <div class="pets-grid">
     {% for pet in pets %}
-      <tr>
-        <td><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a></td>
-        <td>{{ pet.owner.full_name }}</td>
-        <td>{{ pet.get_species_display }}</td>
-        <td>{{ pet.breed|default:'-' }}</td>
-        <td>
-          <a href="{% url 'pet_delete' pet.pk %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">Delete</a>
-        </td>
-      </tr>
+      <a class="pet-card" href="{% url 'pet_detail' pet.pk %}">
+        <div class="avatar">{{ pet.name|slice:":1"|upper }}</div>
+        <div class="meta">
+          <div class="name">{{ pet.name }}</div>
+          <div class="spec">{{ pet.get_species_display }}</div>
+        </div>
+      </a>
     {% empty %}
-      <tr><td colspan="5">No pets yet.</td></tr>
+      <div class="empty-block">
+        <p>No pets yet.</p>
+        <p class="muted small">Use the button above to add your first pet.</p>
+      </div>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
+</section>
 {% endblock %}
 

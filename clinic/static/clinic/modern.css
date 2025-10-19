@@ -1,0 +1,571 @@
+/*
+   Modern Navigation and UI Enhancements
+   This file adds modern styling to the ePetCare navigation
+   and improves the overall website interactivity
+*/
+
+/* Global layout: sticky footer and full-height pages */
+html, body { height: 100%; }
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main content grows to push footer to bottom */
+main.site-main { flex: 1 0 auto; }
+.site-footer { flex-shrink: 0; }
+
+/* Navigation link styling with rounded corners */
+.site-header .nav-link {
+    color: var(--text);
+    text-decoration: none;
+    margin-left: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: all 0.25s ease;
+    background-color: var(--accent);
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+.site-header .nav-with-icon { display:inline-flex; align-items:center; gap:8px; }
+.site-header .nav-with-icon .icon { font-size: 16px; line-height: 1; }
+.site-header .nav-with-icon .label { line-height: 1; }
+
+/* Icon-only nav items */
+.site-header .nav-icon { width: 44px; height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+
+    /* Hide global header/footer when dashboard shell is used */
+    body:has(.dash-layout) .site-header,
+    body:has(.dash-layout) .site-footer { display: none !important; }
+.site-header .nav-icon .icon { font-size: 18px; line-height: 1; }
+.visually-hidden { position: absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip: rect(0,0,0,0); white-space:nowrap; border:0; }
+
+.site-header .nav-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+    background-color: var(--primary-light);
+    filter: saturate(1.05);
+}
+
+.site-header .nav-link:active {
+    transform: translateY(0px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Active state for navigation links */
+.site-header .nav-link.active {
+    background-color: #fff;
+    color: var(--brand);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.site-header .nav-link.active:hover {
+    background-color: #fff;
+    transform: translateY(-3px);
+}
+
+/* Add ripple effect to buttons */
+.site-header .nav-link:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.site-header .nav-link:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+/* Modern header styling */
+.site-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    padding: 12px 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+/* Full-width main wrapper to use entire screen */
+.site-main {
+    width: 100vw;
+    margin: 0 calc(50% - 50vw); /* negate any parent centering/gutters */
+    padding: 0 0 32px 0; /* consistent space above footer */
+    background: var(--bg);
+}
+
+/* Ensure our standard inner containers still look good on large screens */
+.site-main .container {
+    max-width: 1200px;
+    margin: 0 auto; /* center inner content while section spans full width */
+    padding: 0 20px;
+    background: transparent; /* remove card style from global .container */
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Remove decorative gradient bar from card containers on full-width pages */
+.site-main .container::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Make hero and full-bleed sections stretch edge-to-edge nicely */
+.hero-section,
+.trusted-section,
+.features-section,
+.how-it-works-section,
+.testimonial-section,
+.cta-section {
+    width: 100%;
+}
+
+/* Footer full-width content with comfortable padding */
+.site-footer .footer-container {
+    max-width: none;
+    width: 100%;
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+/* Auth (login/register) page layout */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 460px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 48px 48px 56px;
+    box-shadow: 0 12px 40px -8px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    position: relative;
+    backdrop-filter: blur(4px);
+    animation: fadeInUp 0.5s ease;
+}
+
+.auth-container:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--accent), var(--primary-light));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.auth-title {
+    font-size: 2.4rem;
+    margin: 0 0 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--brand);
+}
+
+.auth-alt-action {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.auth-link {
+    color: var(--brand);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: all 0.25s ease;
+}
+.auth-link:hover { border-color: var(--accent); color: var(--brand); }
+
+.auth-form { display: flex; flex-direction: column; gap: 26px; }
+
+.auth-field { display: flex; flex-direction: column; gap: 6px; }
+.auth-field label { font-weight: 600; font-size: 0.9rem; color: var(--brand); }
+.auth-field input { padding: 14px 16px; border:1px solid var(--border); border-radius:14px; background:#FAF6F0; font-size:0.95rem; outline:none; transition:all .25s ease; }
+.auth-field input:focus { border-color: var(--accent); background:#fff; box-shadow:0 0 0 3px rgba(255,189,89,0.25); }
+
+.auth-submit { width: 100%; background: var(--brand); color:#fff; font-weight:600; padding:15px 18px; border-radius:22px; font-size:1rem; letter-spacing:.5px; }
+.auth-submit:hover { background: var(--brand-2); }
+
+.auth-alert { padding:14px 18px; border-radius:12px; font-size:0.9rem; margin:0 0 10px; }
+.auth-alert-error { background:#FFE8E0; color:#7A2812; border:1px solid #F6B5A0; }
+
+.auth-error { font-size:0.75rem; color:#B43D1F; font-weight:500; margin-top:4px; }
+
+.auth-meta { margin-top:6px; font-size:0.7rem; color:var(--muted); display:flex; justify-content:space-between; }
+.auth-small { font-size:0.7rem; }
+
+/* Register page specific tweaks */
+.auth-form .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 640px) { .auth-form .two-col { grid-template-columns: 1fr; } }
+.terms-field { margin-top: 4px; }
+.terms-label { display:flex; gap:8px; align-items:flex-start; font-size:0.75rem; line-height:1.3; }
+.terms-label input[type="checkbox"] { margin-top:2px; }
+
+/* Utility to visually hide but keep in DOM for forms */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0);
+    white-space: nowrap; border: 0;
+}
+
+/* Buttons inside terms modal to match theme */
+.terms-actions .btn { background: #fff; border:1px solid var(--border); color: var(--brand); border-radius:10px; }
+.terms-actions .btn:hover { background: var(--hover-effect); }
+.terms-actions .btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+.terms-actions .btn-primary:hover { background: var(--brand-2); }
+
+@media (max-width: 600px) {
+    .auth-container { padding: 40px 32px 48px; border-radius: 18px; }
+    .auth-title { font-size: 2rem; margin-bottom: 22px; }
+    .auth-alt-action { top: 18px; right: 24px; }
+}
+
+/* Auth FULL layout (no navbar/footer) */
+body.auth-full { margin: 0; }
+.auth-full .auth-split {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 40px;
+    width: min(1160px, 96vw);
+    margin: 0 auto;
+    align-items: stretch;
+}
+.auth-hero {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+    overflow: hidden;
+    position: relative;
+}
+.auth-hero .hero-media {
+    position: absolute; inset: 0; background: linear-gradient(135deg, #f6e8d5, #ffe7c0);
+}
+.auth-hero .hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.auth-hero .hero-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse at bottom right, rgba(0,0,0,0.15), transparent 60%); }
+.auth-hero .hero-caption { position: absolute; left: 28px; bottom: 24px; color: #432; font-weight: 600; }
+.auth-hero .dots { position: absolute; left: 24px; bottom: 24px; display:flex; gap:8px; }
+.auth-hero .dots span { width:8px; height:8px; border-radius:50%; background:rgba(0,0,0,0.2); }
+
+.auth-panel { display:flex; align-items:center; }
+.auth-panel .auth-container { width: 100%; max-width: 520px; }
+
+@media (max-width: 980px) {
+    .auth-full .auth-split { grid-template-columns: 1fr; gap: 24px; width: min(760px, 94vw); }
+    .auth-hero { height: 36vh; }
+    .auth-panel { justify-content: center; }
+}
+
+.site-header.scrolled {
+    padding: 8px 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+/* Brand/Logo enhancements */
+.brand-container {
+    display: flex;
+    align-items: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.brand:hover {
+    transform: scale(1.02);
+}
+
+.brand-logo img {
+    height: 40px;
+    transition: transform 0.3s ease;
+}
+
+.brand:hover .brand-logo img {
+    transform: rotate(5deg);
+}
+
+/* Animations */
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 1;
+    }
+    20% {
+        transform: scale(25, 25);
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(40, 40);
+    }
+}
+
+/* Modern button styling throughout the site */
+.btn {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    color: var(--brand);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+}
+
+/* footer separation enhancement */
+.site-footer { box-shadow: 0 -18px 60px rgba(0,0,0,0.04) inset; }
+
+.btn-secondary {
+    background-color: #fff;
+    color: var(--brand);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg);
+}
+
+/* Card enhancements */
+.card {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0;
+    padding: 16px 20px;
+    background-color: var(--accent);
+    color: var(--brand);
+    font-weight: 600;
+}
+
+/* Form input styling */
+input, select, textarea {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,189,89,0.3);
+    outline: none;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+}
+
+/* Adding scroll behavior for smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Mobile menu enhancement */
+.mobile-menu-toggle {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 10px;
+    display: none;
+    z-index: 101;
+}
+
+.mobile-menu-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 6px 0;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+/* Add responsive handling for mobile devices */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background: linear-gradient(135deg, var(--brand-2) 0%, var(--brand) 100%);
+        padding: 80px 30px 30px;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    }
+
+    .nav.active {
+        right: 0;
+    }
+
+    .nav-items {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .site-header .nav-link {
+        margin: 10px 0;
+        width: 100%;
+        text-align: left;
+        padding: 12px 20px;
+    }
+
+    /* Animate hamburger to X */
+    .mobile-menu-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .mobile-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+    }
+}
+
+/* Ripple effect style for buttons */
+.ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    margin-top: -50px;
+    margin-left: -50px;
+    animation: ripple-effect 0.6s linear;
+    opacity: 0;
+}
+
+@keyframes ripple-effect {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Fade-in animation for elements */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered animation for lists */
+.staggered-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.staggered-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Apply staggered animation delay to list items */
+.staggered-list .staggered-item:nth-child(1) { transition-delay: 0.1s; }
+.staggered-list .staggered-item:nth-child(2) { transition-delay: 0.2s; }
+.staggered-list .staggered-item:nth-child(3) { transition-delay: 0.3s; }
+.staggered-list .staggered-item:nth-child(4) { transition-delay: 0.4s; }
+.staggered-list .staggered-item:nth-child(5) { transition-delay: 0.5s; }
+.staggered-list .staggered-item:nth-child(n+6) { transition-delay: 0.6s; }

@@ -1,104 +1,259 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
+{% load static %}
 {% block title %}Pet Details - ePetCare{% endblock %}
-{% block content %}
-<div class="toolbar">
-  <h2>{{ pet.name }}</h2>
-  <div>
-    <a class="btn btn-secondary" href="{% url 'pet_list' %}">← Back</a>
-    <a class="btn" style="background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);" href="{% url 'pet_delete' pet.pk %}">Delete Pet</a>
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/pet_detail.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<section class="pet-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">{{ pet.name }}</h1>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Owner: <strong>{{ pet.owner.full_name }}</strong></span>
+      <span class="meta-dot">•</span>
+      <span class="meta-item">{{ pet.get_species_display }}{% if pet.breed %} – {{ pet.breed }}{% endif %}</span>
+      <span class="meta-dot">•</span>
+      <span class="meta-item">{{ pet.get_sex_display }}</span>
+      {% if pet.weight_kg %}
+      <span class="meta-dot">•</span>
+      <span class="meta-item">{{ pet.weight_kg }} kg</span>
+      {% endif %}
+      {% if pet.birth_date %}
+      <span class="meta-dot">•</span>
+      <span class="meta-item">Born {{ pet.birth_date|date:'M d, Y' }}</span>
+      {% endif %}
+    </div>
   </div>
-</div>
-<p>
-  <strong>Owner:</strong> {{ pet.owner.full_name }}<br>
-  <strong>Species:</strong> {{ pet.get_species_display }} &nbsp;
-  <strong>Breed:</strong> {{ pet.breed|default:'-' }} &nbsp;
-  <strong>Sex:</strong> {{ pet.get_sex_display }}
-</p>
-{% if pet.birth_date %}<p><strong>Birth Date:</strong> {{ pet.birth_date }}</p>{% endif %}
-{% if pet.weight_kg %}<p><strong>Weight:</strong> {{ pet.weight_kg }} kg</p>{% endif %}
-{% if pet.notes %}<p><strong>Notes:</strong><br>{{ pet.notes|linebreaksbr }}</p>{% endif %}
+  <!-- Removed hero photo to avoid duplication; single photo lives in right rail -->
+  {% if pet.notes %}
+  <div class="hero-notes">
+    <div class="note-card">
+      <div class="note-title">Notes</div>
+      <div class="note-body">{{ pet.notes|linebreaksbr }}</div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="hero-divider"></div>
 
-<div class="toolbar" style="margin-top:16px;">
-  <h3>Appointments</h3>
-  <a class="btn" href="{% url 'appointment_create' %}">+ New Appointment</a>
-</div>
-<table>
-  <thead>
-    <tr><th>Date</th><th>Reason</th><th>Status</th></tr>
-  </thead>
-  <tbody>
-    {% for a in appointments %}
-      <tr>
-        <td>{{ a.date_time|date:"Y-m-d H:i" }}</td>
-        <td>{{ a.reason }}</td>
-        <td>
-          {% if a.status == 'scheduled' %}
-            <span class="badge scheduled">Scheduled</span>
-          {% elif a.status == 'completed' %}
-            <span class="badge completed">Completed</span>
-          {% elif a.status == 'cancelled' %}
-            <span class="badge cancelled">Cancelled</span>
-          {% else %}
-            {{ a.get_status_display }}
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="3">No appointments yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+</section>
 
-<div class="toolbar" style="margin-top:16px;">
-  <h3>Medical Records</h3>
-  <a class="btn" href="#">+ Add Record</a>
-</div>
-<table>
-  <thead>
-    <tr><th>Date</th><th>Type</th><th>Description</th><th>Actions</th></tr>
-  </thead>
-  <tbody>
-    {% for record in medical_records %}
-      <tr>
-        <td>{{ record.visit_date|date:"Y-m-d" }}</td>
-        <td>{{ record.condition }}</td>
-        <td>{{ record.treatment|truncatechars:50 }}</td>
-        <td>
-          <span class="badge">Vet Added</span>
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="4">No medical records yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+<!-- Summary tiles row: Appointments, Prescriptions, Records -->
+<section class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🗓️</div>
+      <div class="tile-text">
+        <div class="tile-title">Appointments</div>
+        <div class="tile-sub">Total</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ appointments|length }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">💊</div>
+      <div class="tile-text">
+        <div class="tile-title">Prescriptions</div>
+        <div class="tile-sub">Active</div>
+      </div>
+    </div>
+    <div class="tile-metric">{% with active=0 %}{% for p in prescriptions %}{% if p.is_active %}{% widthratio 1 1 1 %}{% endif %}{% endfor %}{% endwith %}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📋</div>
+      <div class="tile-text">
+        <div class="tile-title">Records</div>
+        <div class="tile-sub">Total</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ medical_records|length }}</div>
+  </div>
+</section>
 
-<div class="toolbar" style="margin-top:16px;">
-  <h3>Prescriptions</h3>
-  <span class="muted">Prescribed by veterinarians</span>
+<div class="pet-detail-grid">
+  <div class="col-left">
+    <div class="card main-card">
+      <div class="card-head with-tabs">
+        <nav class="card-tabs" role="tablist">
+          <a href="#appointments" class="card-tab active" role="tab" aria-controls="appointments" aria-selected="true">Appointments</a>
+          <a href="#records" class="card-tab" role="tab" aria-controls="records" aria-selected="false">Medical Records</a>
+          <a href="#prescriptions" class="card-tab" role="tab" aria-controls="prescriptions" aria-selected="false">Prescriptions</a>
+        </nav>
+        <div class="head-actions">
+          <a class="btn btn-primary btn-sm new-btn" href="{% url 'appointment_create' %}" data-for="appointments">+ New</a>
+          <a class="btn btn-primary btn-sm new-btn" href="#" data-for="records" style="display:none">+ Add</a>
+        </div>
+      </div>
+
+      <div id="appointments" class="tab-panel active" role="tabpanel" aria-labelledby="Appointments">
+        <div class="list tablelike">
+          {% for a in appointments %}
+          <div class="row row-compact">
+            <div class="cell cell-date"><span class="cell-value">{{ a.date_time|date:"Y-m-d H:i" }}</span></div>
+            <div class="cell cell-reason"><span class="cell-value">{{ a.reason }}</span></div>
+            <div class="cell cell-status">
+              {% if a.status == 'scheduled' %}
+                <span class="pill scheduled">Scheduled</span>
+              {% elif a.status == 'completed' %}
+                <span class="pill completed">Completed</span>
+              {% elif a.status == 'cancelled' %}
+                <span class="pill cancelled">Cancelled</span>
+              {% else %}
+                <span class="pill">{{ a.get_status_display }}</span>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="empty-message">No appointments yet. <a class="btn-link" href="{% url 'appointment_create' %}">Schedule one</a></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div id="records" class="tab-panel" role="tabpanel" aria-labelledby="Medical Records">
+        <div class="list tablelike">
+          {% for record in medical_records %}
+          <div class="row row-compact">
+            <div class="cell"><span class="cell-value">{{ record.visit_date|date:"Y-m-d" }}</span></div>
+            <div class="cell"><span class="cell-value">{{ record.condition }}</span></div>
+            <div class="cell cell-grow"><span class="cell-value">{{ record.treatment|truncatechars:100 }}</span></div>
+          </div>
+          {% empty %}
+          <div class="empty-message">No medical records. <a class="btn-link" href="#">Add one</a></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div id="prescriptions" class="tab-panel" role="tabpanel" aria-labelledby="Prescriptions">
+        <div class="list tablelike">
+          {% for p in prescriptions %}
+          <div class="row row-compact">
+            <div class="cell"><span class="cell-value">{{ p.medication_name }}</span></div>
+            <div class="cell"><span class="cell-value">{{ p.dosage }}</span></div>
+            <div class="cell"><span class="cell-value">{{ p.date_prescribed|date:"Y-m-d" }}</span></div>
+            <div class="cell"><span class="cell-value">{% if p.is_active %}<span class="pill completed">Active</span>{% else %}<span class="pill cancelled">Inactive</span>{% endif %}</span></div>
+          </div>
+          {% empty %}
+          <div class="empty-message">No prescriptions yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="col-right">
+    <div class="rail">
+      <div class="rail-card photo">
+        {% if pet.image %}
+          <img src="{{ pet.image.url }}" alt="{{ pet.name }}">
+        {% else %}
+          <div class="photo-placeholder">No image</div>
+        {% endif %}
+      </div>
+
+      <div class="rail-card next-appt">
+        <div class="rail-title">Next Appointment</div>
+        {% if appointments %}
+          <div class="rail-row">
+            <div class="rail-primary">{{ appointments.0.date_time|date:"M d, Y H:i" }}</div>
+            <div class="rail-secondary">{{ appointments.0.reason }}</div>
+          </div>
+          <div class="rail-row rail-actions-row">
+            <div>
+              {% if appointments.0.status == 'scheduled' %}
+                <span class="pill scheduled">Scheduled</span>
+              {% elif appointments.0.status == 'completed' %}
+                <span class="pill completed">Completed</span>
+              {% elif appointments.0.status == 'cancelled' %}
+                <span class="pill cancelled">Cancelled</span>
+              {% else %}
+                <span class="pill">{{ appointments.0.get_status_display }}</span>
+              {% endif %}
+            </div>
+            <a class="btn btn-primary btn-sm" href="{% url 'appointment_create' %}">{% if appointments.0.status == 'scheduled' %}Reschedule{% else %}Book{% endif %}</a>
+          </div>
+        {% else %}
+          <div class="empty-text">No appointments scheduled</div>
+          <a class="btn btn-primary btn-sm" href="{% url 'appointment_create' %}">Book</a>
+        {% endif %}
+      </div>
+
+      <div class="rail-card quick-actions">
+        <div class="rail-title with-menu">
+          <span>Quick Actions</span>
+          <button class="kebab-btn" aria-label="More" aria-haspopup="true" aria-expanded="false">⋯</button>
+        </div>
+        <div class="menu" role="menu" hidden>
+          <a class="menu-item" role="menuitem" href="{% url 'pet_list' %}">Back</a>
+          <a class="menu-item" role="menuitem" href="{% url 'pet_edit' pet.pk %}">Edit</a>
+          <a class="menu-item danger" role="menuitem" href="{% url 'pet_delete' pet.pk %}">Delete</a>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>
-<table>
-  <thead>
-    <tr><th>Medication</th><th>Dosage</th><th>Date Prescribed</th><th>Status</th></tr>
-  </thead>
-  <tbody>
-    {% for p in prescriptions %}
-      <tr>
-        <td>{{ p.medication_name }}</td>
-        <td>{{ p.dosage }}</td>
-        <td>{{ p.date_prescribed|date:"Y-m-d" }}</td>
-        <td>
-          {% if p.is_active %}
-            <span class="badge completed">Active</span>
-          {% else %}
-            <span class="badge cancelled">Inactive</span>
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="4">No prescriptions yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+
+<!-- Mobile FAB -->
+<a class="fab-add" href="{% url 'appointment_create' %}" aria-label="Add appointment">＋</a>
+
+<script>
+  (function(){
+    const tabs = document.querySelectorAll('.card-tabs .card-tab');
+    const panels = document.querySelectorAll('.tab-panel');
+    const newBtns = document.querySelectorAll('.new-btn');
+    const kebab = document.querySelector('.kebab-btn');
+    const menu = document.querySelector('.quick-actions .menu');
+
+    function activate(id){
+      // Update panel and tab active states
+      panels.forEach(p=>p.classList.toggle('active', '#'+p.id===id));
+      tabs.forEach(t=>t.classList.toggle('active', t.getAttribute('href')===id));
+
+      // Show/hide the appropriate "+ New" button
+      const activePanel = id.replace('#', '');
+      newBtns.forEach(btn => {
+        btn.style.display = btn.dataset.for === activePanel ? '' : 'none';
+      });
+    }
+
+    // Initialize based on URL hash or default to appointments
+    if(location.hash){
+      activate(location.hash);
+    } else {
+      activate('#appointments');
+    }
+
+    // Add click handlers to tabs
+    tabs.forEach(t=>t.addEventListener('click', function(e){
+      e.preventDefault();
+      const href = this.getAttribute('href');
+      history.pushState(null, null, href);
+      activate(href);
+    }));
+
+    // Handle back/forward navigation
+    window.addEventListener('hashchange', ()=>activate(location.hash||'#appointments'));
+
+    // Kebab menu toggle
+    if(kebab && menu){
+      kebab.addEventListener('click', ()=>{
+        const isHidden = menu.hasAttribute('hidden');
+        menu.toggleAttribute('hidden', !isHidden);
+        kebab.setAttribute('aria-expanded', String(isHidden));
+      });
+      document.addEventListener('click', (e)=>{
+        if(!menu.contains(e.target) && e.target!==kebab){
+          menu.setAttribute('hidden','');
+          kebab.setAttribute('aria-expanded','false');
+        }
+      });
+    }
+  })();
+  </script>
+
 {% endblock %}
 

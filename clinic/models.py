@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
+import os
 
 
 class Owner(models.Model):
@@ -35,9 +37,31 @@ class Pet(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     weight_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     notes = models.TextField(blank=True)
+    image = models.ImageField(upload_to='pet_images/', null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.name} ({self.get_species_display()})"
+
+    @property
+    def image_url(self):
+        """Return a normalized URL for the image suitable for templates.
+
+        Some older rows may contain values like "media/pet_images/..." which can
+        lead to duplicated paths (e.g., "/media/media/...") once MEDIA_URL is
+        prefixed. This method normalizes those cases.
+        """
+        if self.image and hasattr(self.image, 'url'):
+            url = getattr(self.image, 'url', '') or ''
+            # Normalize duplicate media segment
+            if url.startswith('/media/media/'):
+                url = url.replace('/media/media/', '/media/', 1)
+            # Also normalize accidental "media/" without leading slash
+            if url.startswith('media/'):
+                url = '/' + url
+                if url.startswith('/media/media/'):
+                    url = url.replace('/media/media/', '/media/', 1)
+            return url
+        return None
 
 
 class Appointment(models.Model):
@@ -89,3 +113,25 @@ class Prescription(models.Model):
 
     def __str__(self) -> str:
         return f"{self.pet.name} - {self.medication_name}"
+
+
+class Notification(models.Model):
+    class Type(models.TextChoices):
+        APPOINTMENT_CREATED = 'appointment_created', 'Appointment Created'
+        APPOINTMENT_CANCELLED = 'appointment_cancelled', 'Appointment Cancelled'
+        APPOINTMENT_UPDATED = 'appointment_updated', 'Appointment Updated'
+        GENERAL = 'general', 'General'
+
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='notifications')
+    appointment = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+    notif_type = models.CharField(max_length=40, choices=Type.choices, default=Type.GENERAL)
+    title = models.CharField(max_length=160)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self) -> str:
+        return f"{self.get_notif_type_display()} - {self.title}"

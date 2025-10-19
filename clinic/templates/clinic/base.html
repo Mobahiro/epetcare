@@ -5,35 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ePetCare{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v=20250926">
+    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
+    <link rel="stylesheet" href="{% static 'clinic/modal.css' %}?v={% now "U" %}">
+    <!-- Modern UI enhancements -->
+    <link rel="stylesheet" href="{% static 'clinic/modern.css' %}?v={% now "U" %}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="{% static 'clinic/refresh.js' %}?v={% now "U" %}" defer></script>
+    <script src="{% static 'clinic/main.js' %}?v={% now "U" %}" defer></script>
+    <!-- Modern interactivity -->
+    <script src="{% static 'clinic/modern.js' %}?v={% now "U" %}" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'clinic/images/epetcare-favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'clinic/images/epetcare-favicon.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'clinic/images/epetcare-favicon.png' %}">
     {% block head %}{% endblock %}
 </head>
 <body>
     <header class="site-header">
         <div class="header-inner">
-            <div>
-                <a class="brand" href="{% url 'home' %}"><strong>ePetCare</strong></a>
-                <div class="tagline">Pet Health Management System</div>
+            <div class="brand-container">
+                <a class="brand" href="{% url 'home' %}">
+                    <div class="brand-logo">
+                        <img src="{% static 'clinic/images/epetcare-logo.png' %}" alt="ePetCare Logo" class="logo-icon">
+                    </div>
+                    <div class="brand-text">
+                        <strong>ePetCare</strong>
+                        <div class="tagline">Pet Health Management System</div>
+                    </div>
+                </a>
             </div>
-            <nav class="nav">
-                {% if request.user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-                    <a class="nav-link" href="{% url 'pet_list' %}">Pets</a>
-                    <a class="nav-link" href="{% url 'appointment_list' %}">Appointments</a>
-                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                {% else %}
-                    <a class="nav-link" href="{% url 'home' %}">Home</a>
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
-                    <a class="nav-link" href="{% url 'register' %}">Register</a>
-                {% endif %}
-                
-                {% if request.user.is_staff %}
-                    <a class="nav-link" href="{% url 'owner_list' %}">Owners</a>
-                {% endif %}
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="nav" id="main-nav">
+                <div class="nav-items">
+                    {% if request.user.is_authenticated %}
+                        <a class="nav-link nav-with-icon {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard' %}" title="Dashboard" aria-label="Dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></a>
+                        <a class="nav-link nav-with-icon {% if '/pet/' in request.path %}active{% endif %}" href="{% url 'pet_list' %}" title="Pets" aria-label="Pets"><span class="icon">🐾</span><span class="label">Pets</span></a>
+                        <a class="nav-link nav-with-icon {% if '/appointment/' in request.path %}active{% endif %}" href="{% url 'appointment_list' %}" title="Appointments" aria-label="Appointments"><span class="icon">📅</span><span class="label">Appointments</span></a>
+                        <a class="nav-link nav-with-icon {% if request.path == '/profile/' or request.path == '/profile/password/' %}active{% endif %}" href="{% url 'profile' %}" title="Profile" aria-label="Profile"><span class="icon">👤</span><span class="label">Profile</span></a>
+                        <a class="nav-link nav-with-icon" href="{% url 'logout' %}" title="Logout" aria-label="Logout"><span class="icon">⏻</span><span class="label">Logout</span></a>
+                    {% else %}
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                        <a class="nav-link {% if request.path == '/about/' %}active{% endif %}" href="{% url 'about_us' %}">About Us</a>
+                        <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'login' %}">Login</a>
+                        <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'register' %}">Register</a>
+                    {% endif %}
+
+                    {% if request.user.is_staff %}
+                        <a class="nav-link nav-with-icon {% if '/owner/' in request.path %}active{% endif %}" href="{% url 'owner_list' %}" title="Owners" aria-label="Owners"><span class="icon">👥</span><span class="label">Owners</span></a>
+                    {% endif %}
+                </div>
             </nav>
         </div>
     </header>
-    
+
     <div id="toast-container">
         {% if messages %}
             {% for message in messages %}
@@ -44,21 +74,56 @@
             {% endfor %}
         {% endif %}
     </div>
-    
-    <main class="container">
+
+    <main class="site-main">
         {% block content %}{% endblock %}
     </main>
-    <footer style="background: #F1E3D3; padding: 15px; margin-top: 30px; border-top: 2px solid #E6CCB2; text-align: center;">
-        <strong style="color: #6B705C;">ePetCare</strong> - Your Pet's Health Companion
-        <br>
-        <small style="color: #A5A58D;">© 2025 - Made with ❤️ for pets</small>
+    <footer class="site-footer">
+        <div class="footer-container footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <img src="{% static 'clinic/images/epetcare-logo.png' %}" alt="ePetCare Logo" class="footer-logo-icon">
+                    <span>ePetCare</span>
+                </div>
+                <div class="footer-tagline">Your Pet's Health Companion</div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li><a href="{% url 'pet_list' %}">Pets</a></li>
+                        <li><a href="{% url 'appointment_list' %}">Appointments</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Pet Care Tips</a></li>
+                        <li><a href="#">Emergency Services</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    <div class="footer-bottom footer-inner">
+            <div class="copyright">© 2025 ePetCare. All rights reserved.</div>
+            <div class="footer-social">
+                <a href="#" class="social-link">Facebook</a>
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Instagram</a>
+            </div>
+        </div>
     </footer>
 
     <script>
-        // Auto-dismiss toast notifications
+        // DOM loaded event handler
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss toast notifications
             const toasts = document.querySelectorAll('.toast');
-            
+
             // Add click handler to close buttons
             document.querySelectorAll('.toast-close').forEach(button => {
                 button.addEventListener('click', function() {
@@ -69,7 +134,7 @@
                     }, 300);
                 });
             });
-            
+
             // Auto-dismiss after 5 seconds
             toasts.forEach(toast => {
                 setTimeout(() => {
@@ -79,6 +144,27 @@
                     }, 300);
                 }, 5000);
             });
+
+            // Mobile menu toggle functionality
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            const mainNav = document.getElementById('main-nav');
+
+            if (menuToggle && mainNav) {
+                menuToggle.addEventListener('click', function() {
+                    menuToggle.classList.toggle('active');
+                    mainNav.classList.toggle('active');
+                    document.body.classList.toggle('menu-open');
+                });
+
+                // Close menu when clicking a link
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        menuToggle.classList.remove('active');
+                        mainNav.classList.remove('active');
+                        document.body.classList.remove('menu-open');
+                    });
+                });
+            }
         });
     </script>
 </body>

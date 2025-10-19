@@ -1,0 +1,15 @@
+{% extends 'vet_portal/base.html' %}
+{% block title %}Delete Record{% endblock %}
+{% block content %}
+<div class="container">
+  <h2>Delete Medical Record</h2>
+  <p>Are you sure you want to delete the record <strong>{{ record.condition }}</strong> for <strong>{{ record.pet.name }}</strong>?</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="btn-group">
+      <button class="btn btn-danger" type="submit">Delete</button>
+      <a class="btn btn-secondary" href="{% url 'vet_portal:patient_detail' record.pet.id %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

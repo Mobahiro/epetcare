@@ -1,6 +1,6 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
 {% block title %}Owner Details - ePetCare{% endblock %}
-{% block content %}
+{% block dash_content %}
 <div class="toolbar">
   <h2>{{ owner.full_name }}</h2>
   <a class="btn" href="{% url 'owner_list' %}">← Back</a>

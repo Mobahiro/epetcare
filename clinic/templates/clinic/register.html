@@ -1,10 +1,23 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/base_auth.html' %}
 {% block title %}Register - ePetCare{% endblock %}
 {% block content %}
-<div class="toolbar">
-  <h2>Create Account</h2>
-  <a class="btn" href="{% url 'login' %}">Login</a>
-</div>
+<section class="auth-page">
+  <div class="auth-split">
+    <aside class="auth-hero" aria-hidden="true">
+      <div class="hero-media">
+        {% load static %}
+        <img src="{% static 'clinic/images/picture2.jpeg' %}" alt="Pets illustration" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">Create your ePetCare account</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </aside>
+    <div class="auth-panel">
+  <div class="auth-container">
+        <div class="auth-header">
+          <h1 class="auth-title">Create your account</h1>
+          <div class="auth-alt-action">Have an account? <a href="{% url 'login' %}" class="auth-link">Log in</a></div>
+        </div>
 
 {% if form.non_field_errors %}
 <div class="error-message">
@@ -14,58 +27,153 @@
 </div>
 {% endif %}
 
-<form method="post">
+<form method="post" class="auth-form" novalidate>
   {% csrf_token %}
-  <div class="field">
-    {{ form.username.label_tag }}
+  <div class="auth-field">
+    <label for="id_username">Username</label>
     {{ form.username }}
-    {% if form.username.errors %}
-      <div class="error-text">{{ form.username.errors.0 }}</div>
-    {% endif %}
+    {% if form.username.errors %}<div class="auth-error">{{ form.username.errors.0 }}</div>{% endif %}
   </div>
-  <div class="field">
-    {{ form.email.label_tag }}
+  <div class="auth-field">
+    <label for="id_email">Email</label>
     {{ form.email }}
-    {% if form.email.errors %}
-      <div class="error-text">{{ form.email.errors.0 }}</div>
-    {% endif %}
+    {% if form.email.errors %}<div class="auth-error">{{ form.email.errors.0 }}</div>{% endif %}
   </div>
-  <div class="field">
-    {{ form.password1.label_tag }}
-    {{ form.password1 }}
-    {% if form.password1.errors %}
-      <div class="error-text">{{ form.password1.errors.0 }}</div>
-    {% endif %}
+  <div class="auth-field two-col">
+    <div>
+      <label for="id_password1">Password</label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}<div class="auth-error">{{ form.password1.errors.0 }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="id_password2">Confirm Password</label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}<div class="auth-error">{{ form.password2.errors.0 }}</div>{% endif %}
+    </div>
   </div>
-  <div class="field">
-    {{ form.password2.label_tag }}
-    {{ form.password2 }}
-    {% if form.password2.errors %}
-      <div class="error-text">{{ form.password2.errors.0 }}</div>
-    {% endif %}
-  </div>
-  <hr>
-  <div class="field">
-    {{ form.full_name.label_tag }}
+  <div class="auth-field">
+    <label for="id_full_name">Full Name</label>
     {{ form.full_name }}
-    {% if form.full_name.errors %}
-      <div class="error-text">{{ form.full_name.errors.0 }}</div>
-    {% endif %}
+    {% if form.full_name.errors %}<div class="auth-error">{{ form.full_name.errors.0 }}</div>{% endif %}
   </div>
-  <div class="field">
-    {{ form.phone.label_tag }}
-    {{ form.phone }}
-    {% if form.phone.errors %}
-      <div class="error-text">{{ form.phone.errors.0 }}</div>
-    {% endif %}
+  <div class="auth-field two-col">
+    <div>
+      <label for="id_phone">Phone</label>
+      {{ form.phone }}
+      {% if form.phone.errors %}<div class="auth-error">{{ form.phone.errors.0 }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="id_address">Address</label>
+      {{ form.address }}
+      {% if form.address.errors %}<div class="auth-error">{{ form.address.errors.0 }}</div>{% endif %}
+    </div>
   </div>
-  <div class="field">
-    {{ form.address.label_tag }}
-    {{ form.address }}
-    {% if form.address.errors %}
-      <div class="error-text">{{ form.address.errors.0 }}</div>
-    {% endif %}
+  <div class="auth-field terms-field visually-hidden">
+    <label class="terms-label">
+      {{ form.accept_terms }} <span>I agree to the Terms &amp; Privacy Notice</span>
+    </label>
+    {% if form.accept_terms.errors %}<div class="auth-error">{{ form.accept_terms.errors.0 }}</div>{% endif %}
   </div>
-  <button class="btn" type="submit">Create Account</button>
+  <button class="btn auth-submit" id="register-submit" type="submit">Create Account</button>
 </form>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Terms Modal Overlay (placed after section so it overlays full page) -->
+<div class="terms-overlay" id="termsOverlay">
+  <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+    <div class="close-btn" id="closeTerms">&times;</div>
+  <h3 class="terms-header" id="termsTitle">Terms &amp; Privacy Notice <span class="terms-updated">Updated</span></h3>
+
+    <div class="terms-content">
+      <h4>1. Introduction</h4>
+      <p>These Terms &amp; Conditions ("Terms") and Privacy Notice explain how we collect, use and protect personal data in the ePetCare system (web portal, vet portal, and desktop application). By creating an account you agree to these Terms.</p>
+
+      <h4>2. Data We Collect</h4>
+      <ul>
+        <li>Account data (name, email, username)</li>
+        <li>Pet &amp; owner data (medical records, prescriptions, appointments)</li>
+        <li>Veterinarian profile data</li>
+        <li>Operational &amp; security logs</li>
+      </ul>
+
+      <h4>3. Purpose of Processing</h4>
+      <p>Deliver core functionality: scheduling, records, prescriptions, secure sync.</p>
+
+      <h4>4. Legal Basis</h4>
+      <p>Contractual necessity &amp; legitimate interests; consent for optional features.</p>
+
+      <h4>5. Security</h4>
+      <p>Role-based access, encrypted transport, controlled backups.</p>
+
+      <h4>6. Your Rights</h4>
+      <p>Access, correction, export, deletion (subject to medical retention laws).</p>
+
+      <h4>7. Acceptance</h4>
+      <p>By checking the box above, you agree to these Terms &amp; Conditions.</p>
+    </div>
+    <div class="terms-actions" style="display:flex; gap:12px; justify-content:flex-end; margin-top:14px;">
+      <button type="button" class="btn" id="termsCancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="termsAgree">I Agree &amp; Continue</button>
+    </div>
+  </div>
+</div>
+<script>
+  (function(){
+    const termsOverlay = document.getElementById('termsOverlay');
+    const termsModal = document.querySelector('.terms-modal');
+    const closeTerms = document.getElementById('closeTerms');
+    const agreeBtn = document.getElementById('termsAgree');
+    const cancelBtn = document.getElementById('termsCancel');
+    const acceptTerms = document.querySelector('input[name="accept_terms"]');
+    const submitBtn = document.getElementById('register-submit');
+    const form = submitBtn.closest('form');
+    let awaitingAgreement = false;
+
+    function openTerms() {
+      termsOverlay.style.display = 'flex';
+      termsModal.classList.add('modal-enter');
+      // focus fist heading for accessibility
+      const firstHeading = termsModal.querySelector('h3, h4');
+      if (firstHeading) firstHeading.setAttribute('tabindex', '-1'), firstHeading.focus();
+    }
+
+    function closeTermsOverlay() {
+      termsModal.classList.remove('modal-enter');
+      termsModal.classList.add('modal-exit');
+      setTimeout(() => {
+        termsOverlay.style.display = 'none';
+        termsModal.classList.remove('modal-exit');
+      }, 300);
+    }
+
+    // Intercept form submit until terms are accepted
+    form.addEventListener('submit', function(e) {
+      if (!acceptTerms.checked) {
+        e.preventDefault();
+        awaitingAgreement = true;
+        openTerms();
+      }
+    });
+
+    // Agree -> check the hidden box and submit
+    agreeBtn.addEventListener('click', function(){
+      acceptTerms.checked = true;
+      closeTermsOverlay();
+      if (awaitingAgreement) {
+        awaitingAgreement = false;
+        form.submit();
+      }
+    });
+
+    // Cancel or close -> keep not accepted
+    function cancelAndClose(){ awaitingAgreement = false; closeTermsOverlay(); }
+    cancelBtn.addEventListener('click', cancelAndClose);
+    closeTerms.addEventListener('click', cancelAndClose);
+
+    // Click outside modal to close (no submit)
+    termsOverlay.addEventListener('click', function(e){ if (e.target === termsOverlay) cancelAndClose(); });
+  })();
+</script>
 {% endblock %}

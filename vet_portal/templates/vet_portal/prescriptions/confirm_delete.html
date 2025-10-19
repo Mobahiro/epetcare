@@ -1,0 +1,15 @@
+{% extends 'vet_portal/base.html' %}
+{% block title %}Delete Prescription{% endblock %}
+{% block content %}
+<div class="container">
+  <h2>Delete Prescription</h2>
+  <p>Are you sure you want to delete <strong>{{ prescription.medication_name }}</strong> for <strong>{{ prescription.pet.name }}</strong>?</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="btn-group">
+      <button class="btn btn-danger" type="submit">Delete</button>
+      <a class="btn btn-secondary" href="{% url 'vet_portal:patient_detail' prescription.pet.id %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

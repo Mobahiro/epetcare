@@ -1,9 +1,2 @@
-from .settings import *
-
-
-DEBUG = True
-IS_PRODUCTION = False
-
-
-ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
+raise RuntimeError('Deprecated: use config.settings.dev instead of epetcare.settings_local')
 

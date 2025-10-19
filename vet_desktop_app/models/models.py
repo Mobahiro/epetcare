@@ -77,11 +77,52 @@ class Pet:
     birth_date: Optional[date]
     weight_kg: Optional[float]
     notes: str
+    image: Optional[str] = None
     owner: Optional[Owner] = None
     appointments: List['Appointment'] = None
     medical_records: List['MedicalRecord'] = None
     prescriptions: List['Prescription'] = None
     vaccinations: List['Vaccination'] = None
+
+    @property
+    def image_url(self) -> Optional[str]:
+        """Return the URL for the pet's image, if available."""
+        if self.image:
+            # Import here to avoid circular imports
+            from utils.config import get_config
+
+            # Try to get server URL from config
+            config = get_config()
+
+            # Check for production URL in a couple of places
+            server_url = None
+            if hasattr(config, 'get') and callable(config.get):
+                server_url = config.get('app', {}).get('server_url') or \
+                             config.get('api', {}).get('base_url')
+
+            # Fall back to localhost if no server URL configured
+            if not server_url:
+                server_url = "http://localhost:8000"
+
+            # Remove trailing slash if present
+            server_url = server_url.rstrip('/')
+
+            path = self.image.strip()
+            # Normalize duplicate media prefix
+            if path.startswith('/media/media/'):
+                path = path.replace('/media/media/', '/media/', 1)
+            # Normalize missing leading slash on 'media/'
+            if path.startswith('media/'):
+                path = '/' + path
+            # If already absolute URL, return as-is
+            if path.startswith(('http://', 'https://')):
+                return path
+            # If already looks like '/media/...'
+            if path.startswith('/media/'):
+                return f"{server_url}{path}"
+            # Otherwise treat as a relative path under media root (e.g., 'pet_images/...')
+            return f"{server_url}/media/{path}"
+        return None
 
 
 @dataclass

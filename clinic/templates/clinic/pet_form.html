@@ -1,11 +1,11 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
 {% block title %}New Pet - ePetCare{% endblock %}
-{% block content %}
+{% block dash_content %}
 <div class="toolbar">
   <h2>New Pet</h2>
   <a class="btn" href="{% url 'pet_list' %}">← Back</a>
 </div>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="field">{{ form.name.label_tag }}{{ form.name }}</div>
   <div class="field">{{ form.species.label_tag }}{{ form.species }}</div>
@@ -14,6 +14,11 @@
   <div class="field">{{ form.birth_date.label_tag }}{{ form.birth_date }}</div>
   <div class="field">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}</div>
   <div class="field">{{ form.notes.label_tag }}{{ form.notes }}</div>
+  <div class="field">
+    <label for="{{ form.image.id_for_label }}">Pet Photo:</label>
+    {{ form.image }}
+    <span class="help-text">Upload a photo of your pet (optional)</span>
+  </div>
   <button class="btn" type="submit">Save</button>
   <a class="btn" href="{% url 'pet_list' %}" style="background:#3f4857;">Cancel</a>
 </form>

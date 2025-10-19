@@ -1,0 +1,104 @@
+{% extends 'clinic/dashboard_base.html' %}
+
+{% block title %}Edit {{ pet.name }} - ePetCare{% endblock %}
+
+{% block dash_content %}
+<div class="container content-wrapper">
+    <div class="card">
+        <div class="card-header">
+            <h1>Edit Pet Details</h1>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="form">
+                {% csrf_token %}
+
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">Name:</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="error-message">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="{{ form.species.id_for_label }}">Species:</label>
+                            {{ form.species }}
+                            {% if form.species.errors %}
+                                <div class="error-message">{{ form.species.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group half">
+                            <label for="{{ form.breed.id_for_label }}">Breed:</label>
+                            {{ form.breed }}
+                            {% if form.breed.errors %}
+                                <div class="error-message">{{ form.breed.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="{{ form.sex.id_for_label }}">Sex:</label>
+                            {{ form.sex }}
+                            {% if form.sex.errors %}
+                                <div class="error-message">{{ form.sex.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group half">
+                            <label for="{{ form.birth_date.id_for_label }}">Birth Date:</label>
+                            {{ form.birth_date }}
+                            {% if form.birth_date.errors %}
+                                <div class="error-message">{{ form.birth_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.weight_kg.id_for_label }}">Weight (kg):</label>
+                        {{ form.weight_kg }}
+                        {% if form.weight_kg.errors %}
+                            <div class="error-message">{{ form.weight_kg.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Additional Details</h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}">Notes:</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="error-message">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.image.id_for_label }}">Pet Photo:</label>
+                        {% if pet.image %}
+                            <div class="current-image">
+                                <img src="{{ pet.image.url }}" alt="{{ pet.name }}" class="pet-photo-preview">
+                                <p>Current image: {{ pet.image.name }}</p>
+                            </div>
+                        {% endif %}
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <div class="error-message">{{ form.image.errors }}</div>
+                        {% endif %}
+                        <div class="help-text">Upload a photo of your pet (optional)</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'pet_detail' pk=pet.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

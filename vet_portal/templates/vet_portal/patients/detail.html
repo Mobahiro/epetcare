@@ -1,0 +1,90 @@
+{% extends 'vet_portal/base.html' %}
+{% block title %}{{ patient.name }}{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row mb-3">
+    <div class="col-md-3">
+      {% if patient.image_url or patient.image %}
+        <div class="pet-detail-image-container mb-3">
+          <img src="{{ patient.image_url|default:patient.image.url }}" alt="{{ patient.name }}" class="img-fluid rounded">
+        </div>
+      {% else %}
+        <div class="pet-detail-image-placeholder mb-3 d-flex justify-content-center align-items-center bg-light rounded" style="height: 200px;">
+          <i class="fas fa-paw fa-3x text-secondary"></i>
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-md-9">
+      <h2 class="mb-1">{{ patient.name }}</h2>
+      <p class="text-muted">Owner: {{ patient.owner.full_name }}</p>
+      <p>Species: {{ patient.get_species_display }}</p>
+      <p>Breed: {{ patient.breed }}</p>
+      <p>Sex: {{ patient.get_sex_display }}</p>
+      {% if patient.birth_date %}
+        <p>Birth Date: {{ patient.birth_date }}</p>
+      {% endif %}
+      {% if patient.weight_kg %}
+        <p>Weight: {{ patient.weight_kg }} kg</p>
+      {% endif %}
+      <div class="d-flex gap-2 mb-3">
+        <a class="btn btn-primary" href="{% url 'vet_portal:medical_record_create' patient.id %}">Add Medical Record</a>
+        <a class="btn btn-secondary" href="{% url 'vet_portal:prescription_create' patient.id %}">Add Prescription</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card p-3">
+        <h3 class="h5 mb-3">Medical Records</h3>
+        <table class="table table-striped">
+          <thead>
+            <tr><th>Date</th><th>Condition</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+          {% for r in medical_records %}
+            <tr>
+              <td>{{ r.visit_date }}</td>
+              <td>{{ r.condition }}</td>
+              <td>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:medical_record_update' r.id %}">Edit</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:medical_record_delete' r.id %}">Delete</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="text-muted">No records yet.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card p-3">
+        <h3 class="h5 mb-3">Prescriptions</h3>
+        <table class="table table-striped">
+          <thead>
+            <tr><th>Date</th><th>Medication</th><th>Dosage</th><th>Active</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+          {% for rx in prescriptions %}
+            <tr>
+              <td>{{ rx.date_prescribed }}</td>
+              <td>{{ rx.medication_name }}</td>
+              <td>{{ rx.dosage }}</td>
+              <td>{{ rx.is_active|yesno:"Yes,No" }}</td>
+              <td>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:prescription_update' rx.id %}">Edit</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:prescription_delete' rx.id %}">Delete</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-muted">No prescriptions yet.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

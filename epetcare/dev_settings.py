@@ -1,0 +1,1 @@
+raise RuntimeError('Deprecated: use config.settings.dev instead of epetcare.dev_settings')

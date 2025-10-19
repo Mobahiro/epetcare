@@ -1,36 +1,175 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
 {% block title %}Appointments - ePetCare{% endblock %}
-{% block content %}
-<div class="toolbar">
-  <h2>Appointments</h2>
-  <a class="btn" href="{% url 'appointment_create' %}">+ New Appointment</a>
+{% block head %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
+{% endblock %}
+{% block dash_content %}
+
+<section class="page-hero">
+  <div class="page-hero__content">
+    <div class="page-hero__text">
+      <h1>Appointments</h1>
+      <p>Manage your pet's clinic visits.</p>
+    </div>
+    <div class="page-hero__cta">
+      <a class="btn btn-primary dash-cta" href="{% url 'appointment_create' %}">+ New Appointment</a>
+    </div>
+  </div>
+</section>
+
+<div class="filter-bar animate-slideDown delay-100">
+  <div class="filter-group">
+    <label for="status-filter">Status:</label>
+    <select id="status-filter" class="form-control">
+      <option value="all">All</option>
+      <option value="scheduled">Scheduled</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="date-range">Date Range:</label>
+    <select id="date-range" class="form-control">
+      <option value="all">All dates</option>
+      <option value="upcoming">Upcoming</option>
+      <option value="past">Past</option>
+      <option value="today">Today</option>
+      <option value="week">This week</option>
+      <option value="month">This month</option>
+    </select>
+  </div>
 </div>
-<table>
-  <thead>
-    <tr><th>Date</th><th>Pet</th><th>Reason</th><th>Status</th></tr>
-  </thead>
-  <tbody>
-    {% for a in appointments %}
-      <tr>
-        <td>{{ a.date_time|date:"Y-m-d H:i" }}</td>
-        <td>{{ a.pet.name }}</td>
-        <td>{{ a.reason }}</td>
-        <td>
+
+<div class="appointment-cards animate-slideUp delay-200">
+  {% for a in appointments %}
+    <div class="appointment-card" data-status="{{ a.status }}">
+      <div class="appointment-card-header">
+        <div class="appointment-date-container">
+          <div class="appointment-date">
+            <div class="date-day">{{ a.date_time|date:"d" }}</div>
+            <div class="date-month">{{ a.date_time|date:"M" }}</div>
+          </div>
+          <div class="appointment-time">{{ a.date_time|date:"H:i" }}</div>
+        </div>
+        <div class="appointment-status">
           {% if a.status == 'scheduled' %}
-            <span class="badge scheduled">Scheduled</span>
+            <span class="status-pill scheduled">Scheduled</span>
           {% elif a.status == 'completed' %}
-            <span class="badge completed">Completed</span>
+            <span class="status-pill completed">Completed</span>
           {% elif a.status == 'cancelled' %}
-            <span class="badge cancelled">Cancelled</span>
+            <span class="status-pill cancelled">Cancelled</span>
           {% else %}
-            {{ a.get_status_display }}
+            <span class="status-pill">{{ a.get_status_display }}</span>
           {% endif %}
-        </td>
+        </div>
+      </div>
+      <div class="appointment-card-body">
+        <div class="appointment-pet-info">
+          <div class="pet-icon">{{ a.pet.name|slice:":1"|upper }}</div>
+          <div class="pet-details">
+            <div class="pet-name">{{ a.pet.name }}</div>
+            <div class="pet-species">{{ a.pet.get_species_display }}</div>
+          </div>
+        </div>
+        <div class="appointment-reason-box">
+          <div class="reason-label">Reason for visit:</div>
+          <div class="reason-text">{{ a.reason }}</div>
+        </div>
+      </div>
+      <div class="appointment-card-footer">
+        <a href="#" class="card-action">Change Status</a>
+        <a href="#" class="card-action">Reschedule</a>
+        <a href="#" class="card-action danger">Cancel</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty-state-large">
+      <div class="empty-icon">📅</div>
+      <h3>No Appointments Found</h3>
+      <p>You don't have any appointments scheduled at the moment.</p>
+      <a href="{% url 'appointment_create' %}" class="btn primary">Schedule Your First Appointment</a>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="table-responsive desktop-only animate-fadeIn delay-300">
+  <table class="appointment-table">
+    <thead>
+      <tr>
+        <th>Date & Time</th>
+        <th>Pet</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Actions</th>
       </tr>
-    {% empty %}
-      <tr><td colspan="4">No appointments yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for a in appointments %}
+        <tr>
+          <td>
+            <div class="table-date">{{ a.date_time|date:"Y-m-d" }}</div>
+            <div class="table-time">{{ a.date_time|date:"H:i" }}</div>
+          </td>
+          <td>{{ a.pet.name }}</td>
+          <td>{{ a.reason }}</td>
+          <td>
+            {% if a.status == 'scheduled' %}
+              <span class="badge scheduled">Scheduled</span>
+            {% elif a.status == 'completed' %}
+              <span class="badge completed">Completed</span>
+            {% elif a.status == 'cancelled' %}
+              <span class="badge cancelled">Cancelled</span>
+            {% else %}
+              <span class="badge">{{ a.get_status_display }}</span>
+            {% endif %}
+          </td>
+          <td class="actions-cell">
+            <div class="table-actions">
+              <a href="#" class="table-action">Edit</a>
+              <a href="#" class="table-action danger">Cancel</a>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="empty-cell">No appointments scheduled.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const statusFilter = document.getElementById('status-filter');
+    const dateFilter = document.getElementById('date-range');
+    const appointmentCards = document.querySelectorAll('.appointment-card');
+
+    function filterAppointments() {
+      const statusValue = statusFilter.value;
+      const dateValue = dateFilter.value;
+
+      appointmentCards.forEach(card => {
+        const status = card.dataset.status;
+        let showCard = true;
+
+        // Filter by status
+        if (statusValue !== 'all' && status !== statusValue) {
+          showCard = false;
+        }
+
+        // For demo purposes, we're just implementing the status filter
+        // In a real app, you would also filter by date here
+
+        card.style.display = showCard ? 'block' : 'none';
+      });
+    }
+
+    if (statusFilter && dateFilter) {
+      statusFilter.addEventListener('change', filterAppointments);
+      dateFilter.addEventListener('change', filterAppointments);
+    }
+  });
+ </script>
 {% endblock %}
 

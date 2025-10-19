@@ -1,0 +1,32 @@
+{% extends 'vet_portal/base.html' %}
+{% block title %}Patients{% endblock %}
+{% block content %}
+<div class="container">
+  <h2>Patients</h2>
+  <form method="get" class="toolbar">
+    <input type="text" class="form-control" name="search" placeholder="Search by name, owner, species, breed" value="{{ request.GET.search }}" />
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+  <div class="grid-cards">
+    {% for p in patients %}
+      <div class="card">
+        {% if p.image_url or p.image %}
+          <div class="pet-image-container">
+            <img src="{{ p.image_url|default:p.image.url }}" alt="{{ p.name }}" class="pet-image">
+          </div>
+        {% else %}
+          <div class="pet-image-placeholder">
+            <i class="fas fa-paw"></i>
+          </div>
+        {% endif %}
+        <h3>{{ p.name }}</h3>
+        <p class="text-muted">Owner: {{ p.owner.full_name }}</p>
+        <p class="text-muted">Species: {{ p.get_species_display }}</p>
+        <a href="{% url 'vet_portal:patient_detail' p.id %}" class="btn btn-secondary">Open</a>
+      </div>
+    {% empty %}
+      <p>No patients found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

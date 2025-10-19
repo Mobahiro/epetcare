@@ -18,9 +18,12 @@ urlpatterns = [
     path('notification/<int:pk>/read/', views.mark_notification_read, name='mark-notification-read'),
     path('notifications/read-all/', views.mark_all_notifications_read, name='mark-all-notifications-read'),
     path('sync/offline-changes/', views.sync_offline_changes, name='sync-offline-changes'),
-    
+
     # Database synchronization endpoints
     path('database/sync/', views.database_sync, name='database-sync'),
     path('database/download/', views.database_download, name='database-download'),
     path('database/upload/', views.database_upload, name='database-upload'),
+    # Media check
+    path('media/check/', views.media_check, name='media-check'),
+    path('media/upload/', views.media_upload, name='media-upload'),
 ]

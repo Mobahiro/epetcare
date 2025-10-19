@@ -254,19 +254,38 @@ class DashboardView(QWidget):
     
     def new_appointment(self):
         """Open the new appointment dialog"""
-        from PySide6.QtWidgets import QMessageBox
-        QMessageBox.information(self, "New Appointment", "This feature will be implemented in a future update.")
+        from PySide6.QtWidgets import QMessageBox, QDialog
+        try:
+            # Lazy import to avoid circulars in some packaging modes
+            from views.appointment_dialog import AppointmentDialog
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Unable to open appointment dialog: {e}")
+            return
+
+        dialog = AppointmentDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            appt = dialog.get_appointment()
+            success, result = self.appointment_data_access.create(appt)
+            if success:
+                QMessageBox.information(self, "Success", "Appointment scheduled successfully.")
+                # Refresh dashboard data and optionally jump to schedule view
+                self.refresh_data()
+                main_window = self.window()
+                if main_window and hasattr(main_window, 'show_view'):
+                    main_window.show_view("appointments")
+            else:
+                QMessageBox.warning(self, "Error", f"Failed to schedule appointment: {result}")
     
     def search_patient(self):
         """Open the patient search dialog"""
-        # Switch to patients view
-        parent = self.parent()
-        if parent and hasattr(parent, 'show_view'):
-            parent.show_view("patients")
+        # Switch to patients view on the top-level window
+        main_window = self.window()
+        if main_window and hasattr(main_window, 'show_view'):
+            main_window.show_view("patients")
     
     def view_schedule(self):
         """Open the schedule view"""
-        # Switch to appointments view
-        parent = self.parent()
-        if parent and hasattr(parent, 'show_view'):
-            parent.show_view("appointments")
+        # Switch to appointments view on the top-level window
+        main_window = self.window()
+        if main_window and hasattr(main_window, 'show_view'):
+            main_window.show_view("appointments")

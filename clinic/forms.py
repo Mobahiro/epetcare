@@ -10,6 +10,16 @@ class OwnerForm(forms.ModelForm):
         fields = ["full_name", "email", "phone", "address"]
 
 
+class UserProfileForm(forms.ModelForm):
+    """Form for editing user details like username and email"""
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+
 class PetForm(forms.ModelForm):
     class Meta:
         model = Pet
@@ -21,6 +31,7 @@ class PetForm(forms.ModelForm):
             "birth_date",
             "weight_kg",
             "notes",
+            "image",
         ]
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
@@ -95,6 +106,13 @@ class RegisterForm(forms.Form):
     full_name = forms.CharField(max_length=120)
     phone = forms.CharField(max_length=30, required=False)
     address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    accept_terms = forms.BooleanField(
+        required=True,
+        label="I agree to the Terms & Privacy Notice",
+        error_messages={
+            'required': 'You must accept the Terms & Privacy Notice to register.'
+        }
+    )
 
     def clean_username(self):
         username = self.cleaned_data.get("username", "").lower()
@@ -112,10 +130,12 @@ class RegisterForm(forms.Form):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
-        
+
         if password1 and password2 and password1 != password2:
             self.add_error("password2", "Passwords do not match")
-            
+
+        # accept_terms is handled automatically by field, but we keep placeholder for any audits/logging
+
         return cleaned_data
 
     def create_user_and_owner(self):
@@ -125,13 +145,13 @@ class RegisterForm(forms.Form):
         full_name = self.cleaned_data["full_name"]
         phone = self.cleaned_data.get("phone", "")
         address = self.cleaned_data.get("address", "")
-        
+
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
-        
+
         owner = Owner.objects.create(
             user=user,
             full_name=full_name,
@@ -139,5 +159,5 @@ class RegisterForm(forms.Form):
             phone=phone,
             address=address
         )
-        
+
         return user, owner

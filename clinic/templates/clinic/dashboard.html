@@ -1,36 +1,150 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
 {% block title %}Dashboard - ePetCare{% endblock %}
-{% block content %}
-<div class="toolbar">
-  <h2>Hi{% if owner %}, {{ owner.full_name }}{% endif %} 👋</h2>
-  <a class="btn" href="{% url 'logout' %}">Logout</a>
-</div>
+{% block head %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
+{% endblock %}
+{% block dash_content %}
 
-<div class="grid-cards" style="margin-bottom:16px;">
-  <div class="card">
-    <h3>Your Pets</h3>
-    <p class="muted">Quick view of your registered pets.</p>
-    <ul>
-      {% for pet in pets %}
-        <li><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a> — {{ pet.get_species_display }}</li>
+<!-- Hero welcome strip with quick action -->
+<section class="dash-hero">
+  <div class="dash-hero__content">
+    <div class="dash-hero__text">
+      <h1>Welcome{% if owner %}, {{ owner.full_name }}{% endif %} <span class="wave">👋</span></h1>
+      <p>Here’s a quick snapshot of your pets and visits. Everything you need is right here.</p>
+    </div>
+    <div class="dash-hero__cta" style="display:flex; gap:10px; align-items:center;">
+      <div class="dash-search">
+        <input id="dashSearch" type="search" placeholder="Search pets or appointments" aria-label="Search dashboard" />
+      </div>
+      <a class="btn btn-primary dash-cta" href="{% url 'appointment_create' %}">+ New Appointment</a>
+      <div class="notif-bell">
+        <a href="{% url 'notifications' %}" class="notif-link" title="Notifications">🔔</a>
+        {% if unread_count and unread_count > 0 %}
+          <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+        <div class="notif-dropdown">
+          <div class="notif-head">
+            Notifications
+            <a href="{% url 'notifications_mark_all_read' %}?next={{ request.path }}" class="notif-mark">Mark all read</a>
+          </div>
+          <div class="notif-list">
+            {% for n in notifications %}
+              <a class="notif-item {% if not n.is_read %}unread{% endif %}" href="{% url 'notification_mark_read' n.id %}?next={{ request.path }}">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message|truncatechars:80 }}</div>
+                <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+              </a>
+            {% empty %}
+              <div class="notif-empty">No new notifications</div>
+            {% endfor %}
+            <div class="notif-foot"><a href="{% url 'notifications' %}">View all</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dash-hero__stats">
+    <div class="stat-card">
+      <div class="stat-icon pet">🐾</div>
+      <div class="stat-meta">
+        <div class="stat-label">Pets</div>
+        <div class="stat-value">{{ pets|length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon visit">📅</div>
+      <div class="stat-meta">
+        <div class="stat-label">Upcoming</div>
+        <div class="stat-value">{{ appointments|length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon next">⏱️</div>
+      <div class="stat-meta">
+        <div class="stat-label">Next Visit</div>
+        <div class="stat-value">{% if appointments %}{{ appointments.0.date_time|date:"M d, H:i" }}{% else %}—{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main grid: timeline + pets -->
+<section class="dash-grid">
+  <div class="panel panel--timeline">
+    <div class="panel-header">
+      <h3>Upcoming Appointments</h3>
+      <a class="panel-link" href="{% url 'appointment_list' %}">View all</a>
+    </div>
+    <ol class="timeline">
+      {% for a in appointments %}
+      <li class="timeline-item">
+        <div class="timeline-date">
+          <span class="day">{{ a.date_time|date:"d" }}</span>
+          <span class="mon">{{ a.date_time|date:"b" }}</span>
+        </div>
+        <div class="timeline-card">
+          <div class="time">{{ a.date_time|date:"H:i" }}</div>
+          <div class="title">{{ a.pet.name }}</div>
+          <div class="sub">{{ a.reason }}</div>
+        </div>
+      </li>
       {% empty %}
-        <li class="muted">No pets yet. Please ask the clinic to add your pets.</li>
+      <div class="empty-block">
+        <p>No upcoming appointments.</p>
+        <a class="btn btn-secondary" href="{% url 'appointment_create' %}">Schedule now</a>
+      </div>
       {% endfor %}
-    </ul>
+    </ol>
   </div>
-  <div class="card">
-    <h3>Upcoming Appointments</h3>
-    <p class="muted">Next visits scheduled for your pets.</p>
-    <ul>
-    {% for a in appointments %}
-      <li>{{ a.date_time|date:"Y-m-d H:i" }} — {{ a.pet.name }} ({{ a.reason }})</li>
-    {% empty %}
-      <li class="muted">No upcoming appointments.</li>
-    {% endfor %}
-    </ul>
-  </div>
-</div>
 
-<a class="btn" href="{% url 'appointment_create' %}">+ New Appointment</a>
+  <div class="panel panel--pets">
+    <div class="panel-header">
+      <h3>Your Pets</h3>
+      <a class="panel-link" href="{% url 'pet_list' %}">View all</a>
+    </div>
+    <div class="pets-grid">
+      {% for pet in pets %}
+      <a class="pet-card" href="{% url 'pet_detail' pet.pk %}">
+        <div class="avatar">{{ pet.name|slice:":1"|upper }}</div>
+        <div class="meta">
+          <div class="name">{{ pet.name }}</div>
+          <div class="spec">{{ pet.get_species_display }}</div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="empty-block">
+        <p>No pets yet.</p>
+        <p class="muted small">Ask the clinic to add your pet profile.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<script>
+  // Simple client-side filter for pets and appointments
+  (function(){
+    const q = document.getElementById('dashSearch');
+    if(!q) return;
+    const petCards = Array.from(document.querySelectorAll('.pet-card .name'));
+    const petCardEls = petCards.map(n=>n.closest('.pet-card'));
+    const apptCards = Array.from(document.querySelectorAll('.timeline-card'));
+    function filter(){
+      const term = q.value.trim().toLowerCase();
+      // pets
+      petCards.forEach((n,i)=>{
+        const el = petCardEls[i];
+        const text = (n.textContent||'').toLowerCase();
+        el.style.display = term && !text.includes(term) ? 'none' : '';
+      });
+      // appointments
+      apptCards.forEach(el=>{
+        const text = (el.textContent||'').toLowerCase();
+        el.style.display = term && !text.includes(term) ? 'none' : '';
+      });
+    }
+    q.addEventListener('input', filter);
+  })();
+ </script>
 {% endblock %}
 

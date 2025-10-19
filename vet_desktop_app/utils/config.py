@@ -20,7 +20,8 @@ DEFAULT_CONFIG = {
         'user': 'YOUR_DB_USER',
         'password': 'YOUR_DB_PASSWORD',
         'sslmode': 'require',
-        'database_url': ''              # Optional full URL overrides discrete fields
+        'database_url': '',              # Optional full URL overrides discrete fields
+        'pg_dump_path': ''               # Optional absolute path to pg_dump executable (Windows)
     },
     'database': {  # legacy / soon to be removed from UI
         'path': os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'db.sqlite3'),
@@ -30,6 +31,8 @@ DEFAULT_CONFIG = {
         'offline_mode': False,
         'sync_interval': 300,  # seconds (legacy sync no longer active; may repurpose later)
         'auto_backup': True,   # applies only to legacy local sqlite backups
+        'server_url': 'https://epetcare.onrender.com',  # Production server URL
+        'fallback_server_urls': ['http://localhost:8000'],  # Try local dev server as fallback
     },
     'ui': {
         'theme': 'light',
@@ -91,7 +94,7 @@ def save_config(config):
     try:
         # Ensure directory exists
         os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
-        
+
         with open(CONFIG_FILE, 'w') as f:
             json.dump(config, f, indent=4)
         return True
@@ -113,3 +116,12 @@ def set_config_value(section, key, value):
         config[section] = {}
     config[section][key] = value
     return save_config(config)
+
+# Backward compatibility shim
+def get_config():
+    """Return the full configuration dict (legacy compatibility).
+
+    Older modules import `get_config` expecting a dictionary with .get().
+    This wraps load_config() to satisfy that contract.
+    """
+    return load_config()

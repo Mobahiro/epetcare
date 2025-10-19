@@ -4,6 +4,7 @@ This module provides utilities for backing up PostgreSQL data to local dump file
 """
 
 import os
+import shutil
 import subprocess
 import logging
 import tempfile
@@ -41,12 +42,44 @@ def backup_postgres_data(pg_config: Dict[str, Any] = None) -> Tuple[bool, str]:
             if not pg_config:
                 return False, "PostgreSQL configuration not found in config.json"
         
-        # Check if pg_dump is available
+        # Resolve pg_dump executable path
+        pg_dump_path = None
+
+        # 1) Allow override via config
+        pg_dump_override = None
         try:
-            subprocess.run(['pg_dump', '--version'], 
-                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        except (subprocess.SubprocessError, FileNotFoundError):
-            return False, "pg_dump utility not found. Please install PostgreSQL client tools."
+            from utils.config import load_config
+            cfg = load_config()
+            pg_dump_override = cfg.get('postgres', {}).get('pg_dump_path')
+        except Exception:
+            pg_dump_override = None
+
+        if pg_dump_override and os.path.exists(pg_dump_override):
+            pg_dump_path = pg_dump_override
+
+        # 2) If not overridden, try PATH
+        if not pg_dump_path:
+            pg_dump_path = shutil.which('pg_dump')
+
+        # 3) On Windows, try common installation paths if still not found
+        if not pg_dump_path and os.name == 'nt':
+            common_paths = [
+                r"C:\\Program Files\\PostgreSQL\\16\\bin\\pg_dump.exe",
+                r"C:\\Program Files\\PostgreSQL\\15\\bin\\pg_dump.exe",
+                r"C:\\Program Files\\PostgreSQL\\14\\bin\\pg_dump.exe",
+                r"C:\\Program Files\\PostgreSQL\\13\\bin\\pg_dump.exe",
+                r"C:\\Program Files (x86)\\PostgreSQL\\13\\bin\\pg_dump.exe",
+            ]
+            for p in common_paths:
+                if os.path.exists(p):
+                    pg_dump_path = p
+                    break
+
+        if not pg_dump_path:
+            return False, (
+                "pg_dump utility not found. Please install PostgreSQL client tools "
+                "or set 'postgres.pg_dump_path' in config.json."
+            )
         
         # Create backup filename with timestamp
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -71,7 +104,7 @@ def backup_postgres_data(pg_config: Dict[str, Any] = None) -> Tuple[bool, str]:
             
             # Run pg_dump
             cmd = [
-                'pg_dump',
+                pg_dump_path,
                 '-h', pg_config.get('host'),
                 '-p', str(pg_config.get('port')),
                 '-U', pg_config.get('user'),

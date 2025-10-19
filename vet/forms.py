@@ -13,6 +13,11 @@ class VetRegisterForm(forms.Form):
     license_number = forms.CharField(max_length=50, required=False)
     phone = forms.CharField(max_length=30, required=False)
     bio = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    accept_terms = forms.BooleanField(
+        required=True,
+        label="I agree to the Terms & Privacy Notice",
+        error_messages={'required': 'You must accept the Terms & Privacy Notice to register.'}
+    )
 
     def clean_username(self):
         username = self.cleaned_data.get("username", "").lower()
@@ -30,10 +35,10 @@ class VetRegisterForm(forms.Form):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
-        
+
         if password1 and password2 and password1 != password2:
             self.add_error("password2", "Passwords do not match")
-            
+
         return cleaned_data
 
     def create_user_and_vet(self):
@@ -45,13 +50,13 @@ class VetRegisterForm(forms.Form):
         license_number = self.cleaned_data.get("license_number", "")
         phone = self.cleaned_data.get("phone", "")
         bio = self.cleaned_data.get("bio", "")
-        
+
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
-        
+
         vet = Veterinarian.objects.create(
             user=user,
             full_name=full_name,
@@ -60,5 +65,5 @@ class VetRegisterForm(forms.Form):
             phone=phone,
             bio=bio
         )
-        
+
         return user, vet

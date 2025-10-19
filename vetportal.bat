@@ -17,7 +17,7 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-echo Python found: 
+echo Python found:
 python --version
 echo.
 
@@ -45,13 +45,28 @@ pip install PySide6 Pillow requests urllib3 certifi psycopg2-binary --quiet
 echo Dependencies installed!
 echo.
 
-REM Check PostgreSQL configuration
-echo Checking PostgreSQL configuration...
-if exist "vet_desktop_app\config.json" (
-    python -c "import json; c=json.load(open('vet_desktop_app/config.json')); print('PostgreSQL enabled' if c.get('db_sync',{}).get('postgres',{}).get('enabled',False) else 'PostgreSQL not configured')"
-) else (
-    echo No config file found.
-)
+REM Check application configuration (server_url and Postgres) safely
+echo Checking application configuration...
+set "_CHECKCFG=check_config_tmp.py"
+> "%_CHECKCFG%" echo import json, sys, io, os
+>> "%_CHECKCFG%" echo p = os.path.join('vet_desktop_app','config.json')
+>> "%_CHECKCFG%" echo if not os.path.exists(p):
+>> "%_CHECKCFG%" echo ^	print('No config file found.')
+>> "%_CHECKCFG%" echo ^	sys.exit(0)
+>> "%_CHECKCFG%" echo try:
+>> "%_CHECKCFG%" echo ^	with io.open(p,'r',encoding='utf-8') as f:
+>> "%_CHECKCFG%" echo ^		data = json.load(f)
+>> "%_CHECKCFG%" echo ^	server = data.get('app',{}).get('server_url','<missing>')
+>> "%_CHECKCFG%" echo ^	pg = data.get('postgres',{})
+>> "%_CHECKCFG%" echo ^	ok = bool(pg.get('database_url') or (pg.get('host') and pg.get('database') and pg.get('user')))
+>> "%_CHECKCFG%" echo ^	print('server_url:', server)
+>> "%_CHECKCFG%" echo ^	print('postgres config:', 'OK' if ok else 'MISSING')
+>> "%_CHECKCFG%" echo except Exception as e:
+>> "%_CHECKCFG%" echo ^	print('WARN: could not read config.json:', e)
+>> "%_CHECKCFG%" echo ^	sys.exit(0)
+
+python "%_CHECKCFG%"
+del "%_CHECKCFG%" >nul 2>&1
 echo.
 
 REM Create runner script (will NOT overwrite existing Postgres config)
@@ -69,22 +84,39 @@ echo     needs_template = True >> run_app.py
 echo else: >> run_app.py
 echo     try: >> run_app.py
 echo         data = json.load(open(cfg_path, 'r')) >> run_app.py
-echo         if 'postgres' not in data: >> run_app.py
+echo         if 'postgres' not in data or 'app' not in data or 'server_url' not in data.get('app', {}): >> run_app.py
 echo             needs_template = True >> run_app.py
 echo     except Exception: >> run_app.py
 echo         needs_template = True >> run_app.py
 echo if needs_template: >> run_app.py
 echo     template = { >> run_app.py
 echo         'postgres': { >> run_app.py
-echo             'host': '', 'port': 5432, 'database': '', 'user': '', 'password': '', 'sslmode': 'require', 'database_url': '' >> run_app.py
+echo             'host': 'YOUR_DB_HOST', >> run_app.py
+echo             'port': 5432, >> run_app.py
+echo             'database': 'YOUR_DB_NAME', >> run_app.py
+echo             'user': 'YOUR_DB_USER', >> run_app.py
+echo             'password': 'YOUR_DB_PASSWORD', >> run_app.py
+echo             'sslmode': 'require', >> run_app.py
+echo             'database_url': '', >> run_app.py
+echo             'pg_dump_path': '' >> run_app.py
 echo         }, >> run_app.py
-echo         'app': {'auto_backup': False, 'read_only_mode': False}, >> run_app.py
+echo         'app': { >> run_app.py
+echo             'offline_mode': False, >> run_app.py
+echo             'sync_interval': 300, >> run_app.py
+echo             'auto_backup': True, >> run_app.py
+echo             'server_url': 'https://epetcare.onrender.com' >> run_app.py
+echo         }, >> run_app.py
 echo         'ui': {'theme': 'light', 'font_size': 10} >> run_app.py
 echo     } >> run_app.py
 echo     with open(cfg_path, 'w') as f: json.dump(template, f, indent=4) >> run_app.py
-echo     print('Created Postgres config template at config.json - please fill credentials.') >> run_app.py
+echo     print('Created config.json with server_url and postgres template - please fill credentials if needed.') >> run_app.py
 echo else: >> run_app.py
-echo     print('Using existing config.json') >> run_app.py
+echo     try: >> run_app.py
+echo         data = json.load(open(cfg_path, 'r')) >> run_app.py
+echo         srv = data.get('app', {}).get('server_url', '<missing>') >> run_app.py
+echo         print(f'Using existing config.json (server_url: {srv})') >> run_app.py
+echo     except Exception: >> run_app.py
+echo         print('Using existing config.json') >> run_app.py
 echo try: >> run_app.py
 echo     print('Starting ePetCare Vet Portal...') >> run_app.py
 echo     with open('main.py','r',encoding='utf-8') as f: code = compile(f.read(),'main.py','exec'); exec(code) >> run_app.py

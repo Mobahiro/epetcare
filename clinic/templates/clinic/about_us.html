@@ -1,0 +1,100 @@
+{% extends 'clinic/base.html' %}
+{% load static %}
+
+{% block title %}About Us - ePetCare{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'clinic/about.css' %}?v={% now "U" %}">
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="about-header animate-on-scroll">
+            <h1>About ePetCare</h1>
+            <div class="underline"></div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        <div class="about-content">
+            <div class="about-card card fade-in">
+                <div class="about-card-content">
+                    <h2 class="section-title">Our Story</h2>
+                    <p>
+                        ePetCare is an innovative web-based system designed to streamline veterinary clinic operations and enhance pet healthcare management.
+                        Our platform focuses on supporting small-scale veterinary practices by integrating essential features such as digital pet health records,
+                        appointment scheduling, inventory monitoring, and client communication tools — all in one accessible system.
+                    </p>
+                    <p>
+                        We aim to empower veterinarians with a reliable management solution that minimizes manual work, reduces paperwork,
+                        and ensures accurate and organized recordkeeping. At the same time, pet owners can conveniently access their pets'
+                        medical histories, vaccination schedules, and upcoming appointments through an intuitive interface.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mission-section">
+    <div class="container">
+        <div class="mission-content fade-in">
+            <div class="mission-card card">
+                <div class="mission-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2138/2138508.png" alt="Mission Icon" class="icon">
+                </div>
+                <h2>Our Mission</h2>
+                <p>
+                    At ePetCare, our mission is to simplify clinic management while improving the overall quality of pet healthcare.
+                    By embracing technology, we help veterinarians focus more on what truly matters — caring for animals.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title fade-in">What We Offer</h2>
+        <div class="features-grid staggered-list">
+            <div class="feature-card card staggered-item">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2476/2476876.png" alt="Records Icon" class="icon">
+                </div>
+                <h3>Digital Health Records</h3>
+                <p>Secure, accessible pet medical histories available anytime, anywhere</p>
+            </div>
+            <div class="feature-card card staggered-item">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" alt="Calendar Icon" class="icon">
+                </div>
+                <h3>Smart Scheduling</h3>
+                <p>Effortless appointment booking and management for both vets and pet owners</p>
+            </div>
+            <div class="feature-card card staggered-item">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2906/2906207.png" alt="Communication Icon" class="icon">
+                </div>
+                <h3>Client Communication</h3>
+                <p>Streamlined messaging and notifications for important pet health updates</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="closing-section">
+    <div class="container">
+        <div class="closing-content fade-in">
+            <p class="closing-statement">
+                Together, we're creating a smarter, more connected future for veterinary care.
+            </p>
+            <div class="cta-container">
+                <a href="{% url 'register' %}" class="btn btn-primary">Join ePetCare Today</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,68 +1,122 @@
 {% extends 'clinic/base.html' %}
-{% block title %}ePetCare - Home{% endblock %}
+{% load static %}
+{% block title %}ePetCare - Modern Pet Healthcare{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'clinic/home.css' %}?v={% now "U" %}">
+<!-- AOS Animate On Scroll Library -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="{% static 'clinic/home.js' %}?v={% now "U" %}" defer></script>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<div class="hero">
-    <div class="hero-content">
-        <h1>Your Pet's Health in One Place</h1>
-        <p>Keep track of vaccinations, appointments, and medical history with our easy-to-use platform.</p>
-        <div class="hero-buttons">
-            <a href="{% url 'register' %}" class="btn btn-primary">Create Account</a>
-            <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">Complete Pet Healthcare at Your Fingertips</h1>
+            <p class="hero-subtitle">Manage your pet's health records, appointments, and medications in one secure, easy-to-use platform.</p>
+            <div class="hero-actions">
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started Free</a>
+                <a href="{% url 'login' %}" class="btn btn-outline">Sign In</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=600" alt="Happy pet with owner" class="pet-image">
         </div>
     </div>
-</div>
+    <div class="hero-wave">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#FFF5E9" fill-opacity="1" d="M0,64L48,80C96,96,192,128,288,138.7C384,149,480,139,576,117.3C672,96,768,64,864,64C960,64,1056,96,1152,106.7C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+    </div>
+</section>
 
 <!-- Features Section -->
-<h2 class="section-title">Why Choose ePetCare?</h2>
-<div class="grid-cards">
-    <div class="feature-card">
-        <div class="feature-icon">📅</div>
-        <h3>Appointment Management</h3>
-        <p>Schedule and track vet visits, get reminders, and never miss an important checkup.</p>
+<section class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Why Pet Owners Choose ePetCare</h2>
+            <p class="section-subtitle">Our comprehensive platform helps you manage every aspect of your pet's healthcare with ease</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-up">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2693/2693507.png" alt="Calendar icon">
+                </div>
+                <h3>Simple Appointment Booking</h3>
+                <p>Schedule vet visits in seconds and receive timely reminders so you never miss an important checkup.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2906/2906207.png" alt="Vaccination icon">
+                </div>
+                <h3>Vaccination Tracking</h3>
+                <p>Maintain up-to-date vaccination records with automatic alerts for boosters and required shots.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2476/2476876.png" alt="Medical record icon">
+                </div>
+                <h3>Complete Medical History</h3>
+                <p>Access your pet's entire medical history instantly, including diagnoses, treatments, and test results.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-icon">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2138/2138508.png" alt="Medication icon">
+                </div>
+                <h3>Medication Management</h3>
+                <p>Track medications, dosages, and refill schedules to ensure your pet receives the right treatment.</p>
+            </div>
+        </div>
     </div>
-    <div class="feature-card">
-        <div class="feature-icon">💉</div>
-        <h3>Vaccination Tracking</h3>
-        <p>Keep vaccination records up-to-date with automatic reminders for boosters.</p>
-    </div>
-    <div class="feature-card">
-        <div class="feature-icon">📋</div>
-        <h3>Medical History</h3>
-        <p>Store complete medical records and access them instantly when needed.</p>
-    </div>
-    <div class="feature-card">
-        <div class="feature-icon">💊</div>
-        <h3>Prescription Management</h3>
-        <p>Track medications, dosages, and refill dates all in one secure place.</p>
-    </div>
-</div>
+</section>
 
 <!-- How It Works Section -->
-<h2 class="section-title">How It Works</h2>
-<div class="steps">
-    <div class="step">
-        <div class="step-number">1</div>
-        <h3>Create an Account</h3>
-        <p class="step-description1">Sign up in seconds with your basic information.</p>
+<section class="how-it-works-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Getting Started is Easy</h2>
+            <p class="section-subtitle">Three simple steps to better pet healthcare management</p>
+        </div>
+        <div class="steps-container">
+            <div class="step-card" data-aos="fade-right">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Create Your Account</h3>
+                    <p>Sign up in seconds with just your basic information and start your pet healthcare journey.</p>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card" data-aos="fade-right" data-aos-delay="200">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Add Your Pets</h3>
+                    <p>Enter your pets' details including breed, age, and existing medical information.</p>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card" data-aos="fade-right" data-aos-delay="400">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Manage Health Records</h3>
+                    <p>Schedule appointments, track vaccinations, and maintain a comprehensive health profile.</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="step">
-        <div class="step-number">2</div>
-        <h3>Add Your Pets</h3>
-        <p class="step-description2">Enter your pets' details and medical history.</p>
-    </div>
-    <div class="step">
-        <div class="step-number">3</div>
-        <h3>Manage Health Records</h3>
-        <p class="step-description3">Schedule appointments, track vaccinations, and more.</p>
-    </div>
-</div>
-
-
+</section>
 
 <!-- CTA Section -->
-<div class="cta-section">
-    <h2>Click here to get started.</h2>
-    <a href="{% url 'register' %}" class="btn btn-large">Get Started Now</a>
-</div>
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Ready to give your pet the best care?</h2>
+            <p>Join thousands of pet owners who trust ePetCare with their pet's health records.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-primary btn-large">Get Started Free</a>
+                <a href="{% url 'about_us' %}" class="btn btn-outline btn-large">Learn More</a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

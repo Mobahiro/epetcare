@@ -9,14 +9,14 @@ services:
     repo: https://github.com/Mobahiro/epetcare.git
     branch: main
     buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: gunicorn epetcare.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
+  startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4  # Using a more stable Python version
       - key: WEB_CONCURRENCY
         value: 4  # Number of Gunicorn workers
       - key: DJANGO_SETTINGS_MODULE
-        value: epetcare.settings  # Use the main settings file directly
+        value: config.settings.prod
       - key: RENDER
         value: true
       - key: DEBUG
@@ -33,6 +33,12 @@ services:
     autoDeploy: true
     # Deployment hook for client app sync
     # https://api.render.com/deploy/srv-d3an3j95pdvs73d1co40?key=Zay8YidqwKg
+
+    # Persist media directory across deployments
+    disk:
+      name: media
+      mountPath: /opt/render/project/src/media
+      sizeGB: 1
 
 # Database for the application
 databases:

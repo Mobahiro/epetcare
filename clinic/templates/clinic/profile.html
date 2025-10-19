@@ -1,0 +1,102 @@
+{% extends 'clinic/dashboard_base.html' %}
+{% block title %}Edit Profile - ePetCare{% endblock %}
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
+{% endblock %}
+{% block dash_content %}
+
+<section class="page-hero">
+    <div class="page-hero__content">
+        <div class="page-hero__text">
+            <h1>Edit Profile</h1>
+            <p>Update your account and contact information.</p>
+        </div>
+    </div>
+    </section>
+
+<section class="panel">
+                <div class="card-body">
+            <div class="tabs">
+                <div class="tab active" data-tab="personal">Personal Information</div>
+                <a href="{% url 'change_password' %}" class="tab" data-tab="security">Security</a>
+            </div>
+
+            <div class="tab-content" id="personal-tab">
+                <form method="post" class="form">
+                    {% csrf_token %}
+
+                    <div class="form-section">
+                        <h3>User Account</h3>
+
+                        <div class="form-group">
+                            <label for="{{ user_form.username.id_for_label }}">Username:</label>
+                            {{ user_form.username }}
+                            {% if user_form.username.errors %}
+                                <div class="error-message">{{ user_form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="{{ user_form.first_name.id_for_label }}">First Name:</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                    <div class="error-message">{{ user_form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group half">
+                                <label for="{{ user_form.last_name.id_for_label }}">Last Name:</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                    <div class="error-message">{{ user_form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ user_form.email.id_for_label }}">Email:</label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                                <div class="error-message">{{ user_form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Contact Information</h3>
+
+                        <div class="form-group">
+                            <label for="{{ owner_form.full_name.id_for_label }}">Full Name:</label>
+                            {{ owner_form.full_name }}
+                            {% if owner_form.full_name.errors %}
+                                <div class="error-message">{{ owner_form.full_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ owner_form.phone.id_for_label }}">Phone Number:</label>
+                            {{ owner_form.phone }}
+                            {% if owner_form.phone.errors %}
+                                <div class="error-message">{{ owner_form.phone.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ owner_form.address.id_for_label }}">Address:</label>
+                            {{ owner_form.address }}
+                            {% if owner_form.address.errors %}
+                                <div class="error-message">{{ owner_form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+    </div>
+</section>
+{% endblock %}

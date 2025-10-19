@@ -1,34 +1,51 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/base_auth.html' %}
 {% block title %}Login - ePetCare{% endblock %}
 {% block content %}
-<div class="toolbar">
-  <h2>Login</h2>
-  <a class="btn" href="{% url 'register' %}">Register</a>
-</div>
+<section class="auth-page">
+  <div class="auth-split">
+    <aside class="auth-hero" aria-hidden="true">
+      <div class="hero-media">
+        {% load static %}
+        <img src="{% static 'clinic/images/picture1.jpeg' %}" alt="Pet care illustration" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">Finally, all your pet’s health in one place</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </aside>
+    <div class="auth-panel">
+      <div class="auth-container">
+    <div class="auth-header">
+      <h1 class="auth-title">Log in</h1>
+      <div class="auth-alt-action">or <a href="{% url 'register' %}" class="auth-link">Sign up</a></div>
+    </div>
 
 {% if form.errors %}
-<div class="error-message">
-  Your username and password didn't match. Please try again.
-</div>
+    <div class="auth-alert auth-alert-error">Your username and password didn't match. Please try again.</div>
 {% endif %}
-
-<form method="post">
-  {% csrf_token %}
-  <div class="field">
-    {{ form.username.label_tag }}
-    {{ form.username }}
-    {% if form.username.errors %}
-      <div class="error-text">{{ form.username.errors.0 }}</div>
-    {% endif %}
+    <form method="post" class="auth-form" novalidate>
+      {% csrf_token %}
+      <div class="auth-field">
+        <label for="id_username">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <div class="auth-error">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <div class="auth-field">
+        <label for="id_password">Password</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <div class="auth-error">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn auth-submit" type="submit">Log in</button>
+      <div class="auth-meta">
+        <span class="auth-small">Forgot? <a href="#" class="auth-link">Password?</a></span>
+      </div>
+      </form>
+      </div>
+    </div>
   </div>
-  <div class="field">
-    {{ form.password.label_tag }}
-    {{ form.password }}
-    {% if form.password.errors %}
-      <div class="error-text">{{ form.password.errors.0 }}</div>
-    {% endif %}
-  </div>
-  <input type="hidden" name="next" value="{{ next }}">
-  <button class="btn" type="submit">Sign in</button>
-</form>
+</section>
 {% endblock %}

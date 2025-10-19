@@ -49,6 +49,12 @@ class PetViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'species', 'breed', 'owner__full_name']
 
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        # Ensure request is in context for absolute URL building
+        ctx['request'] = getattr(self, 'request', None)
+        return ctx
+
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     """
@@ -60,7 +66,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsVeterinarian]
     filter_backends = [filters.SearchFilter]
     search_fields = ['pet__name', 'pet__owner__full_name', 'reason', 'status']
-    
+
     def perform_create(self, serializer):
         serializer.save()
 
@@ -109,7 +115,7 @@ class TreatmentRecordViewSet(viewsets.ModelViewSet):
     queryset = TreatmentRecord.objects.select_related('medical_record', 'treatment', 'performed_by').all()
     serializer_class = TreatmentRecordSerializer
     permission_classes = [IsVeterinarian]
-    
+
     def perform_create(self, serializer):
         # Set the performed_by field to the current veterinarian
         serializer.save(performed_by=self.request.user.vet_profile)
@@ -123,25 +129,25 @@ class VetScheduleViewSet(viewsets.ModelViewSet):
     queryset = VetSchedule.objects.select_related('veterinarian').all()
     serializer_class = VetScheduleSerializer
     permission_classes = [IsVeterinarian]
-    
+
     def get_queryset(self):
         # Filter by date range if provided
         queryset = super().get_queryset()
         start_date = self.request.query_params.get('start_date', None)
         end_date = self.request.query_params.get('end_date', None)
-        
+
         if start_date:
             queryset = queryset.filter(date__gte=start_date)
-        
+
         if end_date:
             queryset = queryset.filter(date__lte=end_date)
-        
+
         return queryset
-    
+
     def perform_create(self, serializer):
         # Set the veterinarian field to the current veterinarian
         serializer.save(veterinarian=self.request.user.vet_profile)
-    
+
     def perform_update(self, serializer):
         # Only allow veterinarians to update their own schedules
         if serializer.instance.veterinarian == self.request.user.vet_profile:
@@ -157,7 +163,7 @@ class VetNotificationViewSet(viewsets.ReadOnlyModelViewSet):
     """
     serializer_class = VetNotificationSerializer
     permission_classes = [IsVeterinarian]
-    
+
     def get_queryset(self):
         # Only return notifications for the current veterinarian
         return VetNotification.objects.filter(veterinarian=self.request.user.vet_profile)
@@ -170,13 +176,13 @@ def mark_notification_read(request, pk):
     API endpoint for marking a notification as read.
     """
     notification = get_object_or_404(
-        VetNotification, 
-        pk=pk, 
+        VetNotification,
+        pk=pk,
         veterinarian=request.user.vet_profile
     )
     notification.is_read = True
     notification.save()
-    
+
     return Response({'status': 'success'})
 
 
@@ -190,7 +196,7 @@ def mark_all_notifications_read(request):
         veterinarian=request.user.vet_profile,
         is_read=False
     ).update(is_read=True)
-    
+
     return Response({'status': 'success'})
 
 
@@ -203,13 +209,13 @@ def sync_offline_changes(request):
     try:
         changes = request.data.get('changes', [])
         results = []
-        
+
         for change in changes:
             change_type = change.get('type')
             model_type = change.get('model')
             model_id = change.get('id')
             data = change.get('data', {})
-            
+
             # Record the change
             offline_change = OfflineChange.objects.create(
                 change_type=change_type,
@@ -219,10 +225,10 @@ def sync_offline_changes(request):
                 created_by=request.user,
                 is_synced=False
             )
-            
+
             # Process the change based on type and model
             result = {'status': 'pending', 'id': offline_change.id}
-            
+
             try:
                 if model_type == 'appointment':
                     if change_type == 'create':
@@ -232,7 +238,7 @@ def sync_offline_changes(request):
                             result = {'status': 'success', 'id': serializer.instance.id}
                         else:
                             result = {'status': 'error', 'errors': serializer.errors}
-                    
+
                     elif change_type == 'update' and model_id:
                         appointment = get_object_or_404(Appointment, pk=model_id)
                         serializer = AppointmentSerializer(appointment, data=data, partial=True)
@@ -241,30 +247,30 @@ def sync_offline_changes(request):
                             result = {'status': 'success', 'id': serializer.instance.id}
                         else:
                             result = {'status': 'error', 'errors': serializer.errors}
-                    
+
                     elif change_type == 'delete' and model_id:
                         appointment = get_object_or_404(Appointment, pk=model_id)
                         appointment.delete()
                         result = {'status': 'success', 'id': model_id}
-                
+
                 # Similar processing for other model types...
-                
+
                 # Mark the change as synced
                 offline_change.is_synced = True
                 offline_change.synced_at = timezone.now()
                 offline_change.save()
-            
+
             except Exception as e:
                 result = {'status': 'error', 'message': str(e)}
-            
+
             results.append(result)
-        
+
         return Response({
             'status': 'success',
             'results': results,
             'timestamp': timezone.now().isoformat()
         })
-    
+
     except Exception as e:
         return Response(
             {'status': 'error', 'message': str(e)},
@@ -279,6 +285,72 @@ from django.http import FileResponse, HttpResponse
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
+@api_view(['GET'])
+@permission_classes([IsVeterinarian])
+def media_check(request):
+    """Check if a given media file exists. Query params: path=/media/pet_images/.... or relative
+    Returns { exists: bool, url: absolute_url }
+    """
+    from django.conf import settings
+    import os
+    rel = request.query_params.get('path', '')
+    if not rel:
+        return Response({'exists': False, 'error': 'missing path'}, status=400)
+    # Normalize
+    if rel.startswith('http://') or rel.startswith('https://'):
+        # Don't attempt filesystem check; assume remote
+        return Response({'exists': False, 'url': rel})
+    if rel.startswith('/media/'):
+        fs_rel = rel[len('/media/'):]
+    elif rel.startswith('media/'):
+        fs_rel = rel[len('media/'):]
+    else:
+        fs_rel = rel
+    fs_path = os.path.join(settings.MEDIA_ROOT, fs_rel)
+    exists = os.path.exists(fs_path)
+    url = rel if rel.startswith('/media/') else f"{settings.MEDIA_URL}{fs_rel}"
+    try:
+        url = request.build_absolute_uri(url)
+    except Exception:
+        pass
+    return Response({'exists': exists, 'url': url})
+
+
+@api_view(['POST'])
+@permission_classes([IsVeterinarian])
+@parser_classes([MultiPartParser, FormParser])
+def media_upload(request):
+    """Upload a pet image and attach it to a Pet.
+    Form fields: pet_id (int), file (image)
+    Returns: { success: bool, pet_id, image, image_url }
+    """
+    pet_id = request.data.get('pet_id')
+    file = request.FILES.get('file')
+    if not pet_id or not file:
+        return Response({'success': False, 'error': 'pet_id and file are required'}, status=400)
+
+    pet = get_object_or_404(Pet, pk=pet_id)
+
+    # Save via ImageField to ensure correct storage path
+    # Use a deterministic, collision-resistant filename
+    import uuid, os
+    base, ext = os.path.splitext(file.name)
+    safe_name = f"{uuid.uuid4().hex}{ext or '.jpg'}"
+    # This will save under MEDIA_ROOT/pet_images/
+    pet.image.save(os.path.join('pet_images', safe_name), file, save=True)
+
+    # Build absolute URL
+    try:
+        url = request.build_absolute_uri(pet.image.url)
+    except Exception:
+        url = getattr(pet, 'image_url', None) or (pet.image.url if hasattr(pet.image, 'url') else None)
+
+    return Response({
+        'success': True,
+        'pet_id': pet.id,
+        'image': pet.image.name,
+        'image_url': url,
+    })
 
 
 @api_view(['GET'])
@@ -290,17 +362,17 @@ def database_sync(request):
     """
     try:
         from django.db import connection
-        
+
         # Get the last sync time from settings
         last_sync = VetPortalSettings.objects.first()
         if not last_sync:
             last_sync = VetPortalSettings.objects.create()
-        
+
         # Determine what tables have changed since last sync
         cursor = connection.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [row[0] for row in cursor.fetchall() if not row[0].startswith('sqlite_')]
-        
+
         response_data = {
             'status': 'success',
             'timestamp': timezone.now().isoformat(),
@@ -308,7 +380,7 @@ def database_sync(request):
             'tables': tables,
             'db_type': connection.vendor,
         }
-        
+
         # For PostgreSQL, we need to handle this differently
         if connection.vendor == 'postgresql':
             response_data['sync_method'] = 'api'
@@ -316,9 +388,9 @@ def database_sync(request):
                                         'is not available. Use the API endpoints instead.')
         else:
             response_data['sync_method'] = 'file'
-        
+
         return Response(response_data)
-    
+
     except Exception as e:
         return Response(
             {'status': 'error', 'message': str(e)},
@@ -336,57 +408,57 @@ def database_download(request):
     """
     try:
         from django.db import connection
-        
+
         # For PostgreSQL, we need to generate a dump
         if connection.vendor == 'postgresql':
-            # This is just a placeholder - in a real scenario, you'd need to implement a proper 
+            # This is just a placeholder - in a real scenario, you'd need to implement a proper
             # PostgreSQL dump functionality using pg_dump or another solution
             return Response({
                 'status': 'error',
                 'message': 'Direct PostgreSQL database download not implemented. Use the API endpoints instead.'
             }, status=status.HTTP_501_NOT_IMPLEMENTED)
-        
+
         # For SQLite, we can send the actual file
         db_path = connection.settings_dict['NAME']
-        
+
         if not os.path.exists(db_path):
             return Response({
                 'status': 'error',
                 'message': f'Database file not found at {db_path}'
             }, status=status.HTTP_404_NOT_FOUND)
-        
+
         # Create a temporary copy to avoid locking the database
         with tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite3') as temp:
             temp_path = temp.name
             shutil.copy2(db_path, temp_path)
-        
+
         # Update the last sync time
         last_sync = VetPortalSettings.objects.first()
         if not last_sync:
             last_sync = VetPortalSettings.objects.create()
         else:
             last_sync.save()  # This updates the auto_now field
-        
+
         # Return the database file
         response = FileResponse(
             open(temp_path, 'rb'),
             as_attachment=True,
             filename='epetcare_database.sqlite3'
         )
-        
+
         # We'll delete the temp file after it's served
         response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
-        
+
         # Set a callback to delete the temp file
         def delete_temp_file(response):
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
             return response
-        
+
         response.delete_temp_file = delete_temp_file
-        
+
         return response
-    
+
     except Exception as e:
         return Response(
             {'status': 'error', 'message': str(e)},
@@ -405,7 +477,7 @@ def database_upload(request):
     """
     try:
         from django.db import connection
-        
+
         # For PostgreSQL, we need to handle changes differently
         if connection.vendor == 'postgresql':
             # This would need to be a proper implementation that processes the changes
@@ -414,22 +486,22 @@ def database_upload(request):
                 'status': 'error',
                 'message': 'Direct PostgreSQL database upload not implemented. Use the API endpoints instead.'
             }, status=status.HTTP_501_NOT_IMPLEMENTED)
-        
+
         # For SQLite, we need to process the uploaded file
         if 'database' not in request.FILES:
             return Response({
                 'status': 'error',
                 'message': 'No database file provided'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         uploaded_file = request.FILES['database']
-        
+
         # Create a temporary file to save the uploaded database
         with tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite3') as temp:
             temp_path = temp.name
             for chunk in uploaded_file.chunks():
                 temp.write(chunk)
-        
+
         # Validate the uploaded file
         try:
             import sqlite3
@@ -438,7 +510,7 @@ def database_upload(request):
             cursor.execute("PRAGMA integrity_check")
             result = cursor.fetchone()[0]
             conn.close()
-            
+
             if result != 'ok':
                 os.unlink(temp_path)
                 return Response({
@@ -451,27 +523,27 @@ def database_upload(request):
                 'status': 'error',
                 'message': f'Uploaded file is not a valid SQLite database: {str(e)}'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Here, we would process the changes from the uploaded database
         # This is a complex task and depends on your specific requirements
         # For simplicity, we'll just acknowledge the upload
-        
+
         # Clean up
         os.unlink(temp_path)
-        
+
         # Update the last sync time
         last_sync = VetPortalSettings.objects.first()
         if not last_sync:
             last_sync = VetPortalSettings.objects.create()
         else:
             last_sync.save()  # This updates the auto_now field
-        
+
         return Response({
             'status': 'success',
             'message': 'Database upload acknowledged. In a real implementation, the changes would be processed.',
             'timestamp': timezone.now().isoformat()
         })
-    
+
     except Exception as e:
         return Response(
             {'status': 'error', 'message': str(e)},

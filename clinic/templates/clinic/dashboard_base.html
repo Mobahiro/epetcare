@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard - ePetCare{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/modern.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/sidebar.css' %}?v={% now "U" %}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+<div class="dash-layout">
+  <aside class="dash-sidebar" aria-label="Sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-user">
+        <div class="avatar-sm">{% if request.user.first_name %}{{ request.user.first_name|slice:':1'|upper }}{% else %}{{ request.user.username|slice:':1'|upper }}{% endif %}</div>
+        <div class="user-meta">
+          <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="user-role">Owner</div>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="side-section">Main</div>
+  <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
+  <span class="icon"><img src="{% static 'clinic/icons/home_24.svg' %}" alt="" aria-hidden="true"></span>
+        <span class="text">Dashboard</span>
+      </a>
+  <a class="side-link {% if 'pet_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pet_list' %}" {% if 'pet_' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+  <span class="icon"><img src="{% static 'clinic/icons/paw_24.svg' %}" alt="" aria-hidden="true"></span>
+        <span class="text">Pets</span>
+      </a>
+  <a class="side-link {% if 'appointment_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'appointment_list' %}" {% if 'appointment_' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+  <span class="icon"><img src="{% static 'clinic/icons/calendar_24.svg' %}" alt="" aria-hidden="true"></span>
+        <span class="text">Appointments</span>
+      </a>
+
+      <div class="side-section">Account</div>
+  <a class="side-link {% if request.resolver_match.url_name in 'profile password_change' %}active{% endif %}" href="{% url 'profile' %}" {% if request.resolver_match.url_name in 'profile password_change' %}aria-current="page"{% endif %}>
+  <span class="icon"><img src="{% static 'clinic/icons/profile_24.svg' %}" alt="" aria-hidden="true"></span>
+        <span class="text">Profile</span>
+      </a>
+  <a class="side-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}" {% if request.resolver_match.url_name == 'notifications' %}aria-current="page"{% endif %}>
+  <span class="icon"><img src="{% static 'clinic/icons/bell_24.svg' %}" alt="" aria-hidden="true"></span>
+        <span class="text">Notifications{% if unread_count %}<span class="badge">{{ unread_count }}</span>{% endif %}</span>
+      </a>
+
+      {% if request.user.is_staff %}
+      <div class="side-section">Admin</div>
+      <a class="side-link {% if request.resolver_match.url_name in 'owner_list owner_detail owner_form' %}active{% endif %}" href="{% url 'owner_list' %}" {% if request.resolver_match.url_name in 'owner_list owner_detail owner_form' %}aria-current="page"{% endif %}>
+        <span class="icon"><img src="{% static 'clinic/icons/people_24.svg' %}" alt="" aria-hidden="true"></span>
+        <span class="text">Owners</span>
+      </a>
+      {% endif %}
+    </nav>
+  </aside>
+
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" aria-label="Toggle sidebar">
+          <img src="{% static 'clinic/icons/menu_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
+        </button>
+        <form class="topbar-search" role="search" action="#" onsubmit="return false;">
+          <input type="search" placeholder="Search ..." aria-label="Search" />
+          <button class="search-btn" aria-label="Search">
+            <img src="{% static 'clinic/icons/search_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
+          </button>
+        </form>
+      </div>
+      <div class="topbar-right">
+        <a class="icon-btn" href="#" title="Messages">
+          <img src="{% static 'clinic/icons/message_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
+        </a>
+        <a class="icon-btn notif-btn" href="{% url 'notifications' %}" title="Notifications">
+          <img src="{% static 'clinic/icons/bell_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
+          {% if unread_count %}<span class="badge">{{ unread_count }}</span>{% endif %}
+        </a>
+        <div class="profile-chip">
+          <div class="avatar-sm">{% if request.user.first_name %}{{ request.user.first_name|slice:':1'|upper }}{% else %}{{ request.user.username|slice:':1'|upper }}{% endif %}</div>
+          <div class="chip-text">
+            <div class="chip-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="chip-role">Owner</div>
+          </div>
+          <div class="chip-menu">
+            <a href="{% url 'profile' %}">Profile</a>
+            <a href="{% url 'logout' %}">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="dash-content">
+      {% block dash_content %}
+        {% block content %}{% endblock %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+<div class="sidebar-backdrop" aria-hidden="true"></div>
+{% load static %}
+<script src="{% static 'clinic/dashboard.js' %}?v={% now "U" %}" defer></script>
+<!-- No footer on dashboard shell -->
+</body>
+</html>

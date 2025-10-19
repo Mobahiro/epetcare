@@ -5,34 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ePetCare - Vet Portal{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v=20250926">
+    <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
+    <link rel="stylesheet" href="{% static 'clinic/modal.css' %}?v={% now "U" %}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="{% static 'clinic/refresh.js' %}?v={% now "U" %}" defer></script>
     <style>
         /* Simple Vet Portal Styles with Warm Neutrals */
-        .site-header { 
-            background: #6B705C; 
+        .site-header {
+            background: #6B705C;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        
+
         /* Simple navigation menu */
-        .nav { 
-            display: flex; 
+        .nav {
+            display: flex;
             align-items: center;
         }
-        .brand { 
-            color: white; 
+        .brand {
+            color: white;
             font-weight: bold;
             font-size: 20px;
         }
-        .nav-link { 
-            color: white; 
+        .nav-link {
+            color: white;
             margin-left: 15px;
             padding: 5px 10px;
             border-radius: 4px;
         }
-        .nav-link:hover { 
-            background: rgba(255,255,255,0.2); 
+        .nav-link:hover {
+            background: rgba(255,255,255,0.2);
         }
-        
+
         /* Simple sidebar */
         .sidebar {
             width: 200px;
@@ -66,7 +71,7 @@
             text-align: center;
             font-size: 18px;
         }
-        
+
         /* Notification badge */
         .notification-badge {
             background: #CB997E;
@@ -80,7 +85,7 @@
             justify-content: center;
             margin-left: 5px;
         }
-        
+
         /* Dashboard stats */
         .dashboard-stats {
             display: grid;
@@ -107,7 +112,7 @@
             text-transform: uppercase;
             font-weight: bold;
         }
-        
+
         /* Only show sidebar on authenticated pages */
         body.has-sidebar .container {
             max-width: calc(100% - 200px);
@@ -115,13 +120,13 @@
             margin-top: 20px;
             margin-bottom: 20px;
         }
-        
+
         /* Page background */
         body {
             background-color: #FFE8D6;
             font-family: Arial, sans-serif;
         }
-        
+
         /* Simple card styles */
         .card {
             border: 1px solid #E6CCB2;
@@ -142,6 +147,12 @@
         .card-body {
             padding: 15px;
         }
+            /* Modal reuse (keep concise since full styles in clinic CSS) */
+            /* Modal styles are imported from clinic/styles.css */
+            .modal-close:hover{color:#573D1C}
+            .tos-accept-bar{margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+            .btn-inline{background:#6B705C;color:#fff;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+            .btn-inline[disabled]{background:#aaa;cursor:not-allowed}
     </style>
     {% block head %}{% endblock %}
 </head>
@@ -171,7 +182,7 @@
             </nav>
         </div>
     </header>
-    
+
     <div id="toast-container">
         {% if messages %}
             {% for message in messages %}
@@ -182,7 +193,7 @@
             {% endfor %}
         {% endif %}
     </div>
-    
+
     {% if request.user.is_authenticated %}
         <div class="sidebar">
             <a href="{% url 'vet:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
@@ -204,11 +215,11 @@
             </a>
         </div>
     {% endif %}
-    
+
     <main class="container">
         {% block content %}{% endblock %}
     </main>
-    
+
     <footer style="background: #F1E3D3; padding: 15px; margin-top: 30px; border-top: 2px solid #E6CCB2;">
         <div style="text-align: center;">
             <strong style="color: #6B705C;">ePetCare Vet Portal</strong> - Created by a Student Programmer
@@ -221,7 +232,7 @@
         // Simple toast notifications
         document.addEventListener('DOMContentLoaded', function() {
             const toasts = document.querySelectorAll('.toast');
-            
+
             // Add click handler to close buttons
             document.querySelectorAll('.toast-close').forEach(button => {
                 button.addEventListener('click', function() {
@@ -229,7 +240,7 @@
                     toast.style.display = 'none';
                 });
             });
-            
+
             // Auto-dismiss after 5 seconds
             toasts.forEach(toast => {
                 setTimeout(() => {
@@ -238,7 +249,7 @@
             });
         });
     </script>
-    
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

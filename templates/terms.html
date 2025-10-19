@@ -1,0 +1,40 @@
+{% extends 'clinic/base.html' %}
+{% block title %}Terms & Privacy{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1>Terms & Conditions / Privacy Notice</h1>
+  <p class="lead">Last updated: {{ now|date:"Y-m-d" }}</p>
+  <h2>1. Introduction</h2>
+  <p>These Terms & Conditions ("Terms") and Privacy Notice explain how we collect, use, and protect personal data in the ePetCare system (web portal, vet portal, and desktop application). By creating an account you agree to these Terms.</p>
+  <h2>2. Data We Collect</h2>
+  <ul>
+    <li>Account data (name, email, username)</li>
+    <li>Veterinary profile data (license number, specialization, clinic info)</li>
+    <li>Pet & owner data (pet health records, prescriptions, appointments)</li>
+    <li>Log and audit data for security and troubleshooting</li>
+  </ul>
+  <h2>3. Purpose of Processing</h2>
+  <p>Your data is used to deliver veterinary practice features: scheduling, medical records management, prescription tracking, and secure synchronization across components.</p>
+  <h2>4. Legal Basis</h2>
+  <p>We process data based on contractual necessity (providing the service) and legitimate interests (platform security, improvement). Where required, we rely on consent (e.g., marketing—currently not implemented).</p>
+  <h2>5. Data Sharing</h2>
+  <p>We do not sell personal data. Limited sharing occurs with infrastructure providers (database/hosting) strictly to operate the service.</p>
+  <h2>6. Data Retention</h2>
+  <p>Clinical records are retained while the account remains active or as required by veterinary record-keeping regulations. You may request deletion where legally permissible.</p>
+  <h2>7. Security</h2>
+  <p>We employ least-privilege access, encrypted transport (HTTPS), role-based authorization, and periodic backups (encrypted at rest where supported).</p>
+  <h2>8. Your Responsibilities</h2>
+  <ul>
+    <li>Maintain accurate account and clinical data</li>
+    <li>Protect login credentials</li>
+    <li>Use data ethically and lawfully</li>
+  </ul>
+  <h2>9. Your Rights</h2>
+  <p>You may request access, correction, export, or deletion of personal data (subject to legal retention rules). Contact the system administrator to exercise these rights.</p>
+  <h2>10. Updates</h2>
+  <p>We may update these Terms. Continued use after changes constitutes acceptance. Material changes will be highlighted on this page.</p>
+  <h2>11. Acceptance</h2>
+  <p>To register you must explicitly confirm: “I have read and agree to the Terms & Conditions / Privacy Notice.”</p>
+  <p>If you disagree with any part, do not register or discontinue use.</p>
+</div>
+{% endblock %}
