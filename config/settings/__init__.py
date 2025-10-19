@@ -1,0 +1,1 @@
+"""Settings package for ePetCare Django project."""

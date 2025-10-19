@@ -9,7 +9,7 @@ services:
     repo: https://github.com/Mobahiro/epetcare.git
     branch: main
     buildCommand: chmod +x build.sh && ./build.sh
-  startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --log-level debug"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4  # Using a more stable Python version
@@ -31,9 +31,6 @@ services:
           property: connectionString
     healthCheckPath: /vet_portal/
     autoDeploy: true
-    # Deployment hook for client app sync
-    # https://api.render.com/deploy/srv-d3an3j95pdvs73d1co40?key=Zay8YidqwKg
-
     # Persist media directory across deployments
     disk:
       name: media
