@@ -12,3 +12,6 @@ psycopg2-binary>=2.9.9
 # Media storage
 cloudinary>=1.36.0
 django-cloudinary-storage>=0.3.0
+ 
+# Image processing for ImageField validation/uploads
+Pillow>=10.4,<11
