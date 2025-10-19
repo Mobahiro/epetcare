@@ -293,12 +293,12 @@
   .dash-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .rail {
     position: relative;
     top: auto;
   }
-  
+
   .summary-tiles {
     grid-template-columns: repeat(2, 1fr);
   }

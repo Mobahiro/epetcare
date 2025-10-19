@@ -5,6 +5,15 @@
   const backdrop = document.querySelector('.sidebar-backdrop');
   const chip = document.querySelector('.profile-chip');
 
+  // Sidebar state management
+  function getSidebarState() {
+    return localStorage.getItem('epetcare_sidebar_collapsed') === 'true';
+  }
+
+  function saveSidebarState(isCollapsed) {
+    localStorage.setItem('epetcare_sidebar_collapsed', isCollapsed);
+  }
+
   function isMobile(){
     return window.matchMedia('(max-width: 768px)').matches;
   }
@@ -26,8 +35,23 @@
     if(isMobile()){
       if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar();
     }else{
+      const isCollapsed = !sidebar.classList.contains('collapsed');
       sidebar.classList.toggle('collapsed');
       if(layout){ layout.classList.toggle('sidebar-collapsed'); }
+      saveSidebarState(isCollapsed);
+    }
+  }
+
+  function restoreSidebarState() {
+    if(!sidebar || isMobile()) return;
+
+    const isCollapsed = getSidebarState();
+    if(isCollapsed) {
+      sidebar.classList.add('collapsed');
+      if(layout) { layout.classList.add('sidebar-collapsed'); }
+    } else {
+      sidebar.classList.remove('collapsed');
+      if(layout) { layout.classList.remove('sidebar-collapsed'); }
     }
   }
 
@@ -50,6 +74,9 @@
         if(!chip.contains(e.target)) chip.classList.remove('open');
       });
     }
+
+    // Restore sidebar state from localStorage
+    restoreSidebarState();
   }
 
   document.addEventListener('DOMContentLoaded', bindEvents);

@@ -1,0 +1,107 @@
+{% extends 'clinic/dashboard_base.html' %}
+{% load static %}
+{% block title %}Pets - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<link rel="stylesheet" href="{% static 'clinic/dashboard-components.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Your Pets</h1>
+      <a class="btn btn-primary" href="{% url 'pet_create' %}">+ New Pet</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Manage your registered pets and their information.</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- Summary tiles -->
+<section class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🐾</div>
+      <div class="tile-text">
+        <div class="tile-title">Total Pets</div>
+        <div class="tile-sub">Registered</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ pets|length }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🩺</div>
+      <div class="tile-text">
+        <div class="tile-title">Health Checks</div>
+        <div class="tile-sub">Completed</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ health_check_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📋</div>
+      <div class="tile-text">
+        <div class="tile-title">Active Records</div>
+        <div class="tile-sub">Medical files</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ medical_records_count|default:"0" }}</div>
+  </div>
+</section>
+
+<div class="dash-grid">
+  <div class="main-card">
+    <div class="card-head">
+      <h2>All Pets</h2>
+      <div class="head-actions">
+        <a class="btn btn-primary btn-sm" href="{% url 'pet_create' %}">+ Add</a>
+      </div>
+    </div>
+
+    <div class="pets-grid" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;">
+      {% for pet in pets %}
+        <a class="pet-card" href="{% url 'pet_detail' pet.pk %}" style="display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--dash-divider); border-radius: var(--dash-radius); padding: 16px; text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+          <div class="avatar" style="width: 48px; height: 48px; border-radius: 50%; background: var(--dash-primary); color: var(--dash-text); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600;">{{ pet.name|slice:":1"|upper }}</div>
+          <div class="meta">
+            <div class="name" style="font-size: 16px; font-weight: 600; color: var(--dash-text);">{{ pet.name }}</div>
+            <div class="spec" style="font-size: 13px; color: var(--dash-text-muted);">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+          </div>
+        </a>
+      {% empty %}
+        <div class="empty-message">
+          No pets registered yet. <a class="btn-link" href="{% url 'pet_create' %}">Add your first pet</a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <aside class="col-right">
+    <div class="rail">
+      <div class="rail-card">
+        <div class="rail-title">Quick Add</div>
+        <p class="muted">Register a new pet to manage their health records and appointments.</p>
+        <div style="margin-top: 8px;">
+          <a class="btn btn-primary btn-sm" href="{% url 'pet_create' %}">Register Pet</a>
+        </div>
+      </div>
+
+      <div class="rail-card">
+        <div class="rail-title">Pet Care Tips</div>
+        <ul style="padding-left: 16px; margin-top: 8px; color: var(--dash-text-muted);">
+          <li>Schedule regular check-ups</li>
+          <li>Keep vaccinations up to date</li>
+          <li>Maintain proper diet and exercise</li>
+          <li>Watch for changes in behavior</li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

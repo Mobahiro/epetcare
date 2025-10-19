@@ -86,7 +86,7 @@
         <a class="btn btn-primary btn-sm" href="{% url 'appointment_create' %}">+ New</a>
       </div>
     </div>
-    
+
     <div class="list animate-slideUp delay-200">
       {% for a in appointments %}
         {% if a.status == 'scheduled' %}
@@ -124,7 +124,7 @@
           </div>
         {% endif %}
       {% endfor %}
-      
+
       {% if not appointments|dictsortreversed:"date_time"|first %}
         <div class="empty-message">
           <div>No upcoming appointments.</div>
@@ -133,7 +133,7 @@
       {% endif %}
     </div>
   </div>
-  
+
   <aside class="col-right">
     <div class="rail">
       <div class="rail-card">
@@ -155,7 +155,7 @@
           {% endif %}
         {% endwith %}
       </div>
-      
+
       <div class="rail-card">
         <div class="rail-title">Quick Actions</div>
         <div class="rail-actions">

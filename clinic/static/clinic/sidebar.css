@@ -65,7 +65,7 @@
 .dash-sidebar.collapsed .side-section{opacity:0; max-height:0; padding:0; margin:0}
 .dash-sidebar.collapsed .side-link .text{display:none}
 .sidebar-header{padding:8px var(--side-pad-x) 16px}
-.sidebar-user{display:flex;align-items:center;gap:10px;padding-left:var(--side-pad-x)}
+.sidebar-user{display:flex;align-items:center;gap:10px;padding:12px var(--side-pad-x);margin:8px 0;}
 /* Standard circle token for sidebar avatar */
 .avatar-sm{width:var(--icon-size);height:var(--icon-size);min-width:var(--icon-size);min-height:var(--icon-size);flex:0 0 var(--icon-size);aspect-ratio:1/1;border-radius:var(--radius-circle);background:var(--brand-orange);color:#4a2c10;display:inline-flex;align-items:center;justify-content:center;font-weight:700;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.06);overflow:hidden;box-sizing:border-box;align-self:center}
 .user-meta{line-height:1.1}

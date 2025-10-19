@@ -62,7 +62,7 @@
         <a class="btn btn-sm" href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
       </div>
     </div>
-    
+
     <div class="list">
       {% for n in notifications %}
         <div class="list-item {% if not n.is_read %}unread{% endif %}">
@@ -83,7 +83,7 @@
       {% endfor %}
     </div>
   </div>
-  
+
   <aside class="col-right">
     <div class="rail">
       <div class="rail-card">
@@ -92,7 +92,7 @@
           <a class="btn btn-primary btn-sm" href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
         </div>
       </div>
-      
+
       <div class="rail-card">
         <div class="rail-title">Notification Settings</div>
         <p class="muted">Manage how you receive notifications about your pets' appointments, medical records, and prescriptions.</p>

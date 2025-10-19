@@ -63,6 +63,64 @@
   color: var(--dash-text);
 }
 
+/* Dashboard Form Styles */
+.profile-form {
+  padding: 20px;
+}
+
+.profile-form .form-section {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--dash-divider);
+}
+
+.profile-form .form-section h3 {
+  color: var(--dash-text);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.profile-form .form-group {
+  margin-bottom: 16px;
+}
+
+.profile-form .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--dash-text);
+}
+
+.profile-form .form-group input,
+.profile-form .form-group textarea,
+.profile-form .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--dash-divider);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--dash-text);
+}
+
+.profile-form .form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.profile-form .error-message {
+  color: #e74c3c;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.profile-form .help-text {
+  color: var(--dash-text-muted);
+  margin-top: 5px;
+  font-size: 14px;
+}
+
 /* Animation classes */
 .animate-slideDown {
   animation: slideDown 0.4s ease-out forwards;
