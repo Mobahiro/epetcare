@@ -15,6 +15,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_ROOT = '/opt/render/project/src/media'
 MEDIA_URL = '/media/'
 
+# Ensure media directory exists and is writable
+import os
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+# Ensure pet_images directory exists
+os.makedirs(os.path.join(MEDIA_ROOT, 'pet_images'), exist_ok=True)
+
 # Security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True

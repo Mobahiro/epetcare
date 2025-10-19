@@ -50,17 +50,48 @@ class Pet(models.Model):
         lead to duplicated paths (e.g., "/media/media/...") once MEDIA_URL is
         prefixed. This method normalizes those cases.
         """
-        if self.image and hasattr(self.image, 'url'):
-            url = getattr(self.image, 'url', '') or ''
-            # Normalize duplicate media segment
-            if url.startswith('/media/media/'):
-                url = url.replace('/media/media/', '/media/', 1)
-            # Also normalize accidental "media/" without leading slash
-            if url.startswith('media/'):
-                url = '/' + url
+        from django.conf import settings
+
+        if not self.image:
+            return None
+
+        if hasattr(self.image, 'url'):
+            try:
+                url = self.image.url
+
+                # Handle empty string
+                if not url:
+                    return None
+
+                # Clean up any duplicate media paths
                 if url.startswith('/media/media/'):
                     url = url.replace('/media/media/', '/media/', 1)
-            return url
+
+                # Make sure URL has a leading slash
+                if url.startswith('media/'):
+                    url = '/' + url
+                    if url.startswith('/media/media/'):
+                        url = url.replace('/media/media/', '/media/', 1)
+
+                # Ensure URL starts with MEDIA_URL
+                if not url.startswith('/media/') and not url.startswith(settings.MEDIA_URL):
+                    if self.image.name:
+                        # Construct URL from image name
+                        url = f"{settings.MEDIA_URL.rstrip('/')}/{self.image.name.lstrip('/')}"
+
+                return url
+            except Exception as e:
+                # Log error but don't break the application
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error generating image_url for Pet {self.id}: {e}")
+                return None
+
+        # Handle case where image exists but doesn't have url attribute
+        if self.image.name:
+            from django.conf import settings
+            return f"{settings.MEDIA_URL.rstrip('/')}/{self.image.name.lstrip('/')}"
+
         return None
 
 

@@ -197,11 +197,58 @@ def pet_create(request):
     if request.method == 'POST':
         form = PetCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            pet = form.save(commit=False)
-            pet.owner = owner
-            pet.save()
-            messages.success(request, f"Pet {pet.name} has been successfully added.")
-            return redirect('pet_detail', pk=pet.pk)
+            try:
+                # Handle potential file upload issues
+                pet = form.save(commit=False)
+                pet.owner = owner
+
+                # Check if an image was uploaded
+                if 'image' in request.FILES:
+                    # Log the file details for debugging
+                    image_file = request.FILES['image']
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"Image upload: name={image_file.name}, size={image_file.size}, content_type={image_file.content_type}")
+
+                    # Save the image to a temporary attribute
+                    pet._image_file = image_file
+
+                # Save the pet first
+                pet.save()
+
+                # If we have an image in the temp attribute, try to manually save it
+                if hasattr(pet, '_image_file'):
+                    # Make sure media directories exist
+                    from django.conf import settings
+                    import os
+                    os.makedirs(os.path.join(settings.MEDIA_ROOT, 'pet_images'), exist_ok=True)
+
+                    # Set the image field and save again
+                    pet.image = pet._image_file
+                    pet.save(update_fields=['image'])
+
+                messages.success(request, f"Pet {pet.name} has been successfully added.")
+
+                if pet.image and pet.image_url:
+                    messages.info(request, f"Pet image saved at: {pet.image_url}")
+
+                return redirect('pet_detail', pk=pet.pk)
+            except Exception as e:
+                import traceback
+                error_msg = str(e)
+                error_details = traceback.format_exc()
+
+                # Log the complete error
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error saving pet: {error_msg}\n{error_details}")
+
+                messages.error(request, f"Error saving pet: {error_msg}")
+        else:
+            # Log form errors for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Pet form errors: {form.errors}")
     else:
         form = PetCreateForm()
     return render(request, 'clinic/pet_form.html', {"form": form})
