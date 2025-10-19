@@ -1,20 +1,57 @@
 {% extends 'clinic/dashboard_base.html' %}
+{% load static %}
 {% block title %}Appointments - ePetCare{% endblock %}
-{% block head %}
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
-{% endblock %}
-{% block dash_content %}
 
-<section class="page-hero">
-  <div class="page-hero__content">
-    <div class="page-hero__text">
-      <h1>Appointments</h1>
-      <p>Manage your pet's clinic visits.</p>
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Appointments</h1>
+      <a class="btn btn-primary" href="{% url 'appointment_create' %}">+ New</a>
     </div>
-    <div class="page-hero__cta">
-      <a class="btn btn-primary dash-cta" href="{% url 'appointment_create' %}">+ New Appointment</a>
+    <div class="hero-meta-line">
+      <span class="meta-item">Manage your pet's clinic visits.</span>
     </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- Summary tiles -->
+<section class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📅</div>
+      <div class="tile-text">
+        <div class="tile-title">Upcoming</div>
+        <div class="tile-sub">Scheduled</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ upcoming_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">✓</div>
+      <div class="tile-text">
+        <div class="tile-title">Completed</div>
+        <div class="tile-sub">Past visits</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ completed_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🗓️</div>
+      <div class="tile-text">
+        <div class="tile-title">Total</div>
+        <div class="tile-sub">All appointments</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ appointments|length }}</div>
   </div>
 </section>
 
@@ -41,56 +78,92 @@
   </div>
 </div>
 
-<div class="appointment-cards animate-slideUp delay-200">
-  {% for a in appointments %}
-    <div class="appointment-card" data-status="{{ a.status }}">
-      <div class="appointment-card-header">
-        <div class="appointment-date-container">
-          <div class="appointment-date">
-            <div class="date-day">{{ a.date_time|date:"d" }}</div>
-            <div class="date-month">{{ a.date_time|date:"M" }}</div>
+<div class="dash-grid">
+  <div class="main-card">
+    <div class="card-head">
+      <h2>Upcoming Appointments</h2>
+      <div class="head-actions">
+        <a class="btn btn-primary btn-sm" href="{% url 'appointment_create' %}">+ New</a>
+      </div>
+    </div>
+    
+    <div class="list animate-slideUp delay-200">
+      {% for a in appointments %}
+        {% if a.status == 'scheduled' %}
+          <div class="list-item" data-status="{{ a.status }}">
+            <div class="appointment-card-header">
+              <div class="appointment-date-container">
+                <div class="appointment-date">
+                  <div class="date-day">{{ a.date_time|date:"d" }}</div>
+                  <div class="date-month">{{ a.date_time|date:"M" }}</div>
+                </div>
+                <div class="appointment-time">{{ a.date_time|date:"H:i" }}</div>
+              </div>
+              <div class="appointment-status">
+                <span class="status-pill scheduled">Scheduled</span>
+              </div>
+            </div>
+            <div class="appointment-card-body">
+              <div class="appointment-pet-info">
+                <div class="pet-icon">{{ a.pet.name|slice:":1"|upper }}</div>
+                <div class="pet-details">
+                  <div class="pet-name">{{ a.pet.name }}</div>
+                  <div class="pet-species">{{ a.pet.get_species_display }}</div>
+                </div>
+              </div>
+              <div class="appointment-reason-box">
+                <div class="reason-label">Reason for visit:</div>
+                <div class="reason-text">{{ a.reason }}</div>
+              </div>
+            </div>
+            <div class="appointment-card-footer">
+              <a href="#" class="card-action">Change Status</a>
+              <a href="#" class="card-action">Reschedule</a>
+              <a href="#" class="card-action danger">Cancel</a>
+            </div>
           </div>
-          <div class="appointment-time">{{ a.date_time|date:"H:i" }}</div>
+        {% endif %}
+      {% endfor %}
+      
+      {% if not appointments|dictsortreversed:"date_time"|first %}
+        <div class="empty-message">
+          <div>No upcoming appointments.</div>
+          <a class="btn-link" href="{% url 'appointment_create' %}">Schedule your first appointment</a>
         </div>
-        <div class="appointment-status">
-          {% if a.status == 'scheduled' %}
-            <span class="status-pill scheduled">Scheduled</span>
-          {% elif a.status == 'completed' %}
-            <span class="status-pill completed">Completed</span>
-          {% elif a.status == 'cancelled' %}
-            <span class="status-pill cancelled">Cancelled</span>
+      {% endif %}
+    </div>
+  </div>
+  
+  <aside class="col-right">
+    <div class="rail">
+      <div class="rail-card">
+        <div class="rail-title">Next Appointment</div>
+        {% with next_appt=appointments|dictsortreversed:"date_time"|first %}
+          {% if next_appt %}
+            <div class="rail-row">
+              <div class="rail-primary">{{ next_appt.date_time|date:"M d, Y H:i" }}</div>
+              <div class="rail-secondary">{{ next_appt.pet.name }}</div>
+            </div>
+            <div>
+              <span class="pill scheduled">{{ next_appt.reason|truncatechars:30 }}</span>
+            </div>
+            <div class="rail-actions" style="margin-top:8px">
+              <a class="btn btn-sm" href="#">View Details</a>
+            </div>
           {% else %}
-            <span class="status-pill">{{ a.get_status_display }}</span>
+            <div class="empty-message">No upcoming appointments.</div>
           {% endif %}
-        </div>
+        {% endwith %}
       </div>
-      <div class="appointment-card-body">
-        <div class="appointment-pet-info">
-          <div class="pet-icon">{{ a.pet.name|slice:":1"|upper }}</div>
-          <div class="pet-details">
-            <div class="pet-name">{{ a.pet.name }}</div>
-            <div class="pet-species">{{ a.pet.get_species_display }}</div>
-          </div>
+      
+      <div class="rail-card">
+        <div class="rail-title">Quick Actions</div>
+        <div class="rail-actions">
+          <a class="btn btn-primary btn-sm" href="{% url 'appointment_create' %}">New Appointment</a>
         </div>
-        <div class="appointment-reason-box">
-          <div class="reason-label">Reason for visit:</div>
-          <div class="reason-text">{{ a.reason }}</div>
-        </div>
-      </div>
-      <div class="appointment-card-footer">
-        <a href="#" class="card-action">Change Status</a>
-        <a href="#" class="card-action">Reschedule</a>
-        <a href="#" class="card-action danger">Cancel</a>
       </div>
     </div>
-  {% empty %}
-    <div class="empty-state-large">
-      <div class="empty-icon">📅</div>
-      <h3>No Appointments Found</h3>
-      <p>You don't have any appointments scheduled at the moment.</p>
-      <a href="{% url 'appointment_create' %}" class="btn primary">Schedule Your First Appointment</a>
-    </div>
-  {% endfor %}
+  </aside>
 </div>
 
 <div class="table-responsive desktop-only animate-fadeIn delay-300">

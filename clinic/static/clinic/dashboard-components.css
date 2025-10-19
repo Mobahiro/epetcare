@@ -1,0 +1,103 @@
+/* Notification-specific styles */
+.list-item.unread {
+  border-left: 3px solid var(--dash-primary);
+  background: var(--dash-tint);
+}
+
+.notification-title {
+  font-weight: 600;
+  color: var(--dash-text);
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.notification-text {
+  color: var(--dash-text-muted);
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.notification-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #a08361;
+  font-size: 12px;
+}
+
+/* Other dashboard styles */
+.muted {
+  color: var(--dash-text-muted);
+  font-size: 14px;
+}
+
+/* Filter bar - retain existing styles with new theming */
+.filter-bar {
+  background: #fff;
+  border: 1px solid var(--dash-divider);
+  border-radius: var(--dash-radius);
+  padding: 12px;
+  margin-bottom: var(--dash-gap);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  color: var(--dash-text);
+}
+
+.form-control {
+  border: 1px solid var(--dash-divider);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  color: var(--dash-text);
+}
+
+/* Animation classes */
+.animate-slideDown {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

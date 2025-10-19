@@ -1,27 +1,106 @@
 {% extends 'clinic/dashboard_base.html' %}
+{% load static %}
 {% block title %}Notifications - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% endblock %}
+
 {% block dash_content %}
-<div class="toolbar">
-  <h2>Notifications</h2>
-  <div>
-    <a class="btn" href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Notifications</h1>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Stay updated with alerts about your pets, appointments, and more.</span>
+    </div>
   </div>
-</div>
-<div class="notifications-list">
-  {% for n in notifications %}
-    <div class="notification-item {% if not n.is_read %}unread{% endif %}">
-      <div class="notification-title">{{ n.title }}</div>
-      <div class="notification-text">{{ n.message }}</div>
-      <div class="notification-meta">{{ n.created_at|date:'Y-m-d H:i' }}</div>
-      {% if not n.is_read %}
-        <a class="notification-action" href="{% url 'notification_mark_read' n.id %}">Mark as read</a>
-      {% endif %}
+  <div class="hero-divider"></div>
+</section>
+
+<!-- Summary tiles -->
+<section class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🔔</div>
+      <div class="tile-text">
+        <div class="tile-title">Total Notifications</div>
+        <div class="tile-sub">All time</div>
+      </div>
     </div>
-  {% empty %}
-    <div class="empty-state">
-      <div class="empty-icon">🔔</div>
-      <p>No notifications yet.</p>
+    <div class="tile-metric">{{ notifications|length }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📩</div>
+      <div class="tile-text">
+        <div class="tile-title">Unread</div>
+        <div class="tile-sub">Notifications</div>
+      </div>
     </div>
-  {% endfor %}
+    <div class="tile-metric">{{ unread_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🔄</div>
+      <div class="tile-text">
+        <div class="tile-title">Last Updated</div>
+        <div class="tile-sub">Notification date</div>
+      </div>
+    </div>
+    <div class="tile-metric">{% if notifications %}{{ notifications.0.created_at|date:"M d" }}{% else %}--{% endif %}</div>
+  </div>
+</section>
+
+<div class="dash-grid">
+  <div class="main-card">
+    <div class="card-head">
+      <h2>All Notifications</h2>
+      <div class="head-actions">
+        <a class="btn btn-sm" href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
+      </div>
+    </div>
+    
+    <div class="list">
+      {% for n in notifications %}
+        <div class="list-item {% if not n.is_read %}unread{% endif %}">
+          <div class="notification-title">{{ n.title }}</div>
+          <div class="notification-text">{{ n.message }}</div>
+          <div class="notification-meta">
+            {{ n.created_at|date:'Y-m-d H:i' }}
+            {% if not n.is_read %}
+              <a class="btn-link notification-action" href="{% url 'notification_mark_read' n.id %}">Mark as read</a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-message">
+          <div>No notifications yet.</div>
+          <p>You'll be notified about important pet care activities here.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <aside class="col-right">
+    <div class="rail">
+      <div class="rail-card">
+        <div class="rail-title">Quick Actions</div>
+        <div>
+          <a class="btn btn-primary btn-sm" href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
+        </div>
+      </div>
+      
+      <div class="rail-card">
+        <div class="rail-title">Notification Settings</div>
+        <p class="muted">Manage how you receive notifications about your pets' appointments, medical records, and prescriptions.</p>
+        <div>
+          <a class="btn btn-sm" href="#">Manage settings</a>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>
 {% endblock %}
