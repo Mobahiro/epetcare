@@ -11,4 +11,4 @@ mkdir -p media/pet_images
 chmod -R 755 media
 
 # Collect static files for WhiteNoise
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --settings=config.settings.prod
