@@ -341,9 +341,21 @@ def media_upload(request):
 
     # Build absolute URL
     try:
-        url = request.build_absolute_uri(pet.image.url)
-    except Exception:
-        url = getattr(pet, 'image_url', None) or (pet.image.url if hasattr(pet.image, 'url') else None)
+        # Use image_url property first if available
+        if hasattr(pet, 'image_url') and pet.image_url:
+            # Handle case where image_url might not include domain
+            image_url = pet.image_url
+            if image_url.startswith('/'):
+                url = request.build_absolute_uri(image_url)
+            else:
+                url = image_url
+        else:
+            url = request.build_absolute_uri(pet.image.url)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error building image URL: {e}")
+        url = None
 
     return Response({
         'success': True,

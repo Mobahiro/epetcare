@@ -78,7 +78,7 @@
         <a class="btn btn-primary btn-sm new-btn" href="{% url 'pet_create' %}" data-for="pets" style="display:none">+ Add</a>
       </div>
     </div>
-    
+
     <div id="appointments" class="tab-panel active" role="tabpanel" aria-labelledby="Appointments">
       <ol class="timeline">
         {% for a in appointments %}
@@ -100,14 +100,14 @@
         {% endfor %}
       </ol>
     </div>
-    
+
     <div id="pets" class="tab-panel" role="tabpanel" aria-labelledby="My Pets">
       <div class="pet-grid">
         {% for pet in pets %}
         <div class="pet-card">
           <div class="pet-card-header">
             {% if pet.image %}
-            <img class="pet-image" src="{{ pet.image.url }}" alt="{{ pet.name }}">
+            <img class="pet-image" src="{{ pet.image_url }}" alt="{{ pet.name }}">
             {% else %}
             <div class="pet-image-placeholder">{{ pet.name|slice:":1"|upper }}</div>
             {% endif %}
@@ -128,7 +128,7 @@
         {% endfor %}
       </div>
     </div>
-    
+
     <div id="notifications" class="tab-panel" role="tabpanel" aria-labelledby="Notifications">
       <div class="list">
         {% for n in notifications %}
@@ -150,7 +150,7 @@
       </div>
     </div>
   </div>
-  
+
   <aside class="col-right">
     <div class="rail">
       <div class="rail-card">
@@ -193,37 +193,37 @@
     const newBtns = document.querySelectorAll('.new-btn');
     const kebab = document.querySelector('.kebab-btn');
     const menu = document.querySelector('.quick-actions .menu');
-    
+
     function activate(id){
       // Update panel and tab active states
       panels.forEach(p=>p.classList.toggle('active', '#'+p.id===id));
       tabs.forEach(t=>t.classList.toggle('active', t.getAttribute('href')===id));
-      
+
       // Show/hide the appropriate "+ New" button
       const activePanel = id.replace('#', '');
       newBtns.forEach(btn => {
         btn.style.display = btn.dataset.for === activePanel ? '' : 'none';
       });
     }
-    
+
     // Initialize based on URL hash or default to appointments
-    if(location.hash){ 
-      activate(location.hash); 
+    if(location.hash){
+      activate(location.hash);
     } else {
       activate('#appointments');
     }
-    
+
     // Add click handlers to tabs
-    tabs.forEach(t=>t.addEventListener('click', function(e){ 
+    tabs.forEach(t=>t.addEventListener('click', function(e){
       e.preventDefault();
       const href = this.getAttribute('href');
       history.pushState(null, null, href);
       activate(href);
     }));
-    
+
     // Handle back/forward navigation
     window.addEventListener('hashchange', ()=>activate(location.hash||'#appointments'));
-    
+
     // Kebab menu toggle
     if(kebab && menu){
       kebab.addEventListener('click', ()=>{

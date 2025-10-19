@@ -42,57 +42,56 @@ class Pet(models.Model):
     def __str__(self) -> str:
         return f"{self.name} ({self.get_species_display()})"
 
+    def clean_image_path(self, path):
+        """Helper method to clean image paths."""
+        if not path:
+            return None
+
+        # Remove any potential 'media/' prefix in the stored path
+        if path.startswith('media/'):
+            path = path.replace('media/', '', 1)
+
+        return path
+
+    def save(self, *args, **kwargs):
+        """Override save to ensure image path is correct."""
+        # Clean up the image name if it has a media/ prefix
+        if self.image and hasattr(self.image, 'name'):
+            self.image.name = self.clean_image_path(self.image.name)
+
+        super().save(*args, **kwargs)
+
     @property
     def image_url(self):
-        """Return a normalized URL for the image suitable for templates.
-
-        Some older rows may contain values like "media/pet_images/..." which can
-        lead to duplicated paths (e.g., "/media/media/...") once MEDIA_URL is
-        prefixed. This method normalizes those cases.
-        """
+        """Return a normalized URL for the image suitable for templates."""
         from django.conf import settings
+        import logging
 
+        logger = logging.getLogger(__name__)
+
+        # If no image is set, return None
         if not self.image:
             return None
 
-        if hasattr(self.image, 'url'):
-            try:
-                url = self.image.url
+        # Get the raw file name
+        image_name = str(self.image.name) if self.image.name else ''
+        if not image_name:
+            return None
 
-                # Handle empty string
-                if not url:
-                    return None
+        # Log the raw image name for debugging
+        logger.debug(f"Pet {self.id} image name: {image_name}")
 
-                # Clean up any duplicate media paths
-                if url.startswith('/media/media/'):
-                    url = url.replace('/media/media/', '/media/', 1)
+        # Clean any potential leading 'media/' in the stored filename
+        if image_name.startswith('media/'):
+            image_name = image_name.replace('media/', '', 1)
 
-                # Make sure URL has a leading slash
-                if url.startswith('media/'):
-                    url = '/' + url
-                    if url.startswith('/media/media/'):
-                        url = url.replace('/media/media/', '/media/', 1)
+        # Construct a proper URL with the MEDIA_URL setting
+        url = f"{settings.MEDIA_URL.rstrip('/')}/{image_name.lstrip('/')}"
 
-                # Ensure URL starts with MEDIA_URL
-                if not url.startswith('/media/') and not url.startswith(settings.MEDIA_URL):
-                    if self.image.name:
-                        # Construct URL from image name
-                        url = f"{settings.MEDIA_URL.rstrip('/')}/{self.image.name.lstrip('/')}"
+        # Log the constructed URL for debugging
+        logger.debug(f"Pet {self.id} image URL: {url}")
 
-                return url
-            except Exception as e:
-                # Log error but don't break the application
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f"Error generating image_url for Pet {self.id}: {e}")
-                return None
-
-        # Handle case where image exists but doesn't have url attribute
-        if self.image.name:
-            from django.conf import settings
-            return f"{settings.MEDIA_URL.rstrip('/')}/{self.image.name.lstrip('/')}"
-
-        return None
+        return url
 
 
 class Appointment(models.Model):

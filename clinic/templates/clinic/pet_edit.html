@@ -81,7 +81,7 @@
                         <label for="{{ form.image.id_for_label }}">Pet Photo:</label>
                         {% if pet.image %}
                             <div class="current-image">
-                                <img src="{{ pet.image.url }}" alt="{{ pet.name }}" class="pet-photo-preview">
+                                <img src="{{ pet.image_url }}" alt="{{ pet.name }}" class="pet-photo-preview">
                                 <p>Current image: {{ pet.image.name }}</p>
                             </div>
                         {% endif %}

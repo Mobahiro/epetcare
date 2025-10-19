@@ -107,7 +107,7 @@
         <div class="pet-card">
           <div class="pet-card-header">
             {% if pet.image %}
-            <img class="pet-image" src="{{ pet.image.url }}" alt="{{ pet.name }}">
+            <img class="pet-image" src="{{ pet.image_url }}" alt="{{ pet.name }}">
             {% else %}
             <div class="pet-image-placeholder">{{ pet.name|slice:":1"|upper }}</div>
             {% endif %}

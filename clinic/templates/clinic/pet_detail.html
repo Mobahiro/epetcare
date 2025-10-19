@@ -149,7 +149,7 @@
     <div class="rail">
       <div class="rail-card photo">
         {% if pet.image %}
-          <img src="{{ pet.image.url }}" alt="{{ pet.name }}">
+          <img src="{{ pet.image_url }}" alt="{{ pet.name }}">
         {% else %}
           <div class="photo-placeholder">No image</div>
         {% endif %}

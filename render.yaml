@@ -20,7 +20,7 @@ services:
       - key: RENDER
         value: true
       - key: DEBUG
-        value: false
+        value: true
       - key: ALLOWED_HOST
         value: epetcare.onrender.com
       - key: SECRET_KEY
@@ -36,6 +36,14 @@ services:
       name: media
       mountPath: /opt/render/project/src/media
       sizeGB: 1
+    # Set up directory permissions after deployment
+    postDeploy:
+      cmds:
+        - chmod -R 777 /opt/render/project/src/media
+        - mkdir -p /opt/render/project/src/media/pet_images
+        - chmod -R 777 /opt/render/project/src/media/pet_images
+        - mkdir -p /opt/render/project/src/logs
+        - chmod -R 755 /opt/render/project/src/logs
 
 # Database for the application
 databases:

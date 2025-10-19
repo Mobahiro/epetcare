@@ -190,65 +190,116 @@ def pet_list(request):
 
 @login_required
 def pet_create(request):
+    import logging
+    logger = logging.getLogger(__name__)
+
     owner = getattr(request.user, 'owner_profile', None)
     if not owner:
         messages.error(request, "Owner profile not found for your account.")
         return redirect('dashboard')
+
+    # Log environment information for debugging
+    from django.conf import settings
+    logger.info(f"MEDIA_ROOT: {settings.MEDIA_ROOT}")
+    logger.info(f"MEDIA_URL: {settings.MEDIA_URL}")
+    import os
+    logger.info(f"MEDIA_ROOT exists: {os.path.exists(settings.MEDIA_ROOT)}")
+    logger.info(f"MEDIA_ROOT permissions: {oct(os.stat(settings.MEDIA_ROOT).st_mode & 0o777)}")
+    pet_images_dir = os.path.join(settings.MEDIA_ROOT, 'pet_images')
+    if not os.path.exists(pet_images_dir):
+        try:
+            os.makedirs(pet_images_dir, exist_ok=True)
+            logger.info(f"Created pet_images directory: {pet_images_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create pet_images directory: {e}")
+    else:
+        logger.info(f"pet_images directory exists: {pet_images_dir}")
+        logger.info(f"pet_images permissions: {oct(os.stat(pet_images_dir).st_mode & 0o777)}")
+
     if request.method == 'POST':
+        logger.info("Processing POST request for pet creation")
+        logger.info(f"Files in request: {request.FILES}")
+        logger.info(f"POST data: {request.POST}")
+
+        # Create a clean form instance
         form = PetCreateForm(request.POST, request.FILES)
+
         if form.is_valid():
+            logger.info("Form is valid, proceeding with pet creation")
             try:
-                # Handle potential file upload issues
+                # Create the pet object but don't save to DB yet
                 pet = form.save(commit=False)
                 pet.owner = owner
 
-                # Check if an image was uploaded
+                # Handle image upload - first save pet without image
+                has_image = False
                 if 'image' in request.FILES:
-                    # Log the file details for debugging
                     image_file = request.FILES['image']
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.info(f"Image upload: name={image_file.name}, size={image_file.size}, content_type={image_file.content_type}")
+                    has_image = True
+                    logger.info(f"Image upload detected: name={image_file.name}, size={image_file.size}, content_type={image_file.content_type}")
 
-                    # Save the image to a temporary attribute
-                    pet._image_file = image_file
+                # Save pet first without image
+                if has_image:
+                    # Temporarily remove image to save pet first
+                    temp_image = image_file
+                    form.cleaned_data['image'] = None
+                    pet.image = None
 
-                # Save the pet first
+                # Initial save
+                logger.info("Saving pet without image first")
                 pet.save()
+                logger.info(f"Pet saved with ID: {pet.id}")
 
-                # If we have an image in the temp attribute, try to manually save it
-                if hasattr(pet, '_image_file'):
-                    # Make sure media directories exist
-                    from django.conf import settings
-                    import os
-                    os.makedirs(os.path.join(settings.MEDIA_ROOT, 'pet_images'), exist_ok=True)
+                # Now handle the image if present
+                if has_image:
+                    try:
+                        # Check/create directory
+                        os.makedirs(pet_images_dir, exist_ok=True)
+                        logger.info("Verified pet_images directory exists")
 
-                    # Set the image field and save again
-                    pet.image = pet._image_file
-                    pet.save(update_fields=['image'])
+                        # Create a unique filename
+                        import uuid
+                        file_extension = os.path.splitext(temp_image.name)[1].lower()
+                        unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_extension}"
+                        image_path = os.path.join('pet_images', unique_filename)
+
+                        # Save the file manually
+                        full_path = os.path.join(settings.MEDIA_ROOT, 'pet_images', unique_filename)
+                        logger.info(f"Saving image to: {full_path}")
+
+                        with open(full_path, 'wb+') as destination:
+                            for chunk in temp_image.chunks():
+                                destination.write(chunk)
+
+                        logger.info(f"Image saved successfully at {full_path}")
+
+                        # Update the pet with the image path
+                        pet.image = image_path
+                        pet.save(update_fields=['image'])
+                        logger.info(f"Pet updated with image path: {pet.image}")
+
+                    except Exception as img_error:
+                        import traceback
+                        logger.error(f"Error saving image: {img_error}\n{traceback.format_exc()}")
+                        # Continue with pet creation even if image fails
 
                 messages.success(request, f"Pet {pet.name} has been successfully added.")
 
-                if pet.image and pet.image_url:
-                    messages.info(request, f"Pet image saved at: {pet.image_url}")
+                if pet.image:
+                    image_url = pet.image_url or f"/media/{pet.image}"
+                    messages.info(request, f"Pet image saved at: {image_url}")
 
                 return redirect('pet_detail', pk=pet.pk)
+
             except Exception as e:
                 import traceback
                 error_msg = str(e)
                 error_details = traceback.format_exc()
-
-                # Log the complete error
-                import logging
-                logger = logging.getLogger(__name__)
                 logger.error(f"Error saving pet: {error_msg}\n{error_details}")
-
                 messages.error(request, f"Error saving pet: {error_msg}")
         else:
-            # Log form errors for debugging
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Pet form errors: {form.errors}")
+            logger.error(f"Pet form validation errors: {form.errors}")
+            messages.error(request, f"There were errors in your form. Please check and try again.")
     else:
         form = PetCreateForm()
     return render(request, 'clinic/pet_form.html', {"form": form})
