@@ -103,6 +103,10 @@ if EMAIL_BACKEND.endswith('smtp.EmailBackend'):
     if not EMAIL_HOST or not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Allow forcing console backend to avoid SMTP on platforms that block it
+if os.environ.get('EMAIL_FORCE_CONSOLE', 'false').lower() in ('1', 'true', 'yes'):
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # Security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
