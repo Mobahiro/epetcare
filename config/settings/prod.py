@@ -83,7 +83,10 @@ except Exception as e:
     print(f"Error creating directories: {e}")
     # Continue anyway - don't crash the server startup
 
-# Email settings (configure via environment variables on Render)
+"""Email configuration
+Prefer SMTP if fully configured via environment variables; otherwise fall back to
+console backend to avoid 500s in production when emails are not yet set up.
+"""
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587')) if os.environ.get('EMAIL_PORT') else None
@@ -91,8 +94,14 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'false').lower() in ('1', 'true', 'yes')
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '10'))
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ePetCare <no-reply@epetcare.onrender.com>')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+
+# Auto-fallback to console backend if SMTP host or credentials are missing
+if EMAIL_BACKEND.endswith('smtp.EmailBackend'):
+    if not EMAIL_HOST or not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

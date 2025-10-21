@@ -196,6 +196,11 @@
   display: block;
 }
 
+/* Make tabs scrollable on narrow screens */
+.card-tabs{ overflow-x:auto; overscroll-behavior-x: contain; scrollbar-width: none; -ms-overflow-style: none; }
+.card-tabs::-webkit-scrollbar{ display:none; }
+.card-tab{ flex: 0 0 auto; }
+
 /* Common empty state */
 .empty-message {
   padding: 16px;
@@ -308,4 +313,28 @@
   .summary-tiles {
     grid-template-columns: 1fr;
   }
+
+  .hero-title{ font-size: 20px; }
+  .tab-panel{ padding: 6px; }
+}
+
+/* Responsive pet grid used in Dashboard tabs */
+.pet-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; }
+@media (max-width: 600px){ .pet-grid{ grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 10px; } }
+
+/* Timeline tweaks for small screens */
+@media (max-width: 480px){
+  .timeline-card{ grid-template-columns: 56px 1fr; padding: 10px 12px; }
+  .tile-metric{ font-size: 18px; }
+}
+
+/* Ultra-wide comfort tuning */
+@media (min-width: 1600px){
+  .dash-grid{ grid-template-columns: 10fr 4fr; }
+  .hero-title{ font-size: 26px; }
+}
+
+/* Safe-area support for modern phones */
+@supports (padding: max(0px)){
+  .dash-content{ padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 }

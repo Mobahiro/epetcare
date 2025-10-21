@@ -124,10 +124,17 @@ def password_reset_request_otp(request):
 
                 PasswordResetOTP.objects.create(user=user, code=code, expires_at=expires)
 
-                # Send email using template
+                # Send email using template (non-blocking and safe)
                 subject = "Your ePetCare password reset code"
                 message = render_to_string('clinic/auth/otp_email.txt', {"code": code})
-                send_mail(subject, message, None, [user.email], fail_silently=False)
+                try:
+                    # Import here to avoid circular imports
+                    from .utils.emailing import send_mail_async_safe
+                    send_mail_async_safe(subject, message, [user.email])
+                except Exception as e:
+                    # Log the error and continue; we still route the user to verify step
+                    import logging
+                    logging.getLogger('clinic').error('Password reset email enqueue failed: %s', e)
 
             # Always show success page to avoid enumeration
             messages.info(request, "If an account exists, we've sent a 6-digit code to the email on file.")
