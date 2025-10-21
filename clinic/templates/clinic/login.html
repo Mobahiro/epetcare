@@ -41,7 +41,7 @@
       <input type="hidden" name="next" value="{{ next }}">
       <button class="btn auth-submit" type="submit">Log in</button>
       <div class="auth-meta">
-        <span class="auth-small">Forgot? <a href="#" class="auth-link">Password?</a></span>
+        <span class="auth-small">Forgot your password? <a href="{% url 'password_reset_request' %}" class="auth-link">Get a code</a></span>
       </div>
       </form>
       </div>

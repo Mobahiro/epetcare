@@ -1,0 +1,33 @@
+{% extends 'clinic/base_auth.html' %}
+{% block title %}Set New Password{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-panel">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1 class="auth-title">Set a new password</h1>
+        <div class="auth-subtitle">Choose a strong password you don't use elsewhere.</div>
+      </div>
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        <div class="auth-field">
+          <label for="id_new_password1">New password</label>
+          {{ form.new_password1 }}
+          {% if form.new_password1.errors %}
+            <div class="auth-error">{{ form.new_password1.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="auth-field">
+          <label for="id_new_password2">Confirm new password</label>
+          {{ form.new_password2 }}
+          {% if form.new_password2.errors %}
+            <div class="auth-error">{{ form.new_password2.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <button class="btn auth-submit" type="submit">Update password</button>
+      </form>
+      <div class="auth-meta"><a href="{% url 'login' %}" class="auth-link">Back to login</a></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

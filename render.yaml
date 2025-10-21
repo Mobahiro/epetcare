@@ -8,8 +8,8 @@ services:
     env: python
     repo: https://github.com/Mobahiro/epetcare.git
     branch: main
-    buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --log-level debug"
+  buildCommand: chmod +x build.sh && ./build.sh
+  startCommand: "bash -lc 'python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --log-level info'"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4  # Using a more stable Python version
@@ -20,7 +20,7 @@ services:
       - key: RENDER
         value: true
       - key: DEBUG
-        value: true
+        value: false
       - key: ALLOWED_HOST
         value: epetcare.onrender.com
       - key: SECRET_KEY

@@ -1,0 +1,26 @@
+{% extends 'clinic/base_auth.html' %}
+{% block title %}Reset Password - Request Code{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-panel">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1 class="auth-title">Forgot your password?</h1>
+        <div class="auth-subtitle">Enter your email or username and we'll send you a 6-digit code.</div>
+      </div>
+      <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        <div class="auth-field">
+          <label for="id_email">Email or Username</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="auth-error">{{ form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <button class="btn auth-submit" type="submit">Send code</button>
+      </form>
+      <div class="auth-meta"><a href="{% url 'login' %}" class="auth-link">Back to login</a></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

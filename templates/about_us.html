@@ -1,0 +1,177 @@
+{% extends "vet/base.html" %}
+
+{% block title %}ePetCare - About Us{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="page-title mb-4">About ePetCare</h1>
+
+            <div class="about-grid">
+                <section class="about-section bg-white p-4 rounded shadow-sm h-100">
+                    <h2>Our Mission</h2>
+                    <p>At ePetCare, we're dedicated to revolutionizing pet healthcare through technology. Our mission is to connect pet owners with veterinary professionals seamlessly, ensuring every pet receives the care they deserve.</p>
+                </section>
+                <section class="about-section bg-white p-4 rounded shadow-sm h-100">
+                    <h2>Our Story</h2>
+                    <p>Founded in 2023, ePetCare began with a simple idea: make pet healthcare more accessible. What started as a small team of veterinarians and software developers has grown into a comprehensive platform serving thousands of pets and their families.</p>
+                    <p>Our journey has been guided by the belief that technology can bridge gaps in pet healthcare, providing better outcomes for our beloved animal companions.</p>
+                </section>
+            </div>
+
+            <div class="about-section bg-white p-4 rounded shadow-sm mb-4">
+                <h2>Meet Our Team</h2>
+
+                <div class="team-member row align-items-center mb-4">
+                    <div class="col-md-2">
+                        <div class="team-image-placeholder rounded-circle bg-secondary" style="width: 100px; height: 100px;"></div>
+                    </div>
+                    <div class="col-md-10">
+                        <h4>Dr. Sarah Johnson</h4>
+                        <p class="text-muted">Chief Veterinary Officer</p>
+                        <p>With over 15 years of clinical experience, Dr. Johnson leads our veterinary protocols and ensures that ePetCare meets the highest standards of animal healthcare.</p>
+                    </div>
+                </div>
+
+                <div class="team-member row align-items-center mb-4">
+                    <div class="col-md-2">
+                        <div class="team-image-placeholder rounded-circle bg-secondary" style="width: 100px; height: 100px;"></div>
+                    </div>
+                    <div class="col-md-10">
+                        <h4>Michael Chen</h4>
+                        <p class="text-muted">Chief Technology Officer</p>
+                        <p>Michael brings 10 years of software development expertise to ePetCare, focusing on creating intuitive technology that serves both veterinary professionals and pet owners.</p>
+                    </div>
+                </div>
+
+                <div class="team-member row align-items-center">
+                    <div class="col-md-2">
+                        <div class="team-image-placeholder rounded-circle bg-secondary" style="width: 100px; height: 100px;"></div>
+                    </div>
+                    <div class="col-md-10">
+                        <h4>Emma Rodriguez</h4>
+                        <p class="text-muted">Head of Customer Experience</p>
+                        <p>Emma ensures that the ePetCare platform delivers an exceptional experience for all users, from clinics to pet parents.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-section bg-white p-4 rounded shadow-sm mb-4">
+                <h2>Our Approach</h2>
+                <p>ePetCare combines veterinary expertise with cutting-edge technology to provide:</p>
+
+                <div class="features-grid mt-3">
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-card p-3 border rounded text-center h-100">
+                            <div class="feature-icon mb-3">📱</div>
+                            <h5>Seamless Communication</h5>
+                            <p>Direct messaging between pet owners and veterinary professionals</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-card p-3 border rounded text-center h-100">
+                            <div class="feature-icon mb-3">🗓️</div>
+                            <h5>Easy Appointment Management</h5>
+                            <p>Book, reschedule, and track veterinary visits with ease</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-card p-3 border rounded text-center h-100">
+                            <div class="feature-icon mb-3">📋</div>
+                            <h5>Digital Health Records</h5>
+                            <p>Access your pet's complete medical history anytime, anywhere</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-section bg-white p-4 rounded shadow-sm">
+                <h2>Join Us</h2>
+                <p>Whether you're a pet owner seeking quality care or a veterinary professional looking to streamline your practice, ePetCare is here to support you.</p>
+
+                <div class="text-center mt-4">
+                    <a href="/register/" class="btn btn-primary me-2">Sign Up Today</a>
+                    <a href="/contact/" class="btn btn-outline-secondary">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom styles for About Us page */
+    .about-section {
+        border-left: 5px solid #6B705C;
+    }
+
+    /* Two-column grid for Mission + Story with small gap */
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px; /* keep them close */
+        margin-bottom: 16px;
+    }
+    @media (min-width: 768px) {
+        .about-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Minimal Bootstrap-like utilities used on this page */
+    .p-4 { padding: 16px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mt-3 { margin-top: 12px; }
+    .me-2 { margin-right: 8px; }
+    .bg-white { background: #fff; }
+    .rounded { border-radius: 8px; }
+    .shadow-sm { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .h-100 { height: 100%; }
+    .text-center { text-align: center; }
+    .text-muted { color: #6c757d; }
+
+    /* Buttons aligned with your color palette */
+    .btn { display: inline-block; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #6B705C; color: #fff; border: 1px solid #6B705C; }
+    .btn-primary:hover { background: #5e6553; }
+    .btn-outline-secondary { background: transparent; color: #6B705C; border: 1px solid #6B705C; }
+    .btn-outline-secondary:hover { background: #EFEDE7; }
+
+    /* Team member layout without Bootstrap */
+    .team-member { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: center; }
+    @media (min-width: 768px) {
+        .team-member { grid-template-columns: 120px 1fr; }
+    }
+
+    /* Features grid (3-up on desktop, wraps on small) */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+
+    .feature-icon {
+        font-size: 2rem;
+    }
+
+    .feature-card {
+        background-color: #F8F9FA;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .team-image-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .page-title {
+        color: #6B705C;
+        border-bottom: 3px solid #CB997E;
+        padding-bottom: 10px;
+    }
+</style>
+{% endblock %}

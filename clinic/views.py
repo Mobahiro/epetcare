@@ -5,7 +5,17 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import MedicalRecord, Owner, Pet, Appointment, Notification
-from .forms import OwnerForm, PetForm, PetCreateForm, AppointmentForm, RegisterForm, UserProfileForm
+from .forms import (
+    OwnerForm, PetForm, PetCreateForm, AppointmentForm,
+    RegisterForm, UserProfileForm,
+    PasswordResetRequestForm, PasswordResetOTPForm, PasswordResetSetNewForm,
+)
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from datetime import timedelta
+import random
 
 
 def home(request):
@@ -89,6 +99,93 @@ def notifications_mark_all_read(request):
     Notification.objects.filter(owner=owner, is_read=False).update(is_read=True)
     messages.success(request, "All notifications marked as read.")
     return redirect(request.GET.get('next') or 'dashboard')
+
+
+# OTP-based password reset flow
+def password_reset_request_otp(request):
+    """Step 1: User submits email or username; send OTP to email if user exists."""
+    if request.method == 'POST':
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            users = list(form.get_users(form.cleaned_data.get('email')))
+            # Save hint for UX regardless
+            request.session['pr_user_hint'] = form.cleaned_data.get('email')
+            if users:
+                user = users[0]
+                request.session['pr_user_id'] = user.id
+                # Generate 6-digit OTP
+                code = f"{random.randint(0, 999999):06d}"
+                from .models import PasswordResetOTP
+                # expire after 10 minutes
+                expires = timezone.now() + timedelta(minutes=10)
+
+                # Optional: remove previous unused OTPs for this user to avoid confusion
+                PasswordResetOTP.objects.filter(user=user, is_used=False, expires_at__gt=timezone.now()).delete()
+
+                PasswordResetOTP.objects.create(user=user, code=code, expires_at=expires)
+
+                # Send email using template
+                subject = "Your ePetCare password reset code"
+                message = render_to_string('clinic/auth/otp_email.txt', {"code": code})
+                send_mail(subject, message, None, [user.email], fail_silently=False)
+
+            # Always show success page to avoid enumeration
+            messages.info(request, "If an account exists, we've sent a 6-digit code to the email on file.")
+            return redirect('password_reset_verify')
+    else:
+        form = PasswordResetRequestForm()
+    return render(request, 'clinic/auth/otp_reset_request.html', {"form": form})
+
+
+def password_reset_verify_otp(request):
+    """Step 2: Verify OTP and store a session token to allow password set."""
+    if request.method == 'POST':
+        form = PasswordResetOTPForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data['otp']
+            from .models import PasswordResetOTP
+            user_id = request.session.get('pr_user_id')
+            if not user_id:
+                messages.error(request, 'Session expired or invalid. Please request a new code.')
+                return redirect('password_reset_request')
+            otp_qs = PasswordResetOTP.objects.filter(user_id=user_id, code=code, is_used=False).order_by('-created_at')
+            otp = otp_qs.first()
+            if not otp:
+                messages.error(request, 'Invalid code. Please try again.')
+            elif otp.is_expired():
+                messages.error(request, 'This code has expired. Please request a new one.')
+            else:
+                # Mark used and allow next step
+                otp.is_used = True
+                otp.attempts = otp.attempts + 1
+                otp.save(update_fields=['is_used', 'attempts'])
+                request.session['pr_user_id'] = otp.user_id
+                return redirect('password_reset_set_new')
+    else:
+        form = PasswordResetOTPForm()
+    return render(request, 'clinic/auth/otp_reset_verify.html', {"form": form, "hint": request.session.get('pr_user_hint')})
+
+
+def password_reset_set_new(request):
+    """Step 3: Set a new password for the verified user (session-guarded)."""
+    user_id = request.session.get('pr_user_id')
+    if not user_id:
+        messages.error(request, 'Session expired or invalid. Please request a new code.')
+        return redirect('password_reset_request')
+    User = get_user_model()
+    user = get_object_or_404(User, pk=user_id)
+    if request.method == 'POST':
+        form = PasswordResetSetNewForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            # cleanup session
+            request.session.pop('pr_user_id', None)
+            request.session.pop('pr_user_hint', None)
+            messages.success(request, 'Your password has been updated. You can now log in.')
+            return redirect('login')
+    else:
+        form = PasswordResetSetNewForm(user)
+    return render(request, 'clinic/auth/otp_reset_set_new.html', {"form": form})
 
 
 @login_required

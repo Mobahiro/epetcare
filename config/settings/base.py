@@ -69,8 +69,14 @@ DATABASE_URL = os.environ.get('DATABASE_URL', '').strip()
 def _postgres_from_url(url: str) -> dict:
     if not url:
         raise RuntimeError('DATABASE_URL is required')
-    cfg = dj_database_url.parse(url)
+    # Require SSL for managed Postgres providers like Render and keep connections persistent
+    cfg = dj_database_url.parse(url, conn_max_age=600, ssl_require=True)
     cfg['ENGINE'] = 'django.db.backends.postgresql'
+    # Some clients still respect explicit OPTIONS
+    options = cfg.get('OPTIONS', {})
+    options.setdefault('sslmode', 'require')
+    options.setdefault('connect_timeout', 10)
+    cfg['OPTIONS'] = options
     return cfg
 
 
@@ -83,6 +89,11 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
         'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+            'sslmode': os.environ.get('POSTGRES_SSLMODE', '') or None,
+            'connect_timeout': int(os.environ.get('POSTGRES_CONNECT_TIMEOUT', '10') or 10),
+        },
     }
 }
 

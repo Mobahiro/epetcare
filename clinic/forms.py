@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth import get_user_model
 from .models import Owner, Pet, Appointment, Vaccination, MedicalRecord, Prescription
 
 
@@ -161,3 +162,37 @@ class RegisterForm(forms.Form):
         )
 
         return user, owner
+
+
+class PasswordResetRequestForm(PasswordResetForm):
+    """Password reset form that accepts either email or username.
+
+    Django's default PasswordResetForm expects an email. Many users type their
+    username instead, which results in no email being sent. This subclass
+    resolves that by matching on email (case-insensitive) OR username.
+    """
+
+    def get_users(self, email):  # 'email' is the input value from the single field
+        value = (email or '').strip()
+        UserModel = get_user_model()
+
+        # Base queryset: active users only
+        qs = UserModel._default_manager.filter(is_active=True)
+
+        if '@' in value:
+            candidates = qs.filter(email__iexact=value)
+        else:
+            candidates = qs.filter(username__iexact=value)
+
+        # Only users with usable passwords
+        return [u for u in candidates if u.has_usable_password()]
+
+
+class PasswordResetOTPForm(forms.Form):
+    """Form for entering the OTP code sent to email."""
+    otp = forms.CharField(label="OTP Code", max_length=6, min_length=6)
+
+
+class PasswordResetSetNewForm(SetPasswordForm):
+    """Leverage Django's SetPasswordForm for new password validation."""
+    pass

@@ -7386,3 +7386,39 @@ server closed the connection unexpectedly
             JOIN clinic_owner o ON p.owner_id = o.id
             ORDER BY a.date_time DESC
         
+2025-10-19 23:32:34,423 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-19 23:32:34,423 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-19 23:32:34,931 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-19 23:32:35,422 - epetcare - INFO - Initializing application...
+2025-10-19 23:32:35,507 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-19 23:32:35,552 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-19 23:32:36,554 - epetcare - INFO - PostgreSQL connection established
+2025-10-19 23:32:36,555 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-19 23:32:36,917 - epetcare - INFO - Creating main window...
+2025-10-19 23:32:49,322 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-19 23:32:49,322 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-19 23:32:49,323 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-19 23:32:49,324 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-19 23:32:49,325 - epetcare - INFO - Successfully loaded icon via QPixmap: dashboard-icon.png
+2025-10-19 23:32:49,325 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-19 23:32:49,325 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-19 23:32:49,326 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-19 23:32:49,327 - epetcare - INFO - Successfully loaded icon via QPixmap: patients-icon.png
+2025-10-19 23:32:49,327 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-19 23:32:49,327 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-19 23:32:49,328 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-19 23:32:49,328 - epetcare - INFO - Successfully loaded icon via QPixmap: appointments-icon.png
+2025-10-19 23:32:49,329 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-19 23:32:49,329 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-19 23:32:49,329 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-19 23:32:49,330 - epetcare - INFO - Successfully loaded icon via QPixmap: settings-icon.png
+2025-10-19 23:32:49,330 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-19 23:32:49,331 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-19 23:32:49,331 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-19 23:32:49,332 - epetcare - INFO - Successfully loaded icon via QPixmap: backup-icon.png
+2025-10-19 23:32:49,332 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-19 23:32:49,332 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-19 23:32:49,333 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-19 23:32:49,334 - epetcare - INFO - Successfully loaded icon via QPixmap: logout-icon.png
+2025-10-19 23:32:49,334 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-19 23:32:51,091 - epetcare - INFO - Application started successfully

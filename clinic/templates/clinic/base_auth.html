@@ -20,6 +20,68 @@
     </style>
   </head>
   <body class="auth-full">
+    <!-- Floating Auth Menu (appears on pages without the main navbar) -->
+    <button id="authFab" class="auth-fab" aria-label="Open menu" aria-controls="authDrawer" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <div id="authDrawer" class="auth-drawer" role="dialog" aria-modal="true" aria-labelledby="authDrawerTitle" aria-hidden="true">
+      <div class="auth-drawer-header">
+        <h2 id="authDrawerTitle">Menu</h2>
+        <button type="button" class="auth-drawer-close" aria-label="Close menu">&times;</button>
+      </div>
+      <nav class="auth-drawer-nav">
+        <a class="auth-drawer-link" href="{% url 'home' %}">Home</a>
+        <a class="auth-drawer-link" href="{% url 'about_us' %}">About</a>
+        <a class="auth-drawer-link" href="{% url 'terms' %}">Terms</a>
+        <hr>
+        <a class="auth-drawer-link" href="{% url 'login' %}">Log in</a>
+        {% url 'register' as register_url %}
+        {% if register_url %}<a class="auth-drawer-link" href="{{ register_url }}">Sign up</a>{% endif %}
+      </nav>
+    </div>
+    <div id="authBackdrop" class="auth-backdrop" hidden></div>
+
     {% block content %}{% endblock %}
+
+    <script>
+      (function(){
+        const fab = document.getElementById('authFab');
+        const drawer = document.getElementById('authDrawer');
+        const closeBtn = drawer.querySelector('.auth-drawer-close');
+        const backdrop = document.getElementById('authBackdrop');
+        let lastFocused = null;
+
+        function openDrawer(){
+          lastFocused = document.activeElement;
+          drawer.classList.add('open');
+          drawer.setAttribute('aria-hidden', 'false');
+          fab.setAttribute('aria-expanded', 'true');
+          fab.classList.add('active');
+          backdrop.hidden = false;
+          // focus first link
+          const firstLink = drawer.querySelector('a, button');
+          if (firstLink) firstLink.focus();
+        }
+
+        function closeDrawer(){
+          drawer.classList.remove('open');
+          drawer.setAttribute('aria-hidden', 'true');
+          fab.setAttribute('aria-expanded', 'false');
+          fab.classList.remove('active');
+          backdrop.hidden = true;
+          if (lastFocused) lastFocused.focus();
+        }
+
+        fab?.addEventListener('click', function(){
+          if (drawer.classList.contains('open')) closeDrawer(); else openDrawer();
+        });
+        closeBtn?.addEventListener('click', closeDrawer);
+        backdrop?.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDrawer(); });
+      })();
+    </script>
   </body>
   </html>

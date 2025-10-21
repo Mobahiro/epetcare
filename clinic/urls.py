@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .forms import PasswordResetRequestForm
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -13,6 +14,30 @@ urlpatterns = [
 
     path('login/', auth_views.LoginView.as_view(template_name='clinic/login.html'), name='login'),
     path('logout/', views.logout_view, name='logout'),
+
+    # OTP first password reset flow
+    path('password-reset/code/', views.password_reset_request_otp, name='password_reset_request'),
+    path('password-reset/verify/', views.password_reset_verify_otp, name='password_reset_verify'),
+    path('password-reset/new/', views.password_reset_set_new, name='password_reset_set_new'),
+
+    # Password reset (forgot password)
+    path('password-reset/', auth_views.PasswordResetView.as_view(
+        template_name='clinic/auth/password_reset_form.html',
+        form_class=PasswordResetRequestForm,
+        email_template_name='clinic/auth/password_reset_email.html',
+        subject_template_name='clinic/auth/password_reset_subject.txt',
+        success_url='/password-reset/done/'
+    ), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
+        template_name='clinic/auth/password_reset_done.html'
+    ), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name='clinic/auth/password_reset_confirm.html',
+        success_url='/reset/complete/'
+    ), name='password_reset_confirm'),
+    path('reset/complete/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='clinic/auth/password_reset_complete.html'
+    ), name='password_reset_complete'),
 
     path('owners/', views.owner_list, name='owner_list'),
     path('owners/new/', views.owner_create, name='owner_create'),

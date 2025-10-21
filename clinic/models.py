@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 import os
+from django.utils import timezone
 
 
 class Owner(models.Model):
@@ -130,6 +131,28 @@ class MedicalRecord(models.Model):
 
     def __str__(self) -> str:
         return f"{self.pet.name} - {self.condition} ({self.visit_date:%Y-%m-%d})"
+
+
+class PasswordResetOTP(models.Model):
+    """Store OTP codes for password reset flow."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps')
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveIntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "is_used"]),
+            models.Index(fields=["expires_at"]),
+        ]
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        return f"OTP for {self.user.username} (used={self.is_used})"
 
 
 class Prescription(models.Model):
