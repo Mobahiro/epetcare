@@ -15,3 +15,6 @@ django-cloudinary-storage>=0.3.0
 
 # Image processing for ImageField validation/uploads
 Pillow>=10.4,<11
+
+# Optional HTTP email providers support
+requests>=2.32
