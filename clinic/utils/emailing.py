@@ -1,17 +1,3 @@
-"""
-Email utilities for safe, non-blocking sends in request/response cycle.
-We use a short-lived background thread to avoid blocking Gunicorn worker
-when SMTP servers are slow or unreachable. Errors are logged, not raised.
-
-Supports two transport modes:
-- SMTP via Django email backend (default)
-- HTTP API providers (optional) when configured via env:
-    - EMAIL_HTTP_PROVIDER=sendgrid and SENDGRID_API_KEY=...
-    - EMAIL_HTTP_PROVIDER=resend and RESEND_API_KEY=...
-
-If an HTTP provider is configured, we try it first; on failure, we fall back
-to SMTP to maximize chances of delivery.
-"""
 from __future__ import annotations
 
 import threading
@@ -24,13 +10,13 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     requests = None  # type: ignore
 
-from django.core.mail import send_mail, get_connection
+from django.core.mail import send_mail, get_connection, EmailMultiAlternatives
 from django.conf import settings
 
 logger = logging.getLogger('clinic')
 
 
-def _send(subject: str, message: str, recipient_list: List[str], from_email: Optional[str] = None) -> None:
+def _send(subject: str, message: str, recipient_list: List[str], from_email: Optional[str] = None, html_message: Optional[str] = None) -> None:
     try:
         # Try HTTP provider first if configured
         provider = os.environ.get('EMAIL_HTTP_PROVIDER', '').strip().lower()
@@ -43,13 +29,13 @@ def _send(subject: str, message: str, recipient_list: List[str], from_email: Opt
                 if provider == 'sendgrid':
                     api_key = os.environ.get('SENDGRID_API_KEY', '').strip()
                     if api_key:
-                        used_http = _send_via_sendgrid(api_key, subject, message, recipient_list, from_addr)
+                        used_http = _send_via_sendgrid(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
                     else:
                         logger.error('SENDGRID_API_KEY missing while EMAIL_HTTP_PROVIDER=sendgrid')
                 elif provider == 'resend':
                     api_key = os.environ.get('RESEND_API_KEY', '').strip()
                     if api_key:
-                        used_http = _send_via_resend(api_key, subject, message, recipient_list, from_addr)
+                        used_http = _send_via_resend(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
                     else:
                         logger.error('RESEND_API_KEY missing while EMAIL_HTTP_PROVIDER=resend')
             except Exception as e:
@@ -61,42 +47,94 @@ def _send(subject: str, message: str, recipient_list: List[str], from_email: Opt
 
         # Use an explicit connection to honor settings and timeouts
         with get_connection() as connection:
-            send_mail(
-                subject,
-                message,
-                from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'SERVER_EMAIL', None),
-                recipient_list,
-                fail_silently=False,
-                connection=connection,
-            )
+            from_addr = from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'SERVER_EMAIL', None)
+            if html_message:
+                msg = EmailMultiAlternatives(subject, message or '', from_addr, recipient_list, connection=connection)
+                msg.attach_alternative(html_message, "text/html")
+                msg.send(fail_silently=False)
+            else:
+                send_mail(
+                    subject,
+                    message,
+                    from_addr,
+                    recipient_list,
+                    fail_silently=False,
+                    connection=connection,
+                )
         logger.info('Email sent to %s: %s', ','.join(recipient_list), subject)
     except Exception as e:
         # Log but never raise; this should never crash the request
         logger.error('Email send failed: %s', e)
 
 
-def send_mail_async_safe(subject: str, message: str, recipient_list: List[str], from_email: Optional[str] = None) -> None:
+def send_mail_async_safe(subject: str, message: str, recipient_list: List[str], from_email: Optional[str] = None, html_message: Optional[str] = None) -> None:
     """
     Dispatch email send on a daemon thread to avoid blocking the request.
     The thread is fire-and-forget; failures are logged by _send.
     """
-    t = threading.Thread(target=_send, args=(subject, message, recipient_list, from_email), daemon=True)
+    t = threading.Thread(target=_send, args=(subject, message, recipient_list, from_email, html_message), daemon=True)
     t.start()
 
 
-def _send_via_sendgrid(api_key: str, subject: str, message: str, recipient_list: List[str], from_email: Optional[str]) -> bool:
+def send_mail_http(subject: str, message: str, recipient_list: List[str], from_email: Optional[str] = None, html_message: Optional[str] = None) -> bool:
+    """
+    Sends email via configured HTTP provider synchronously.
+    Returns True on success, False otherwise. Does not attempt SMTP.
+    """
+    provider = os.environ.get('EMAIL_HTTP_PROVIDER', '').strip().lower()
+    if not provider:
+        logger.error('EMAIL_HTTP_PROVIDER not set; cannot send via HTTP provider')
+        return False
+    from_addr = from_email or getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'SERVER_EMAIL', None) or 'no-reply@example.com'
+    try:
+        if provider == 'sendgrid':
+            api_key = os.environ.get('SENDGRID_API_KEY', '').strip()
+            if not api_key:
+                logger.error('SENDGRID_API_KEY missing; cannot send via SendGrid')
+                return False
+            return _send_via_sendgrid(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
+        elif provider == 'resend':
+            api_key = os.environ.get('RESEND_API_KEY', '').strip()
+            if not api_key:
+                logger.error('RESEND_API_KEY missing; cannot send via Resend')
+                return False
+            return _send_via_resend(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
+        else:
+            logger.error('Unknown EMAIL_HTTP_PROVIDER=%s', provider)
+            return False
+    except Exception as e:
+        logger.error('HTTP provider send failed: %s', e)
+        return False
+
+
+def _send_via_sendgrid(api_key: str, subject: str, message: str, recipient_list: List[str], from_email: Optional[str], html_message: Optional[str] = None) -> bool:
     if requests is None:
         return False
+    from email.utils import parseaddr
     url = 'https://api.sendgrid.com/v3/mail/send'
     headers = {
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
     }
+    # Ensure we pass a pure email address to SendGrid
+    display_name, pure_email = parseaddr(from_email or 'no-reply@example.com')
+    if not display_name:
+        display_name = 'ePetCare'
     data = {
         'personalizations': [{'to': [{'email': r} for r in recipient_list]}],
-        'from': {'email': from_email or 'no-reply@example.com', 'name': 'ePetCare'},
+        'from': {'email': pure_email or 'no-reply@example.com', 'name': display_name},
         'subject': subject,
-        'content': [{'type': 'text/plain', 'value': message}],
+        # Provide both text and html when available (order matters: some clients prefer the last part)
+        'content': (
+            [{'type': 'text/plain', 'value': message}]
+            + ([{'type': 'text/html', 'value': html_message}] if html_message else [])
+        ),
+        # Mark as transactional and disable tracking to avoid link rewriting which can trigger spam filters
+        'categories': ['transactional'],
+        'tracking_settings': {
+            'click_tracking': {'enable': False, 'enable_text': False},
+            'open_tracking': {'enable': False},
+        },
     }
     resp = requests.post(url, json=data, headers=headers, timeout=15)
     if resp.status_code in (200, 202):
@@ -105,7 +143,7 @@ def _send_via_sendgrid(api_key: str, subject: str, message: str, recipient_list:
     return False
 
 
-def _send_via_resend(api_key: str, subject: str, message: str, recipient_list: List[str], from_email: Optional[str]) -> bool:
+def _send_via_resend(api_key: str, subject: str, message: str, recipient_list: List[str], from_email: Optional[str], html_message: Optional[str] = None) -> bool:
     if requests is None:
         return False
     url = 'https://api.resend.com/emails'
@@ -117,8 +155,13 @@ def _send_via_resend(api_key: str, subject: str, message: str, recipient_list: L
         'from': from_email or 'ePetCare <no-reply@epetcare.onrender.com>',
         'to': recipient_list,
         'subject': subject,
-        'text': message,
     }
+    if html_message:
+        data['html'] = html_message
+        if message:
+            data['text'] = message
+    else:
+        data['text'] = message
     resp = requests.post(url, json=data, headers=headers, timeout=15)
     if 200 <= resp.status_code < 300:
         return True

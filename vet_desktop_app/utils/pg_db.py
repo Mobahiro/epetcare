@@ -24,6 +24,7 @@ from urllib.parse import urlparse, parse_qs
 logger = logging.getLogger('epetcare')
 
 _pg_conn = None
+_connect_kwargs: Optional[dict] = None
 
 
 class PostgresConfigError(Exception):
@@ -99,6 +100,14 @@ def setup_postgres_connection(cfg: Dict[str, Any]) -> bool:
         'password': cfg['password'],
         'cursor_factory': psycopg2.extras.RealDictCursor
     }
+    # Connection hygiene and resilience
+    # - connect_timeout: fail fast on network issues
+    # - keepalives*: keep idle connections alive to avoid server closing them
+    connect_kwargs.setdefault('connect_timeout', 10)
+    connect_kwargs.setdefault('keepalives', 1)
+    connect_kwargs.setdefault('keepalives_idle', 60)
+    connect_kwargs.setdefault('keepalives_interval', 30)
+    connect_kwargs.setdefault('keepalives_count', 5)
     if cfg.get('sslmode'):
         connect_kwargs['sslmode'] = cfg['sslmode']
 
@@ -115,16 +124,19 @@ def setup_postgres_connection(cfg: Dict[str, Any]) -> bool:
 
     try:
         logger.info(
-            "Connecting to PostgreSQL host=%s port=%s db=%s user=%s sslmode=%s", 
+            "Connecting to PostgreSQL host=%s port=%s db=%s user=%s sslmode=%s",
             connect_kwargs['host'], connect_kwargs['port'], connect_kwargs['dbname'], connect_kwargs['user'], connect_kwargs.get('sslmode')
         )
         _pg_conn = psycopg2.connect(**connect_kwargs)
         _pg_conn.autocommit = False
+        # Save kwargs to allow auto-reconnect later
+        global _connect_kwargs
+        _connect_kwargs = dict(connect_kwargs)
         logger.info("PostgreSQL connection established")
         return True
     except Exception as e:
         logger.error(
-            "Failed to connect to PostgreSQL host=%s port=%s db=%s user=%s: %s", 
+            "Failed to connect to PostgreSQL host=%s port=%s db=%s user=%s: %s",
             connect_kwargs['host'], connect_kwargs['port'], connect_kwargs['dbname'], connect_kwargs['user'], e
         )
         return False
@@ -140,9 +152,29 @@ def close_connection():
     _pg_conn = None
 
 
+def _reconnect_if_needed() -> bool:
+    """Reconnect using stored connection kwargs if connection is closed."""
+    global _pg_conn
+    if _pg_conn is not None and getattr(_pg_conn, 'closed', 0) == 0:
+        return True
+    if not _connect_kwargs:
+        logger.error("No stored connection parameters; cannot reconnect.")
+        return False
+    try:
+        logger.info("Reconnecting to PostgreSQL ...")
+        _pg_conn = psycopg2.connect(**_connect_kwargs)
+        _pg_conn.autocommit = False
+        logger.info("Reconnected to PostgreSQL")
+        return True
+    except Exception as e:
+        logger.error(f"Auto-reconnect failed: {e}")
+        return False
+
+
 def get_connection():
-    if _pg_conn is None:
-        raise PostgresConfigError("PostgreSQL connection not initialized")
+    if _pg_conn is None or getattr(_pg_conn, 'closed', 0) != 0:
+        if not _reconnect_if_needed():
+            raise PostgresConfigError("PostgreSQL connection not initialized and auto-reconnect failed")
     return _pg_conn
 
 
@@ -194,34 +226,54 @@ class PostgresDatabaseManager:
             return False, []
 
     def execute_query(self, query: str, params: tuple = (), **_) -> Tuple[bool, List[Dict[str, Any]]]:
-        try:
-            q = _convert_placeholders(query)
-            with self.conn.cursor() as cur:
-                cur.execute(q, params)
-                rows = cur.fetchall()
-                return True, rows
-        except Exception as e:
-            logger.error(f"execute_query error: {e}; query={query}")
+        q = _convert_placeholders(query)
+        for attempt in (1, 2):
             try:
-                self.conn.rollback()
-            except Exception:
-                pass
-            return False, []
+                # Ensure connection is alive
+                if getattr(self.conn, 'closed', 0) != 0:
+                    if not _reconnect_if_needed():
+                        raise PostgresConfigError("Connection closed and reconnect failed")
+                    self.conn = get_connection()
+                with self.conn.cursor() as cur:
+                    cur.execute(q, params)
+                    rows = cur.fetchall()
+                    return True, rows
+            except Exception as e:
+                logger.error(f"execute_query error: {e}; query={query}")
+                try:
+                    self.conn.rollback()
+                except Exception:
+                    pass
+                # On first failure, try to reconnect and retry once
+                if attempt == 1:
+                    if _reconnect_if_needed():
+                        self.conn = get_connection()
+                        continue
+                return False, []
 
     def execute_non_query(self, query: str, params: tuple = ()) -> int:
         q = _convert_placeholders(query)
-        try:
-            with self.conn.cursor() as cur:
-                cur.execute(q, params)
-                self.conn.commit()
-                return cur.rowcount
-        except Exception as e:
-            logger.error(f"execute_non_query error: {e}; query={query}")
+        for attempt in (1, 2):
             try:
-                self.conn.rollback()
-            except Exception:
-                pass
-            return 0
+                if getattr(self.conn, 'closed', 0) != 0:
+                    if not _reconnect_if_needed():
+                        raise PostgresConfigError("Connection closed and reconnect failed")
+                    self.conn = get_connection()
+                with self.conn.cursor() as cur:
+                    cur.execute(q, params)
+                    self.conn.commit()
+                    return cur.rowcount
+            except Exception as e:
+                logger.error(f"execute_non_query error: {e}; query={query}")
+                try:
+                    self.conn.rollback()
+                except Exception:
+                    pass
+                if attempt == 1:
+                    if _reconnect_if_needed():
+                        self.conn = get_connection()
+                        continue
+                return 0
 
     def insert(self, table: str, data: Dict[str, Any]) -> Tuple[bool, Union[int, str]]:
         try:

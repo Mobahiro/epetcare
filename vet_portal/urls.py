@@ -3,6 +3,7 @@ from django.conf import settings
 from . import views
 from .deploy_hooks import deploy_hook
 from .views.debug_views import media_debug, media_upload_form
+from .views.auth_views import register
 
 app_name = 'vet_portal'
 
@@ -12,6 +13,7 @@ urlpatterns = [
     # Authentication
     path('login/', views.VetLoginView.as_view(), name='login'),
     path('logout/', views.VetLogoutView.as_view(), name='logout'),
+    path('register/', register, name='register'),
 
     # Dashboard
     path('', views.dashboard, name='dashboard'),

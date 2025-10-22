@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{{ BRAND_NAME }}</title>
+    <style>
+      body { background:#0b1220; margin:0; padding:32px 12px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:#e5e7eb; }
+      .container{ max-width:560px; margin:0 auto; }
+      .card{ background:#111827; border:1px solid #1f2937; border-radius:12px; overflow:hidden; }
+      .brand{ padding:16px 24px; background:#0ea5e9; color:#fff; font-weight:600; font-size:18px; display:flex; align-items:center; gap:12px; }
+      .brand img{ display:block; height:28px; width:auto; border-radius:4px; background:#fff; }
+      .content{ padding:24px; }
+      .title{ font-size:18px; font-weight:600; margin:0 0 12px; color:#fff; }
+      .text{ font-size:14px; line-height:1.6; color:#d1d5db; white-space:pre-line; }
+      .meta{ margin-top:16px; font-size:12px; color:#9ca3af; }
+      .footer{ text-align:center; margin-top:16px; font-size:12px; color:#6b7280; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="brand">
+          {% if EMAIL_BRAND_LOGO_URL %}
+            <img src="{{ EMAIL_BRAND_LOGO_URL }}" alt="{{ BRAND_NAME }} logo" />
+            <span>{{ BRAND_NAME }}</span>
+          {% else %}
+            <span>{{ BRAND_NAME }}</span>
+          {% endif %}
+        </div>
+        <div class="content">
+          <h1 class="title">{{ title }}</h1>
+          <div class="text">{{ message }}</div>
+          <div class="meta">Sent on: {{ created_at|date:'Y-m-d H:i' }}</div>
+        </div>
+      </div>
+      <div class="footer">© {{ BRAND_NAME }}</div>
+    </div>
+  </body>
+  </html>

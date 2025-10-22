@@ -30,3 +30,17 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in ('1', 'true',
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'false').lower() in ('1', 'true', 'yes')
 EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '15'))
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ePetCare <no-reply@localhost>')
+
+# If an HTTP email provider is configured (e.g., SendGrid), prefer it and avoid SMTP
+if os.environ.get('EMAIL_HTTP_PROVIDER', '').strip():
+	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Branding (optional) for emails/templates
+BRAND_NAME = os.environ.get('BRAND_NAME', 'ePetCare')
+EMAIL_BRAND_LOGO_URL = os.environ.get('EMAIL_BRAND_LOGO_URL', '')  # e.g., https://epetcare.onrender.com/static/clinic/images/logo.png
+
+# Allow login with either username or email
+AUTHENTICATION_BACKENDS = [
+	'clinic.auth_backends.EmailOrUsernameModelBackend',
+	'django.contrib.auth.backends.ModelBackend',
+]

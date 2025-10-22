@@ -73,9 +73,6 @@
         </form>
       </div>
       <div class="topbar-right">
-        <a class="icon-btn" href="#" title="Messages">
-          <img src="{% static 'clinic/icons/message_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
-        </a>
         <a class="icon-btn notif-btn" href="{% url 'notifications' %}" title="Notifications">
           <img src="{% static 'clinic/icons/bell_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
           {% if unread_count %}<span class="badge">{{ unread_count }}</span>{% endif %}

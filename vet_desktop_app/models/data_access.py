@@ -5,13 +5,32 @@ This module provides classes to interact with the database.
 from __future__ import annotations
 
 from datetime import datetime, date, timedelta
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple, Union, TYPE_CHECKING
 import sys
 import os
 import importlib.util
 import logging
 
 logger = logging.getLogger('epetcare')
+
+# Make model classes visible to type checkers without affecting runtime imports
+if TYPE_CHECKING:
+    try:
+        from .models import (
+            User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+            Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
+            TreatmentType, Schedule
+        )
+    except Exception:
+        # Fallback for environments where relative import isn't resolved
+        try:
+            from models.models import (
+                User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+                Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
+                TreatmentType, Schedule
+            )
+        except Exception:
+            pass
 
 # Special handling for PyInstaller
 if getattr(sys, 'frozen', False):
@@ -187,7 +206,7 @@ class DataAccessBase:
 class UserDataAccess(DataAccessBase):
     """Data access for User model"""
 
-    def get_by_id(self, user_id: int) -> 'Optional[User]':
+    def get_by_id(self, user_id: int) -> Optional[Any]:
         """Get a user by ID"""
         success, result = self.db.fetch_by_id('auth_user', user_id)
         if not success:
@@ -205,7 +224,7 @@ class UserDataAccess(DataAccessBase):
             last_login=self._parse_datetime(user_dict['last_login'])
         )
 
-    def get_by_username(self, username: str) -> 'Optional[User]':
+    def get_by_username(self, username: str) -> Optional[Any]:
         """Get a user by username"""
         query = "SELECT * FROM auth_user WHERE username = ?"
         success, result = self.db.execute_query(query, (username,))
@@ -225,9 +244,9 @@ class UserDataAccess(DataAccessBase):
             last_login=self._parse_datetime(user_dict['last_login'])
         )
 
-    def get_by_email(self, email: str) -> 'Optional[User]':
+    def get_by_email(self, email: str) -> Optional[Any]:
         """Get a user by email"""
-        query = "SELECT * FROM auth_user WHERE email = ?"
+        query = "SELECT * FROM auth_user WHERE lower(email) = lower(?)"
         success, result = self.db.execute_query(query, (email,))
 
         if not success or not result:
@@ -245,14 +264,30 @@ class UserDataAccess(DataAccessBase):
             last_login=self._parse_datetime(user_dict['last_login'])
         )
 
-    def authenticate(self, username: str, password: str) -> 'Optional[User]':
-        """Authenticate a user"""
+    def authenticate(self, username: str, password: str) -> Optional[Any]:
+        """Authenticate a user against Django's auth_user password hash.
+
+        Supports Django's pbkdf2_sha256 scheme (default). If other algorithms are
+        encountered (e.g., argon2), this method should be extended accordingly.
+        """
         import hashlib
         import base64
-        import re
+        import hmac
 
-        query = "SELECT * FROM auth_user WHERE username = ?"
-        success, result = self.db.execute_query(query, (username,))
+        # Allow either username or email input
+        identifier = (username or '').strip()
+        success = False
+        result = []
+        if '@' in identifier:
+            query = "SELECT * FROM auth_user WHERE lower(email) = lower(?)"
+            success, result = self.db.execute_query(query, (identifier,))
+        else:
+            query = "SELECT * FROM auth_user WHERE username = ?"
+            success, result = self.db.execute_query(query, (identifier,))
+            if (not success or not result) and '@' in identifier:
+                # fallback to email if it looks like an email
+                query = "SELECT * FROM auth_user WHERE lower(email) = lower(?)"
+                success, result = self.db.execute_query(query, (identifier,))
 
         if not success or not result:
             return None
@@ -266,34 +301,23 @@ class UserDataAccess(DataAccessBase):
         # Check if this is a Django-style password
         if '$' in stored_password:
             try:
-                # Parse the components
-                parts = stored_password.split('$')
-                if len(parts) >= 4:
-                    algorithm = parts[0]
-                    iterations = int(parts[1])
-                    salt = parts[2]
-                    stored_hash = parts[3]
+                # Format: algorithm$iterations$salt$hash
+                parts = stored_password.split('$', 3)
+                if len(parts) == 4:
+                    algorithm, iterations_str, salt, stored_hash = parts
 
-                    # Handle PBKDF2 algorithm (most common in Django)
                     if algorithm == 'pbkdf2_sha256':
-                        import hashlib
-                        import binascii
-
-                        # Convert iterations to integer
-                        iterations = int(iterations)
-
-                        # Generate hash from the provided password
+                        iterations = int(iterations_str)
+                        # Compute PBKDF2-HMAC-SHA256
                         dk = hashlib.pbkdf2_hmac(
                             'sha256',
                             password.encode('utf-8'),
                             salt.encode('utf-8'),
-                            iterations
+                            iterations,
                         )
-                        computed_hash = binascii.hexlify(dk).decode('ascii')
-
-                        # Compare the hashes
-                        if computed_hash == stored_hash:
-                            # Password matches
+                        computed_b64 = base64.b64encode(dk).decode('ascii').strip()
+                        # Constant-time compare (preferred base64 format)
+                        if hmac.compare_digest(computed_b64, stored_hash):
                             return User(
                                 id=user_dict['id'],
                                 username=user_dict['username'],
@@ -304,24 +328,41 @@ class UserDataAccess(DataAccessBase):
                                 date_joined=self._parse_datetime(user_dict['date_joined']),
                                 last_login=self._parse_datetime(user_dict['last_login'])
                             )
-                    # Handle other algorithms as needed
+                        # Backward compatibility: some older desktop builds stored hex-encoded hash
+                        try:
+                            import re
+                            if re.fullmatch(r"[0-9a-fA-F]+", stored_hash):
+                                computed_hex = dk.hex()
+                                if hmac.compare_digest(computed_hex, stored_hash):
+                                    return User(
+                                        id=user_dict['id'],
+                                        username=user_dict['username'],
+                                        first_name=user_dict['first_name'],
+                                        last_name=user_dict['last_name'],
+                                        email=user_dict['email'],
+                                        is_active=bool(user_dict['is_active']),
+                                        date_joined=self._parse_datetime(user_dict['date_joined']),
+                                        last_login=self._parse_datetime(user_dict['last_login'])
+                                    )
+                        except Exception:
+                            pass
+                    # TODO: Add support for other algorithms if needed (e.g., argon2)
             except Exception as e:
                 print(f"Error verifying password: {e}")
-                pass
-        else:
-            # For development/testing only: check if passwords match directly
-            # This should never be used in production
-            if stored_password == password:
-                return User(
-                    id=user_dict['id'],
-                    username=user_dict['username'],
-                    first_name=user_dict['first_name'],
-                    last_name=user_dict['last_name'],
-                    email=user_dict['email'],
-                    is_active=bool(user_dict['is_active']),
-                    date_joined=self._parse_datetime(user_dict['date_joined']),
-                    last_login=self._parse_datetime(user_dict['last_login'])
-                )
+                # fall through to return None
+
+        # Fallback: if stored_password is plain (dev-only), compare directly
+        if stored_password and '$' not in stored_password and stored_password == password:
+            return User(
+                id=user_dict['id'],
+                username=user_dict['username'],
+                first_name=user_dict['first_name'],
+                last_name=user_dict['last_name'],
+                email=user_dict['email'],
+                is_active=bool(user_dict['is_active']),
+                date_joined=self._parse_datetime(user_dict['date_joined']),
+                last_login=self._parse_datetime(user_dict['last_login'])
+            )
 
         return None
 
@@ -337,23 +378,20 @@ class UserDataAccess(DataAccessBase):
 
         # Hash the password using PBKDF2 (similar to Django's default)
         import hashlib
-        import binascii
-        import os
+        import base64
+        import secrets
+        import string as _str
 
-        # Generate a random salt
-        salt = os.urandom(16).hex()
-        iterations = 390000  # Django's default iterations as of 2023
+        # Generate a Django-like salt (letters+digits)
+        allowed = _str.ascii_letters + _str.digits
+        salt = ''.join(secrets.choice(allowed) for _ in range(16))
+        iterations = 390000  # Use a high iteration count; Django will read this from the stored value
 
-        # Hash the password
-        dk = hashlib.pbkdf2_hmac(
-            'sha256',
-            password.encode('utf-8'),
-            salt.encode('utf-8'),
-            iterations
-        )
-        hashed_password = binascii.hexlify(dk).decode('ascii')
+        # Hash the password and encode hash as base64 to match Django format
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), iterations)
+        hashed_password = base64.b64encode(dk).decode('ascii').strip()
 
-        # Format the password in Django's format: algorithm$iterations$salt$hash
+        # Format the password: algorithm$iterations$salt$hash (hash is base64)
         password_string = f"pbkdf2_sha256${iterations}${salt}${hashed_password}"
 
         # Create user data
@@ -385,7 +423,7 @@ class UserDataAccess(DataAccessBase):
 class VeterinarianDataAccess(DataAccessBase):
     """Data access for Veterinarian model"""
 
-    def get_by_id(self, vet_id: int) -> Optional[Veterinarian]:
+    def get_by_id(self, vet_id: int) -> Optional[Any]:
         """Get a veterinarian by ID"""
         success, result = self.db.fetch_by_id('vet_veterinarian', vet_id)
         if not success:
@@ -403,7 +441,7 @@ class VeterinarianDataAccess(DataAccessBase):
             created_at=self._parse_datetime(vet_dict['created_at'])
         )
 
-    def get_by_user_id(self, user_id: int) -> Optional[Veterinarian]:
+    def get_by_user_id(self, user_id: int) -> Optional[Any]:
         """Get a veterinarian by user ID"""
         query = "SELECT * FROM vet_veterinarian WHERE user_id = ?"
         success, result = self.db.execute_query(query, (user_id,))
@@ -423,7 +461,7 @@ class VeterinarianDataAccess(DataAccessBase):
             created_at=self._parse_datetime(vet_dict['created_at'])
         )
 
-    def get_by_license_number(self, license_number: str) -> Optional[Veterinarian]:
+    def get_by_license_number(self, license_number: str) -> Optional[Any]:
         """Get a veterinarian by license number"""
         query = "SELECT * FROM vet_veterinarian WHERE license_number = ?"
         success, result = self.db.execute_query(query, (license_number,))
@@ -443,7 +481,7 @@ class VeterinarianDataAccess(DataAccessBase):
             created_at=self._parse_datetime(vet_dict['created_at'])
         )
 
-    def get_all(self) -> List[Veterinarian]:
+    def get_all(self) -> List[Any]:
         """Get all veterinarians"""
         success, result = self.db.fetch_all('vet_veterinarian')
         if not success:
@@ -529,7 +567,7 @@ class VeterinarianDataAccess(DataAccessBase):
 class OwnerDataAccess(DataAccessBase):
     """Data access for Owner model"""
 
-    def get_by_id(self, owner_id: int) -> Optional[Owner]:
+    def get_by_id(self, owner_id: int) -> Optional[Any]:
         """Get an owner by ID"""
         success, result = self.db.fetch_by_id('clinic_owner', owner_id)
         if not success:
@@ -546,7 +584,7 @@ class OwnerDataAccess(DataAccessBase):
             user_id=owner_dict['user_id']
         )
 
-    def search(self, query: str, limit: int = 50) -> List[Owner]:
+    def search(self, query: str, limit: int = 50) -> List[Any]:
         """Search owners by name, email, or phone"""
         search_query = f"%{query}%"
         sql = """
@@ -574,32 +612,32 @@ class OwnerDataAccess(DataAccessBase):
 
         return owners
 
-        def get_by_ids(self, owner_ids: List[int]) -> Dict[int, Owner]:
-            """Get multiple owners by IDs in one query to avoid N+1 fetches."""
-            if not owner_ids:
-                return {}
-            # Deduplicate to keep query small
-            uniq_ids = sorted(set(int(i) for i in owner_ids if i is not None))
-            placeholders = ','.join(['?'] * len(uniq_ids))
-            sql = f"SELECT * FROM clinic_owner WHERE id IN ({placeholders})"
-            success, result = self.db.execute_query(sql, tuple(uniq_ids))
-            owners: Dict[int, Owner] = {}
-            if not success or not result:
-                return owners
-            for row in result:
-                d = self._row_to_dict(row)
-                owners[d['id']] = Owner(
-                    id=d['id'],
-                    full_name=d['full_name'],
-                    email=d['email'],
-                    phone=d['phone'],
-                    address=d['address'],
-                    created_at=self._parse_datetime(d['created_at']),
-                    user_id=d['user_id']
-                )
+    def get_by_ids(self, owner_ids: List[int]) -> Dict[int, Any]:
+        """Get multiple owners by IDs in one query to avoid N+1 fetches."""
+        if not owner_ids:
+            return {}
+        # Deduplicate to keep query small
+        uniq_ids = sorted(set(int(i) for i in owner_ids if i is not None))
+        placeholders = ','.join(['?'] * len(uniq_ids))
+        sql = f"SELECT * FROM clinic_owner WHERE id IN ({placeholders})"
+        success, result = self.db.execute_query(sql, tuple(uniq_ids))
+        owners: Dict[int, Any] = {}
+        if not success or not result:
             return owners
+        for row in result:
+            d = self._row_to_dict(row)
+            owners[d['id']] = Owner(
+                id=d['id'],
+                full_name=d['full_name'],
+                email=d['email'],
+                phone=d['phone'],
+                address=d['address'],
+                created_at=self._parse_datetime(d['created_at']),
+                user_id=d['user_id']
+            )
+        return owners
 
-    def get_all(self, limit: int = 100) -> List[Owner]:
+    def get_all(self, limit: int = 100) -> List[Any]:
         """Get all owners with optional limit"""
         success, result = self.db.fetch_all('clinic_owner', order_by='full_name', limit=limit)
         if not success:
@@ -624,7 +662,7 @@ class OwnerDataAccess(DataAccessBase):
 class PetDataAccess(DataAccessBase):
     """Data access for Pet model"""
 
-    def get_by_id(self, pet_id: int) -> Optional[Pet]:
+    def get_by_id(self, pet_id: int) -> Optional[Any]:
         """Get a pet by ID"""
         success, result = self.db.fetch_by_id('clinic_pet', pet_id)
         if not success:
@@ -644,7 +682,7 @@ class PetDataAccess(DataAccessBase):
             image=pet_dict.get('image', None)  # Add support for pet image
         )
 
-    def get_by_owner(self, owner_id: int) -> List[Pet]:
+    def get_by_owner(self, owner_id: int) -> List[Any]:
         """Get pets by owner ID"""
         success, result = self.db.fetch_all('clinic_pet', conditions={'owner_id': owner_id})
         if not success:
@@ -672,7 +710,7 @@ class PetDataAccess(DataAccessBase):
         """Delete a pet"""
         return self.db.delete('clinic_pet', pet_id)
 
-    def search(self, query: str, limit: int = 50) -> List[Pet]:
+    def search(self, query: str, limit: int = 50) -> List[Any]:
         """Search pets by name or breed"""
         search_query = f"%{query}%"
         sql = """
@@ -708,7 +746,7 @@ class PetDataAccess(DataAccessBase):
 class AppointmentDataAccess(DataAccessBase):
     """Data access for Appointment model"""
 
-    def get_by_id(self, appointment_id: int) -> Optional[Appointment]:
+    def get_by_id(self, appointment_id: int) -> Optional[Any]:
         """Get an appointment by ID"""
         success, result = self.db.fetch_by_id('clinic_appointment', appointment_id)
         if not success:
@@ -724,7 +762,7 @@ class AppointmentDataAccess(DataAccessBase):
             status=appt_dict['status']
         )
 
-    def get_by_pet(self, pet_id: int) -> List[Appointment]:
+    def get_by_pet(self, pet_id: int) -> List[Any]:
         """Get appointments by pet ID"""
         success, result = self.db.fetch_all('clinic_appointment', conditions={'pet_id': pet_id})
         if not success:
@@ -744,7 +782,7 @@ class AppointmentDataAccess(DataAccessBase):
 
         return appointments
 
-    def get_all_appointments(self) -> List[Appointment]:
+    def get_all_appointments(self) -> List[Any]:
         """Get all appointments"""
         sql = """
             SELECT a.*, p.name as pet_name, o.full_name as owner_name
@@ -785,7 +823,7 @@ class AppointmentDataAccess(DataAccessBase):
             appointments.append(appointment)
 
         return appointments
-    def get_upcoming(self, days: int = 7) -> List[Appointment]:
+    def get_upcoming(self, days: int = 7) -> List[Any]:
         """Get upcoming appointments for the next X days"""
         now = datetime.now()
         now_str = now.isoformat()
@@ -834,7 +872,7 @@ class AppointmentDataAccess(DataAccessBase):
 
         return appointments
 
-    def create(self, appointment: Appointment) -> Tuple[bool, Union[int, str]]:
+    def create(self, appointment: Any) -> Tuple[bool, Union[int, str]]:
         """Create a new appointment"""
         data = {
             'pet_id': appointment.pet_id,
@@ -846,7 +884,7 @@ class AppointmentDataAccess(DataAccessBase):
 
         return self.db.insert('clinic_appointment', data)
 
-    def update(self, appointment: Appointment) -> Tuple[bool, Union[int, str]]:
+    def update(self, appointment: Any) -> Tuple[bool, Union[int, str]]:
         """Update an existing appointment"""
         data = {
             'pet_id': appointment.pet_id,
@@ -866,7 +904,7 @@ class AppointmentDataAccess(DataAccessBase):
 class MedicalRecordDataAccess(DataAccessBase):
     """Data access for MedicalRecord model"""
 
-    def get_by_id(self, record_id: int) -> Optional[MedicalRecord]:
+    def get_by_id(self, record_id: int) -> Optional[Any]:
         """Get a medical record by ID"""
         success, result = self.db.fetch_by_id('clinic_medicalrecord', record_id)
         if not success:
@@ -882,7 +920,7 @@ class MedicalRecordDataAccess(DataAccessBase):
             vet_notes=record_dict['vet_notes']
         )
 
-    def get_by_pet(self, pet_id: int) -> List[MedicalRecord]:
+    def get_by_pet(self, pet_id: int) -> List[Any]:
         """Get medical records by pet ID"""
         success, result = self.db.fetch_all(
             'clinic_medicalrecord',
@@ -906,7 +944,7 @@ class MedicalRecordDataAccess(DataAccessBase):
 
         return records
 
-    def create(self, record: MedicalRecord) -> Tuple[bool, Union[int, str]]:
+    def create(self, record: Any) -> Tuple[bool, Union[int, str]]:
         """Create a new medical record"""
         data = {
             'pet_id': record.pet_id,
@@ -918,7 +956,7 @@ class MedicalRecordDataAccess(DataAccessBase):
 
         return self.db.insert('clinic_medicalrecord', data)
 
-    def update(self, record: MedicalRecord) -> Tuple[bool, Union[int, str]]:
+    def update(self, record: Any) -> Tuple[bool, Union[int, str]]:
         """Update an existing medical record"""
         data = {
             'pet_id': record.pet_id,
@@ -938,7 +976,7 @@ class MedicalRecordDataAccess(DataAccessBase):
 class PrescriptionDataAccess(DataAccessBase):
     """Data access for Prescription model"""
 
-    def get_by_id(self, prescription_id: int) -> Optional[Prescription]:
+    def get_by_id(self, prescription_id: int) -> Optional[Any]:
         """Get a prescription by ID"""
         success, result = self.db.fetch_by_id('clinic_prescription', prescription_id)
         if not success:
@@ -956,7 +994,7 @@ class PrescriptionDataAccess(DataAccessBase):
             is_active=bool(prescription_dict['is_active'])
         )
 
-    def get_by_pet(self, pet_id: int, active_only: bool = False) -> List[Prescription]:
+    def get_by_pet(self, pet_id: int, active_only: bool = False) -> List[Any]:
         """Get prescriptions by pet ID"""
         conditions = {'pet_id': pet_id}
         if active_only:
@@ -986,7 +1024,7 @@ class PrescriptionDataAccess(DataAccessBase):
 
         return prescriptions
 
-    def create(self, prescription: Prescription) -> Tuple[bool, Union[int, str]]:
+    def create(self, prescription: Any) -> Tuple[bool, Union[int, str]]:
         """Create a new prescription"""
         data = {
             'pet_id': prescription.pet_id,
@@ -1000,7 +1038,7 @@ class PrescriptionDataAccess(DataAccessBase):
 
         return self.db.insert('clinic_prescription', data)
 
-    def update(self, prescription: Prescription) -> Tuple[bool, Union[int, str]]:
+    def update(self, prescription: Any) -> Tuple[bool, Union[int, str]]:
         """Update an existing prescription"""
         data = {
             'pet_id': prescription.pet_id,
@@ -1022,7 +1060,7 @@ class PrescriptionDataAccess(DataAccessBase):
 class TreatmentTypeDataAccess(DataAccessBase):
     """Data access for TreatmentType model"""
 
-    def get_by_id(self, treatment_type_id: int) -> Optional[TreatmentType]:
+    def get_by_id(self, treatment_type_id: int) -> Optional[Any]:
         """Get a treatment type by ID"""
         query = """
             SELECT * FROM vet_treatmenttype WHERE id = ?
@@ -1042,7 +1080,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
             is_active=bool(treatment_dict['is_active'])
         )
 
-    def get_all_active(self) -> List[TreatmentType]:
+    def get_all_active(self) -> List[Any]:
         """Get all active treatment types"""
         query = """
             SELECT * FROM vet_treatmenttype WHERE is_active = TRUE ORDER BY name
@@ -1066,7 +1104,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
 
         return treatments
 
-    def create(self, treatment_type: TreatmentType) -> Tuple[bool, Union[int, str]]:
+    def create(self, treatment_type: Any) -> Tuple[bool, Union[int, str]]:
         """Create a new treatment type"""
         data = {
             'name': treatment_type.name,
@@ -1078,7 +1116,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
 
         return self.db.insert('vet_treatmenttype', data)
 
-    def update(self, treatment_type: TreatmentType) -> Tuple[bool, Union[int, str]]:
+    def update(self, treatment_type: Any) -> Tuple[bool, Union[int, str]]:
         """Update an existing treatment type"""
         data = {
             'name': treatment_type.name,
@@ -1094,7 +1132,7 @@ class TreatmentTypeDataAccess(DataAccessBase):
 class ScheduleDataAccess(DataAccessBase):
     """Data access for Schedule model"""
 
-    def get_by_vet(self, vet_id: int) -> List[Schedule]:
+    def get_by_vet(self, vet_id: int) -> List[Any]:
         """Get schedule by veterinarian ID"""
         query = """
             SELECT * FROM vet_schedule WHERE veterinarian_id = ? ORDER BY day_of_week, start_time
@@ -1118,7 +1156,7 @@ class ScheduleDataAccess(DataAccessBase):
 
         return schedules
 
-    def create(self, schedule: Schedule) -> Tuple[bool, Union[int, str]]:
+    def create(self, schedule: Any) -> Tuple[bool, Union[int, str]]:
         """Create a new schedule entry"""
         data = {
             'veterinarian_id': schedule.veterinarian_id,
@@ -1130,7 +1168,7 @@ class ScheduleDataAccess(DataAccessBase):
 
         return self.db.insert('vet_schedule', data)
 
-    def update(self, schedule: Schedule) -> Tuple[bool, Union[int, str]]:
+    def update(self, schedule: Any) -> Tuple[bool, Union[int, str]]:
         """Update an existing schedule entry"""
         data = {
             'veterinarian_id': schedule.veterinarian_id,

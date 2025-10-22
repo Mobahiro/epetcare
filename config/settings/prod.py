@@ -95,8 +95,28 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'false').lower() in ('1', 'true', 'yes')
 EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '10'))
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ePetCare <no-reply@epetcare.onrender.com>')
+EMAIL_FROM_ADDRESS = os.environ.get('EMAIL_FROM_ADDRESS', '').strip()
+EMAIL_FROM_NAME = os.environ.get('EMAIL_FROM_NAME', os.environ.get('BRAND_NAME', 'ePetCare')).strip() or 'ePetCare'
+DEFAULT_FROM_EMAIL = (
+    f"{EMAIL_FROM_NAME} <{EMAIL_FROM_ADDRESS}>" if EMAIL_FROM_ADDRESS else os.environ.get('DEFAULT_FROM_EMAIL', f"{EMAIL_FROM_NAME} <no-reply@epetcare.onrender.com>")
+)
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+
+# Log a deliverability warning when using the default onrender.com sender
+try:
+    from email.utils import parseaddr
+    display, addr = parseaddr(DEFAULT_FROM_EMAIL)
+    domain = (addr.split('@', 1)[1] if '@' in addr else '').lower()
+    if domain.endswith('onrender.com'):
+        import logging
+        logging.getLogger('clinic').warning(
+            'DEFAULT_FROM_EMAIL is using %s which is rarely authenticated. '
+            'Set EMAIL_FROM_ADDRESS to a verified domain (e.g., no-reply@yourdomain.com) and '
+            'complete SPF/DKIM/DMARC with your provider to prevent spam folder.',
+            domain
+        )
+except Exception:
+    pass
 
 # Auto-fallback to console backend if SMTP host or credentials are missing
 if EMAIL_BACKEND.endswith('smtp.EmailBackend'):
@@ -107,8 +127,22 @@ if EMAIL_BACKEND.endswith('smtp.EmailBackend'):
 if os.environ.get('EMAIL_FORCE_CONSOLE', 'false').lower() in ('1', 'true', 'yes'):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# If an HTTP email provider is configured, prefer it and disable SMTP by using console backend
+if os.environ.get('EMAIL_HTTP_PROVIDER', '').strip():
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # Security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'true').lower() in ('1', 'true', 'yes')
+
+# Allow login with either username or email
+AUTHENTICATION_BACKENDS = [
+    'clinic.auth_backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Branding (optional) for emails/templates
+BRAND_NAME = os.environ.get('BRAND_NAME', 'ePetCare')
+EMAIL_BRAND_LOGO_URL = os.environ.get('EMAIL_BRAND_LOGO_URL', '')  # e.g., https://epetcare.onrender.com/static/clinic/images/logo.png

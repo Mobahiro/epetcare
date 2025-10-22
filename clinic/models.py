@@ -181,6 +181,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=160)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
+    emailed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

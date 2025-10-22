@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 from .models import MedicalRecord, Owner, Pet, Appointment, Notification
 from .forms import (
     OwnerForm, PetForm, PetCreateForm, AppointmentForm,
@@ -16,6 +17,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from datetime import timedelta
 import random
+from .utils.notifications import process_unsent_notifications
 
 
 def home(request):
@@ -55,6 +57,12 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     owner = getattr(request.user, 'owner_profile', None)
+    # Opportunistically process any unsent emails for this owner upon visit
+    if owner:
+        try:
+            process_unsent_notifications(owner, limit=10)
+        except Exception:
+            pass
     pets = Pet.objects.filter(owner=owner).order_by('name') if owner else Pet.objects.none()
     upcoming = Appointment.objects.filter(pet__owner=owner).order_by('date_time')[:10] if owner else Appointment.objects.none()
     notifications = Notification.objects.filter(owner=owner).order_by('-created_at')[:8] if owner else []
@@ -76,6 +84,11 @@ def dashboard(request):
 @login_required
 def notifications_list(request):
     owner = getattr(request.user, 'owner_profile', None)
+    if owner:
+        try:
+            process_unsent_notifications(owner, limit=25)
+        except Exception:
+            pass
     items = Notification.objects.filter(owner=owner).order_by('-created_at') if owner else []
     return render(request, 'clinic/notifications.html', {"notifications": items})
 
@@ -125,12 +138,20 @@ def password_reset_request_otp(request):
                 PasswordResetOTP.objects.create(user=user, code=code, expires_at=expires)
 
                 # Send email using template (non-blocking and safe)
-                subject = "Your ePetCare password reset code"
-                message = render_to_string('clinic/auth/otp_email.txt', {"code": code})
+                subject = f"Your {getattr(settings, 'BRAND_NAME', 'ePetCare')} password reset code"
+                ctx = {
+                    "code": code,
+                    "name": getattr(user, 'first_name', '') or None,
+                    "year": timezone.now().year,
+                    "BRAND_NAME": getattr(settings, 'BRAND_NAME', 'ePetCare'),
+                    "EMAIL_BRAND_LOGO_URL": getattr(settings, 'EMAIL_BRAND_LOGO_URL', ''),
+                }
+                message = render_to_string('clinic/auth/otp_email.txt', ctx)
+                html_message = render_to_string('clinic/auth/otp_email.html', ctx)
                 try:
                     # Import here to avoid circular imports
                     from .utils.emailing import send_mail_async_safe
-                    send_mail_async_safe(subject, message, [user.email])
+                    send_mail_async_safe(subject, message, [user.email], html_message=html_message)
                 except Exception as e:
                     # Log the error and continue; we still route the user to verify step
                     import logging

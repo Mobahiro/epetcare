@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your ePetCare code</title>
+  <style>
+    body { background:#f6f7fb; margin:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; color:#111827; }
+    .wrapper { width:100%; padding:24px 0; }
+    .container { max-width:560px; margin:0 auto; background:#ffffff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.06); overflow:hidden; }
+  .brand { padding:16px 24px; background:#0ea5e9; color:#fff; font-weight:600; font-size:18px; display:flex; align-items:center; gap:12px; }
+  .brand img { display:block; height:28px; width:auto; border-radius:4px; background:#fff; }
+    .content { padding:24px; }
+    .title { margin:0 0 12px; font-size:18px; font-weight:600; }
+    .p { margin:0 0 12px; line-height:1.6; }
+    .code { display:inline-block; font-size:24px; letter-spacing:4px; padding:12px 16px; background:#f3f4f6; border-radius:8px; font-weight:700; }
+    .muted { color:#6b7280; font-size:12px; margin-top:16px; }
+    .footer { text-align:center; color:#9ca3af; font-size:12px; padding:16px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="brand">
+        {% if EMAIL_BRAND_LOGO_URL %}
+          <img src="{{ EMAIL_BRAND_LOGO_URL }}" alt="{{ BRAND_NAME|default:'ePetCare' }} logo" />
+          <span>{{ BRAND_NAME|default:'ePetCare' }}</span>
+        {% else %}
+          <span>{{ BRAND_NAME|default:'ePetCare' }}</span>
+        {% endif %}
+      </div>
+      <div class="content">
+        <p class="p">Hello{% if name %} {{ name }}{% endif %},</p>
+        <p class="p">We received a request to reset the password for your ePetCare account.</p>
+        <p class="p">Your verification code is:</p>
+        <div class="code">{{ code }}</div>
+        <p class="muted">This code expires in 10 minutes. If you did not request this, you can safely ignore this email.</p>
+      </div>
+    </div>
+    <div class="footer">© {{ year|default:2025 }} ePetCare</div>
+  </div>
+</body>
+</html>
