@@ -7505,3 +7505,392 @@ server closed the connection unexpectedly
 2025-10-22 12:37:00,491 - epetcare - INFO - Successfully loaded icon via QPixmap: logout-icon.png
 2025-10-22 12:37:00,492 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
 2025-10-22 12:37:02,969 - epetcare - INFO - Application started successfully
+2025-10-22 14:53:58,162 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-22 14:53:58,163 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-22 14:53:58,354 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-22 14:53:58,516 - epetcare - INFO - Initializing application...
+2025-10-22 14:53:58,544 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-22 14:53:58,575 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-22 14:53:59,594 - epetcare - INFO - PostgreSQL connection established
+2025-10-22 14:53:59,594 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-22 14:53:59,983 - epetcare - INFO - Creating main window...
+2025-10-22 14:54:07,932 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-22 14:54:07,933 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-22 14:54:07,933 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-22 14:54:07,934 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-22 14:54:07,934 - epetcare - INFO - Successfully loaded icon via QPixmap: dashboard-icon.png
+2025-10-22 14:54:07,935 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-22 14:54:07,935 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-22 14:54:07,935 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-22 14:54:07,936 - epetcare - INFO - Successfully loaded icon via QPixmap: patients-icon.png
+2025-10-22 14:54:07,937 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-22 14:54:07,937 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-22 14:54:07,937 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-22 14:54:07,938 - epetcare - INFO - Successfully loaded icon via QPixmap: appointments-icon.png
+2025-10-22 14:54:07,938 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-22 14:54:07,938 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-22 14:54:07,939 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-22 14:54:07,939 - epetcare - INFO - Successfully loaded icon via QPixmap: settings-icon.png
+2025-10-22 14:54:07,940 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-22 14:54:07,940 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-22 14:54:07,941 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-22 14:54:07,941 - epetcare - INFO - Successfully loaded icon via QPixmap: backup-icon.png
+2025-10-22 14:54:07,941 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-22 14:54:07,942 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-22 14:54:07,942 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-22 14:54:07,943 - epetcare - INFO - Successfully loaded icon via QPixmap: logout-icon.png
+2025-10-22 14:54:07,943 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-22 14:54:10,510 - epetcare - INFO - Application started successfully
+2025-10-22 14:56:55,112 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-22 14:56:55,112 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-22 14:56:55,305 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-22 14:56:55,474 - epetcare - INFO - Initializing application...
+2025-10-22 14:56:55,496 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-22 14:56:55,531 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-22 14:56:57,066 - epetcare - INFO - PostgreSQL connection established
+2025-10-22 14:56:57,067 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-22 14:56:57,714 - epetcare - INFO - Creating main window...
+2025-10-22 14:57:07,787 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-22 14:57:07,787 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-22 14:57:07,788 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-22 14:57:07,789 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-22 14:57:07,789 - epetcare - INFO - Successfully loaded icon via QPixmap: dashboard-icon.png
+2025-10-22 14:57:07,790 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-22 14:57:07,790 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-22 14:57:07,790 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-22 14:57:07,791 - epetcare - INFO - Successfully loaded icon via QPixmap: patients-icon.png
+2025-10-22 14:57:07,791 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-22 14:57:07,791 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-22 14:57:07,792 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-22 14:57:07,792 - epetcare - INFO - Successfully loaded icon via QPixmap: appointments-icon.png
+2025-10-22 14:57:07,793 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-22 14:57:07,793 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-22 14:57:07,793 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-22 14:57:07,794 - epetcare - INFO - Successfully loaded icon via QPixmap: settings-icon.png
+2025-10-22 14:57:07,794 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-22 14:57:07,795 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-22 14:57:07,795 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-22 14:57:07,796 - epetcare - INFO - Successfully loaded icon via QPixmap: backup-icon.png
+2025-10-22 14:57:07,796 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-22 14:57:07,796 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-22 14:57:07,797 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-22 14:57:07,797 - epetcare - INFO - Successfully loaded icon via QPixmap: logout-icon.png
+2025-10-22 14:57:07,797 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-22 14:57:10,366 - epetcare - INFO - Application started successfully
+2025-10-23 16:53:32,473 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 16:53:32,481 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 16:53:32,805 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 16:53:33,037 - epetcare - INFO - Initializing application...
+2025-10-23 16:53:33,120 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 16:53:33,138 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 16:53:34,197 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 16:53:34,197 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 16:53:34,556 - epetcare - INFO - Creating main window...
+2025-10-23 16:53:44,171 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 16:53:44,171 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-23 16:53:44,172 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-23 16:53:44,173 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-23 16:53:44,174 - epetcare - INFO - Successfully loaded icon via QPixmap: dashboard-icon.png
+2025-10-23 16:53:44,175 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-23 16:53:44,175 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-23 16:53:44,175 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-23 16:53:44,176 - epetcare - INFO - Successfully loaded icon via QPixmap: patients-icon.png
+2025-10-23 16:53:44,176 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-23 16:53:44,177 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-23 16:53:44,177 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-23 16:53:44,178 - epetcare - INFO - Successfully loaded icon via QPixmap: appointments-icon.png
+2025-10-23 16:53:44,178 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-23 16:53:44,178 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-23 16:53:44,179 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-23 16:53:44,179 - epetcare - INFO - Successfully loaded icon via QPixmap: settings-icon.png
+2025-10-23 16:53:44,180 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-23 16:53:44,180 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-23 16:53:44,181 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-23 16:53:44,181 - epetcare - INFO - Successfully loaded icon via QPixmap: backup-icon.png
+2025-10-23 16:53:44,182 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-23 16:53:44,182 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-23 16:53:44,182 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-23 16:53:44,183 - epetcare - INFO - Successfully loaded icon via QPixmap: logout-icon.png
+2025-10-23 16:53:44,183 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-23 16:53:46,625 - epetcare - INFO - Application started successfully
+2025-10-23 16:56:52,910 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 16:56:52,910 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 16:56:53,090 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 16:56:53,243 - epetcare - INFO - Initializing application...
+2025-10-23 16:56:53,267 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 16:56:53,272 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 16:56:54,213 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 16:56:54,213 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 16:56:54,573 - epetcare - INFO - Creating main window...
+2025-10-23 16:57:02,691 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 16:57:02,691 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-23 16:57:02,692 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-23 16:57:02,693 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\dashboard-icon.png
+2025-10-23 16:57:02,693 - epetcare - INFO - Successfully loaded icon via QPixmap: dashboard-icon.png
+2025-10-23 16:57:02,694 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-23 16:57:02,694 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-23 16:57:02,694 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\patients-icon.png
+2025-10-23 16:57:02,695 - epetcare - INFO - Successfully loaded icon via QPixmap: patients-icon.png
+2025-10-23 16:57:02,695 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-23 16:57:02,696 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-23 16:57:02,696 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\appointments-icon.png
+2025-10-23 16:57:02,697 - epetcare - INFO - Successfully loaded icon via QPixmap: appointments-icon.png
+2025-10-23 16:57:02,697 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-23 16:57:02,697 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-23 16:57:02,698 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\settings-icon.png
+2025-10-23 16:57:02,698 - epetcare - INFO - Successfully loaded icon via QPixmap: settings-icon.png
+2025-10-23 16:57:02,699 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-23 16:57:02,699 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-23 16:57:02,699 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\backup-icon.png
+2025-10-23 16:57:02,700 - epetcare - INFO - Successfully loaded icon via QPixmap: backup-icon.png
+2025-10-23 16:57:02,701 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-23 16:57:02,701 - epetcare - INFO - Trying to load icon: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-23 16:57:02,701 - epetcare - INFO - Icon file exists: C:\epetcare\vet_desktop_app\resources\logout-icon.png
+2025-10-23 16:57:02,702 - epetcare - INFO - Successfully loaded icon via QPixmap: logout-icon.png
+2025-10-23 16:57:02,702 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-23 16:57:04,998 - epetcare - INFO - Application started successfully
+2025-10-23 16:58:49,526 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 16:58:49,526 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 16:58:49,706 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 16:58:49,855 - epetcare - INFO - Initializing application...
+2025-10-23 16:58:49,879 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 16:58:49,903 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 16:58:50,930 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 16:58:50,931 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 16:58:51,283 - epetcare - INFO - Creating main window...
+2025-10-23 16:59:01,177 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 16:59:01,177 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-23 16:59:01,178 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-23 16:59:01,179 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-23 16:59:01,179 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-23 16:59:01,180 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-23 16:59:01,181 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-23 16:59:01,182 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-23 16:59:03,465 - epetcare - INFO - Application started successfully
+2025-10-23 16:59:25,278 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 16:59:25,278 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 16:59:25,447 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 16:59:25,596 - epetcare - INFO - Initializing application...
+2025-10-23 16:59:25,618 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 16:59:25,637 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 16:59:26,860 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 16:59:26,860 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 16:59:27,279 - epetcare - INFO - Creating main window...
+2025-10-23 16:59:35,497 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 16:59:35,497 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'backup-icon.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'light_style.qss', 'logout-icon.png', 'patients-icon.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'style.qss']
+2025-10-23 16:59:35,499 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard-icon.png
+2025-10-23 16:59:35,499 - epetcare - INFO - Added action Patients to toolbar with icon from patients-icon.png
+2025-10-23 16:59:35,500 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments-icon.png
+2025-10-23 16:59:35,500 - epetcare - INFO - Added action Settings to toolbar with icon from settings-icon.png
+2025-10-23 16:59:35,501 - epetcare - INFO - Added action Backup to toolbar with icon from backup-icon.png
+2025-10-23 16:59:35,502 - epetcare - INFO - Added action Logout to toolbar with icon from logout-icon.png
+2025-10-23 16:59:37,795 - epetcare - INFO - Application started successfully
+2025-10-23 17:01:36,454 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 17:01:36,454 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 17:01:36,652 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 17:01:36,822 - epetcare - INFO - Initializing application...
+2025-10-23 17:01:36,846 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 17:01:36,851 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 17:01:37,757 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 17:01:37,757 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 17:01:38,097 - epetcare - INFO - Creating main window...
+2025-10-23 17:01:45,834 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 17:01:45,834 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointment-icon.png', 'appointments-icon.png', 'appointments.png', 'backup-icon.png', 'backup.png', 'calendar-icon.png', 'dark_style.qss', 'dashboard-icon.png', 'dashboard.png', 'light_style.qss', 'logout-icon.png', 'logout.png', 'patients-icon.png', 'patients.png', 'refresh-icon.png', 'search-icon.png', 'settings-icon.png', 'settings.png', 'style.qss']
+2025-10-23 17:01:45,867 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-23 17:01:45,867 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-23 17:01:45,868 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-23 17:01:45,869 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-23 17:01:45,869 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-23 17:01:45,870 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-23 17:01:48,134 - epetcare - INFO - Application started successfully
+2025-10-23 17:04:56,553 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
+2025-10-23 17:05:18,074 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
+2025-10-23 17:15:13,555 - epetcare - ERROR - insert error (clinic_appointment): can't adapt type 'AppointmentStatus'
+2025-10-23 17:15:23,531 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 17:15:23,531 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 17:15:23,798 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 17:15:24,092 - epetcare - INFO - Initializing application...
+2025-10-23 17:15:24,127 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 17:15:24,163 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 17:15:25,181 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 17:15:25,181 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 17:15:25,529 - epetcare - INFO - Creating main window...
+2025-10-23 17:15:33,340 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 17:15:33,340 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'refresh-icon.png', 'search-icon.png', 'settings.png', 'style.qss']
+2025-10-23 17:15:33,342 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-23 17:15:33,343 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-23 17:15:33,343 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-23 17:15:33,344 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-23 17:15:33,344 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-23 17:15:33,345 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-23 17:15:35,843 - epetcare - INFO - Application started successfully
+2025-10-23 17:49:55,140 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 17:49:55,141 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 17:49:55,316 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 17:49:55,456 - epetcare - INFO - Initializing application...
+2025-10-23 17:49:55,499 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 17:50:00,143 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 17:50:00,143 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 17:50:00,300 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 17:50:00,446 - epetcare - INFO - Initializing application...
+2025-10-23 17:50:00,467 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 17:50:00,486 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 17:50:01,650 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 17:50:01,651 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 17:50:01,997 - epetcare - INFO - Creating main window...
+2025-10-23 17:50:09,666 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 17:50:09,667 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup .png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'refresh-icon.png', 'search-icon.png', 'settings.png', 'style.qss']
+2025-10-23 17:50:09,677 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-23 17:50:09,688 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-23 17:50:09,695 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-23 17:50:09,696 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-23 17:50:09,697 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-23 17:50:09,704 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-23 17:50:12,014 - epetcare - INFO - Application started successfully
+2025-10-23 17:51:47,096 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 17:51:47,096 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 17:51:47,295 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 17:51:47,451 - epetcare - INFO - Initializing application...
+2025-10-23 17:51:47,476 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 17:51:47,507 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 17:51:48,458 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 17:51:48,459 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 17:51:48,849 - epetcare - INFO - Creating main window...
+2025-10-23 17:51:56,109 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 17:51:56,109 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'refresh-icon.png', 'search-icon.png', 'settings.png', 'style.qss']
+2025-10-23 17:51:56,120 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-23 17:51:56,131 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-23 17:51:56,139 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-23 17:51:56,140 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-23 17:51:56,146 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-23 17:51:56,153 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-23 17:51:58,383 - epetcare - INFO - Application started successfully
+2025-10-23 17:55:39,523 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-23 17:55:39,523 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-23 17:55:39,676 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-23 17:55:39,820 - epetcare - INFO - Initializing application...
+2025-10-23 17:55:39,841 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-23 17:55:39,856 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-23 17:55:40,774 - epetcare - INFO - PostgreSQL connection established
+2025-10-23 17:55:40,774 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-23 17:55:41,114 - epetcare - INFO - Creating main window...
+2025-10-23 17:55:50,400 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-23 17:55:50,400 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'refresh-icon.png', 'search-icon.png', 'settings.png', 'style.qss']
+2025-10-23 17:55:50,411 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-23 17:55:50,422 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-23 17:55:50,429 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-23 17:55:50,438 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-23 17:55:50,445 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-23 17:55:50,451 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-23 17:55:52,628 - epetcare - INFO - Application started successfully
+2025-10-24 00:48:55,672 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-24 00:48:55,680 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-24 00:48:55,999 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-24 00:48:56,241 - epetcare - INFO - Initializing application...
+2025-10-24 00:48:56,319 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-24 00:48:56,371 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-24 00:48:57,409 - epetcare - INFO - PostgreSQL connection established
+2025-10-24 00:48:57,409 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-24 00:48:57,770 - epetcare - INFO - Creating main window...
+2025-10-24 00:49:05,795 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-24 00:49:05,795 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'refresh-icon.png', 'search-icon.png', 'settings.png', 'style.qss']
+2025-10-24 00:49:05,808 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-24 00:49:05,819 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-24 00:49:05,827 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-24 00:49:05,838 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-24 00:49:05,845 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-24 00:49:05,852 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-24 00:49:08,243 - epetcare - INFO - Application started successfully
+2025-10-24 00:50:02,190 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-24 00:50:02,190 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-24 00:50:02,392 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-24 00:50:02,571 - epetcare - INFO - Initializing application...
+2025-10-24 00:50:02,602 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-24 00:50:02,609 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-24 00:50:03,568 - epetcare - INFO - PostgreSQL connection established
+2025-10-24 00:50:03,568 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-24 00:50:03,917 - epetcare - INFO - Creating main window...
+2025-10-24 00:50:12,284 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-24 00:50:12,285 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'settings.png', 'style.qss']
+2025-10-24 00:50:12,297 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-24 00:50:12,308 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-24 00:50:12,316 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-24 00:50:12,326 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-24 00:50:12,332 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-24 00:50:12,340 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-24 00:50:14,782 - epetcare - INFO - Application started successfully
+2025-10-24 00:53:21,303 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-24 00:53:21,304 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-24 00:53:21,525 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-24 00:53:21,730 - epetcare - INFO - Initializing application...
+2025-10-24 00:53:21,759 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-24 00:53:21,765 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-24 00:53:22,747 - epetcare - INFO - PostgreSQL connection established
+2025-10-24 00:53:22,747 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-24 00:53:23,125 - epetcare - INFO - Creating main window...
+2025-10-24 00:53:30,880 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-24 00:53:30,881 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'settings.png', 'style.qss']
+2025-10-24 00:53:30,893 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-24 00:53:30,904 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-24 00:53:30,913 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-24 00:53:30,923 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-24 00:53:30,930 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-24 00:53:30,938 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-24 00:53:33,203 - epetcare - INFO - Application started successfully
+2025-10-24 00:56:59,086 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-24 00:56:59,086 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-24 00:56:59,298 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-24 00:56:59,524 - epetcare - INFO - Initializing application...
+2025-10-24 00:56:59,555 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-24 00:56:59,591 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-24 00:57:00,779 - epetcare - INFO - PostgreSQL connection established
+2025-10-24 00:57:00,779 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-10-24 00:57:01,149 - epetcare - INFO - Creating main window...
+2025-10-24 00:57:08,224 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-10-24 00:57:08,224 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'settings.png', 'style.qss']
+2025-10-24 00:57:08,236 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-10-24 00:57:08,248 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-10-24 00:57:08,257 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-10-24 00:57:08,268 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-10-24 00:57:08,276 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-10-24 00:57:08,284 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-10-24 00:57:08,845 - epetcare - INFO - Application started successfully
+2025-10-26 11:37:22,009 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-10-26 11:37:22,010 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-10-26 11:37:22,315 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-10-26 11:37:22,505 - epetcare - INFO - Initializing application...
+2025-10-26 11:37:22,591 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-10-26 11:37:22,600 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-10-26 11:37:23,473 - epetcare - ERROR - Failed to connect to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro: connection to server at "dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com" (35.227.164.209), port 5432 failed: SSL connection has been closed unexpectedly
+
+2025-11-05 18:00:31,620 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-11-05 18:00:31,621 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-11-05 18:00:31,930 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-11-05 18:00:32,147 - epetcare - INFO - Initializing application...
+2025-11-05 18:00:32,230 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-11-05 18:00:32,257 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-11-05 18:00:33,247 - epetcare - INFO - PostgreSQL connection established
+2025-11-05 18:00:33,248 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-11-05 18:00:33,705 - epetcare - INFO - Creating main window...
+2025-11-05 18:00:38,752 - epetcare - INFO - Application started successfully
+2025-11-05 18:06:38,566 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-11-05 18:06:38,566 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-11-05 18:06:38,745 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-11-05 18:06:38,898 - epetcare - INFO - Initializing application...
+2025-11-05 18:06:38,921 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-11-05 18:06:38,941 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-11-05 18:06:39,859 - epetcare - INFO - PostgreSQL connection established
+2025-11-05 18:06:39,860 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-11-05 18:06:40,207 - epetcare - INFO - Creating main window...
+2025-11-05 18:06:48,186 - epetcare - INFO - Looking for icons in: C:\epetcare\vet_desktop_app\resources
+2025-11-05 18:06:48,186 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'settings.png', 'style.qss']
+2025-11-05 18:06:48,201 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-11-05 18:06:48,213 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-11-05 18:06:48,222 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-11-05 18:06:48,233 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-11-05 18:06:48,241 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
+2025-11-05 18:06:48,248 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-11-05 18:06:49,125 - epetcare - INFO - Application started successfully
+2025-11-05 18:10:34,546 - epetcare - ERROR - delete error (clinic_appointment): update or delete on table "clinic_appointment" violates foreign key constraint "clinic_notification_appointment_id_b2a4548b_fk_clinic_ap" on table "clinic_notification"
+DETAIL:  Key (id)=(14) is still referenced from table "clinic_notification".
+

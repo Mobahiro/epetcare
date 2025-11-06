@@ -879,7 +879,7 @@ class AppointmentDataAccess(DataAccessBase):
             'date_time': appointment.date_time.isoformat(),
             'reason': appointment.reason,
             'notes': appointment.notes,
-            'status': appointment.status
+            'status': appointment.status.value if hasattr(appointment.status, 'value') else appointment.status
         }
 
         return self.db.insert('clinic_appointment', data)
@@ -891,7 +891,7 @@ class AppointmentDataAccess(DataAccessBase):
             'date_time': appointment.date_time.isoformat(),
             'reason': appointment.reason,
             'notes': appointment.notes,
-            'status': appointment.status
+            'status': appointment.status.value if hasattr(appointment.status, 'value') else appointment.status
         }
 
         return self.db.update('clinic_appointment', data, appointment.id)

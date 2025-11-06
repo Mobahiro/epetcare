@@ -909,6 +909,35 @@ class PatientsView(QWidget):
             if success:
                 QMessageBox.information(self, "Success", "Appointment scheduled successfully.")
                 self.load_appointments()  # Refresh the table
+
+                # Notify owner and send email
+                try:
+                    from datetime import datetime
+                    owner = self.current_pet.owner if hasattr(self.current_pet, 'owner') else None
+                    if owner and hasattr(owner, 'email'):
+                        # Send notification (DB row)
+                        from models.models import VetNotification
+                        notification = VetNotification(
+                            id=0,
+                            owner_id=owner.id,
+                            message=f"A new appointment has been scheduled for {self.current_pet.name}.",
+                            created_at=datetime.now(),
+                            emailed=False
+                        )
+                        # Save notification (implement notification_data_access.create if needed)
+                        if hasattr(self, 'notification_data_access'):
+                            self.notification_data_access.create(notification)
+
+                        # Send email (implement send_email if needed)
+                        try:
+                            from vet_desktop_app.utils.emailing import send_email
+                        except ImportError:
+                            from utils.emailing import send_email
+                        subject = f"Appointment scheduled for {self.current_pet.name}"
+                        body = f"Dear {owner.full_name},\n\nA new appointment has been scheduled for your pet {self.current_pet.name} on {appointment.date_time.strftime('%Y-%m-%d %H:%M')}.\n\nReason: {appointment.reason}\n\nThank you,\nePetCare Team"
+                        send_email(owner.email, subject, body)
+                except Exception as e:
+                    print(f"Failed to notify owner or send email: {e}")
             else:
                 QMessageBox.warning(self, "Error", f"Failed to schedule appointment: {result}")
 

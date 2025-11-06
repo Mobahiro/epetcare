@@ -228,92 +228,28 @@ class MainWindow(QMainWindow):
             logger.warning(f"Resources directory didn't exist, created at: {resource_path}")
 
         # Helper function to ensure we have a valid icon
+
         def get_icon(icon_name, fallback_char):
-            from PySide6.QtGui import QPixmap
-
+            from PySide6.QtGui import QIcon, QPixmap
             icon_path = os.path.join(resource_path, icon_name)
-            logger.info(f"Trying to load icon: {icon_path}")
-
-            # Try to load from file
             if os.path.exists(icon_path):
-                logger.info(f"Icon file exists: {icon_path}")
-                try:
-                    # Try loading with QPixmap first (often more reliable)
-                    pixmap = QPixmap(icon_path)
-                    if not pixmap.isNull():
-                        logger.info(f"Successfully loaded icon via QPixmap: {icon_name}")
-                        icon = QIcon(pixmap)
-                        return icon
-                    else:
-                        logger.warning(f"QPixmap is null for: {icon_path}")
-
-                    # Fall back to direct QIcon loading
-                    icon = QIcon(icon_path)
-                    if not icon.isNull():
-                        logger.info(f"Successfully loaded icon via QIcon: {icon_name}")
-                        return icon
-                    else:
-                        logger.warning(f"Both QPixmap and QIcon failed to load: {icon_path}")
-                except Exception as e:
-                    logger.error(f"Error loading icon {icon_path}: {e}")
+                pixmap = QPixmap(icon_path)
+                if not pixmap.isNull():
+                    return QIcon(pixmap)
+                else:
+                    return QIcon(icon_path)
             else:
-                logger.warning(f"Icon file does not exist: {icon_path}")
-
-            # If icon couldn't be loaded from file, try system theme
-            theme_names = [icon_name.split('-')[0], "application", "app"]
-            for theme_name in theme_names:
-                theme_icon = QIcon.fromTheme(theme_name)
-                if not theme_icon.isNull():
-                    return theme_icon
-
-            # If we still don't have an icon, try to generate one on the fly
-            logger.warning(f"Icon not found: {icon_name}, creating temporary icon")
-            try:
-                from PIL import Image, ImageDraw
-                import tempfile
-
-                # Create a temporary icon file
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-                temp_path = temp_file.name
-                temp_file.close()
-
-                # Get color based on fallback_char
-                color_map = {
-                    'D': (0, 120, 212),   # Blue - Dashboard
-                    'P': (46, 125, 50),    # Green - Patients
-                    'A': (211, 47, 47),    # Red - Appointments
-                    'S': (123, 31, 162),   # Purple - Settings
-                    'B': (255, 143, 0),    # Orange - Backup
-                    'L': (66, 66, 66),     # Gray - Logout
-                }
-                color = color_map.get(fallback_char, (100, 100, 100))
-
-                # Create a simple colored square with text
-                img = Image.new('RGB', (64, 64), color)
-                draw = ImageDraw.Draw(img)
-                # Draw a white square in the middle
-                draw.rectangle([16, 16, 48, 48], fill=(255, 255, 255))
-                # Save the image
-                img.save(temp_path)
-
-                # Load the icon from the temp file
-                icon = QIcon(temp_path)
-                return icon
-            except Exception as e:
-                logger.error(f"Failed to create icon: {e}")
-
-            # Return even if null (will be handled by QAction)
-            return icon
+                # If icon file is missing, use a blank icon
+                return QIcon()
 
         # Create colored icons for all actions
         action_specs = [
-            ('dashboard-icon.png', 'D', "Dashboard", lambda: self.show_view("dashboard"), "View dashboard"),
-            ('patients-icon.png', 'P', "Patients", lambda: self.show_view("patients"), "Manage patients"),
-            ('appointments-icon.png', 'A', "Appointments", lambda: self.show_view("appointments"), "Manage appointments"),
-            None,  # Separator
-            ('settings-icon.png', 'S', "Settings", lambda: self.show_view("settings"), "Configure application settings"),
-            ('backup-icon.png', 'B', "Backup", self.backup_database, "Backup the database"),
-            ('logout-icon.png', 'L', "Logout", self.logout, "Log out of the application")
+            ('dashboard.png', 'D', "Dashboard", lambda: self.show_view("dashboard"), "View dashboard"),
+            ('patients.png', 'P', "Patients", lambda: self.show_view("patients"), "Manage patients"),
+            ('appointments.png', 'A', "Appointments", lambda: self.show_view("appointments"), "Manage appointments"),
+            ('settings.png', 'S', "Settings", lambda: self.show_view("settings"), "Configure application settings"),
+            ('backup.png', 'B', "Backup", self.backup_database, "Backup the database"),
+            ('logout.png', 'L', "Logout", self.logout, "Log out of the application")
         ]
 
         # Add all actions to the toolbar
