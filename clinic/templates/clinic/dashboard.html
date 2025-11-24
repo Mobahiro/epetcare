@@ -124,13 +124,13 @@
     <div id="notifications" class="tab-panel" role="tabpanel" aria-labelledby="Notifications">
       <div class="list">
         {% for n in notifications %}
-        <div class="list-item {% if not n.is_read %}unread{% endif %}">
+        <div class="list-item {% if not n.is_read %}unread{% endif %}" data-notification-id="{{ n.id }}">
           <div class="notification-title">{{ n.title }}</div>
           <div class="notification-text">{{ n.message }}</div>
           <div class="notification-meta">
             {{ n.created_at|date:'Y-m-d H:i' }}
             {% if not n.is_read %}
-              <a class="btn-link notification-action" href="{% url 'notification_mark_read' n.id %}">Mark as read</a>
+              <a class="btn-link notification-action" href="{% url 'notification_mark_read' n.id %}?next=dashboard#notifications" onclick="markNotificationRead({{ n.id }}); return true;">Mark as read</a>
             {% endif %}
           </div>
         </div>
@@ -207,5 +207,13 @@
 
 
   })();
+
+  // Function to mark notification as read via visual update
+  function markNotificationRead(notifId) {
+    const notifElement = document.querySelector(`[data-notification-id="${notifId}"]`);
+    if (notifElement) {
+      notifElement.classList.remove('unread');
+    }
+  }
 </script>
 {% endblock %}

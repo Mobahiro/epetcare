@@ -96,13 +96,19 @@ def notifications_list(request):
 @login_required
 def notification_mark_read(request, pk: int):
     owner = getattr(request.user, 'owner_profile', None)
+    if not owner:
+        messages.error(request, "Owner profile not found.")
+        return redirect('dashboard')
+
     try:
         notif = Notification.objects.get(pk=pk, owner=owner)
-        notif.is_read = True
-        notif.save(update_fields=["is_read"])
-        messages.success(request, "Notification marked as read.")
+        if not notif.is_read:
+            notif.is_read = True
+            notif.save(update_fields=["is_read"])
+            messages.success(request, "Notification marked as read.")
     except Notification.DoesNotExist:
         messages.error(request, "Notification not found.")
+
     return redirect(request.GET.get('next') or 'dashboard')
 
 
