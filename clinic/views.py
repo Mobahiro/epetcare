@@ -307,6 +307,10 @@ def change_password_request_otp(request):
 @login_required
 def change_password_verify_otp(request):
     """Verify OTP for password change"""
+    # Clear any existing messages from previous pages to prevent notification bleed
+    storage = messages.get_messages(request)
+    storage.used = True
+
     if request.method == 'POST':
         code = request.POST.get('otp', '').strip()
         from .models import PasswordResetOTP
@@ -363,6 +367,10 @@ def change_password_verify_otp(request):
 @login_required
 def change_password_set_new(request):
     """Set new password after OTP verification"""
+    # Clear any existing messages to prevent notification bleed
+    storage = messages.get_messages(request)
+    storage.used = True
+
     if not request.session.get('pw_change_verified'):
         messages.error(request, 'Please verify your email first.')
         return redirect('profile')
