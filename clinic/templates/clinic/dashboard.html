@@ -13,15 +13,7 @@
   <div class="hero-main">
     <div class="hero-title-row">
       <h1 class="hero-title">Welcome{% if owner %}, {{ owner.full_name }}{% endif %} <span class="wave">👋</span></h1>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <a class="btn btn-primary" href="{% url 'appointment_create' %}">+ New Appointment</a>
-        <div class="notif-bell">
-          <a href="{% url 'notifications' %}" class="notif-link" title="Notifications">🔔</a>
-          {% if unread_count and unread_count > 0 %}
-            <span class="notif-badge">{{ unread_count }}</span>
-          {% endif %}
-        </div>
-      </div>
+      <a class="btn btn-primary" href="{% url 'appointment_create' %}">+ New Appointment</a>
     </div>
     <div class="hero-meta-line">
       <span class="meta-item">Here's a quick snapshot of your pets and visits. Everything you need is right here.</span>
@@ -172,16 +164,7 @@
         {% endif %}
       </div>
 
-      <div class="rail-card quick-actions">
-        <div class="rail-title with-menu">
-          <span>Quick Actions</span>
-          <button class="kebab-btn" aria-label="More" aria-haspopup="true" aria-expanded="false">⋯</button>
-        </div>
-        <div class="menu" role="menu" hidden>
-          <a class="menu-item" role="menuitem" href="{% url 'pet_list' %}">View All Pets</a>
-          <a class="menu-item" role="menuitem" href="{% url 'appointment_list' %}">View All Appointments</a>
-        </div>
-      </div>
+
     </div>
   </aside>
 </div>
@@ -191,8 +174,6 @@
     const tabs = document.querySelectorAll('.card-tabs .card-tab');
     const panels = document.querySelectorAll('.tab-panel');
     const newBtns = document.querySelectorAll('.new-btn');
-    const kebab = document.querySelector('.kebab-btn');
-    const menu = document.querySelector('.quick-actions .menu');
 
     function activate(id){
       // Update panel and tab active states
@@ -224,20 +205,7 @@
     // Handle back/forward navigation
     window.addEventListener('hashchange', ()=>activate(location.hash||'#appointments'));
 
-    // Kebab menu toggle
-    if(kebab && menu){
-      kebab.addEventListener('click', ()=>{
-        const isHidden = menu.hasAttribute('hidden');
-        menu.toggleAttribute('hidden', !isHidden);
-        kebab.setAttribute('aria-expanded', String(isHidden));
-      });
-      document.addEventListener('click', (e)=>{
-        if(!menu.contains(e.target) && e.target!==kebab){
-          menu.setAttribute('hidden','');
-          kebab.setAttribute('aria-expanded','false');
-        }
-      });
-    }
+
   })();
 </script>
 {% endblock %}

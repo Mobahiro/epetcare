@@ -1,1 +1,0 @@
-raise RuntimeError('Deprecated: use config.settings.prod instead of epetcare.settings_production')

@@ -230,34 +230,152 @@ def edit_profile(request):
 
         if user_form.is_valid() and owner_form.is_valid():
             user_form.save()
-            owner_form.save()
+            owner_instance = owner_form.save(commit=False)
+            # Sync email to owner profile
+            owner_instance.email = request.user.email
+            owner_instance.save()
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('profile')
     else:
         user_form = UserProfileForm(instance=request.user)
         owner_form = OwnerForm(instance=owner)
 
+    # Get last updated date
+    last_updated = request.user.date_joined
+    if hasattr(request.user, 'last_login') and request.user.last_login:
+        last_updated = request.user.last_login
+
     return render(request, 'clinic/profile.html', {
         'user_form': user_form,
         'owner_form': owner_form,
-        'owner': owner
+        'owner': owner,
+        'last_updated': last_updated
     })
 
 
 @login_required
-def change_password(request):
+def change_password_request_otp(request):
+    """Request OTP for password change from profile page"""
+    if request.method == 'POST':
+        user = request.user
+        # Generate 6-digit OTP
+        code = f"{random.randint(0, 999999):06d}"
+        from .models import PasswordResetOTP
+        # expire after 10 minutes
+        expires = timezone.now() + timedelta(minutes=10)
+
+        # Remove ALL previous unused OTPs for this user (including expired ones)
+        deleted_count = PasswordResetOTP.objects.filter(user=user, is_used=False).delete()[0]
+        import logging
+        logging.getLogger('clinic').info(f"Deleted {deleted_count} old OTPs for user {user.id}")
+
+        otp_obj = PasswordResetOTP.objects.create(user=user, code=code, expires_at=expires)
+        logging.getLogger('clinic').info(f"Created new OTP for user {user.id}: {code} (expires: {expires})")
+
+        # Send email
+        subject = f"Your {getattr(settings, 'BRAND_NAME', 'ePetCare')} password change verification code"
+        ctx = {
+            "code": code,
+            "name": getattr(user, 'first_name', '') or None,
+            "year": timezone.now().year,
+            "BRAND_NAME": getattr(settings, 'BRAND_NAME', 'ePetCare'),
+            "EMAIL_BRAND_LOGO_URL": getattr(settings, 'EMAIL_BRAND_LOGO_URL', ''),
+        }
+        message = render_to_string('clinic/auth/otp_email.txt', ctx)
+        html_message = render_to_string('clinic/auth/otp_email.html', ctx)
+        try:
+            from .utils.emailing import send_mail_async_safe
+            send_mail_async_safe(subject, message, [user.email], html_message=html_message)
+        except Exception as e:
+            import logging
+            logging.getLogger('clinic').error('Password change OTP email failed: %s', e)
+
+        # Store user ID in session
+        request.session['pw_change_user_id'] = user.id
+        messages.info(request, f"We've sent a 6-digit verification code to {user.email}")
+        return redirect('profile_verify_password_otp')
+
+    return redirect('profile')
+
+
+@login_required
+def change_password_verify_otp(request):
+    """Verify OTP for password change"""
+    if request.method == 'POST':
+        code = request.POST.get('otp', '').strip()
+        from .models import PasswordResetOTP
+        import logging
+        logger = logging.getLogger('clinic')
+
+        user_id = request.session.get('pw_change_user_id')
+
+        # Debug output
+        print(f"[DEBUG OTP] User session ID: {user_id}, Current user: {request.user.id}")
+        print(f"[DEBUG OTP] Code received: '{code}' (length: {len(code)})")
+
+        logger.info(f"OTP verification attempt - User ID from session: {user_id}, Current user: {request.user.id}, Code: '{code}', Code length: {len(code)}")
+
+        if not user_id or user_id != request.user.id:
+            messages.error(request, 'Session expired. Please try again.')
+            return redirect('profile')
+
+        otp_qs = PasswordResetOTP.objects.filter(user_id=user_id, code=code, is_used=False).order_by('-created_at')
+        otp = otp_qs.first()
+
+        print(f"[DEBUG OTP] OTP lookup result: {otp}")
+        logger.info(f"OTP lookup result: {otp}")
+
+        if not otp:
+            messages.error(request, 'Invalid verification code. Please try again.')
+            logger.warning(f"No OTP found for user {user_id} with code '{code}'")
+            # Check if any OTPs exist for this user
+            all_otps = PasswordResetOTP.objects.filter(user_id=user_id, is_used=False).values('code', 'expires_at', 'created_at')
+            print(f"[DEBUG OTP] Available unused OTPs: {list(all_otps)}")
+            logger.info(f"Available unused OTPs for user: {list(all_otps)}")
+            # Check if code exists but is marked as used
+            used_otps = PasswordResetOTP.objects.filter(user_id=user_id, code=code, is_used=True).values('code', 'is_used', 'created_at')
+            print(f"[DEBUG OTP] Used OTPs with this code: {list(used_otps)}")
+            logger.info(f"Used OTPs with this code: {list(used_otps)}")
+            return render(request, 'clinic/profile_verify_otp.html', {'email': request.user.email})
+        elif otp.is_expired():
+            messages.error(request, 'This code has expired. Please request a new one.')
+            logger.warning(f"OTP expired - Created: {otp.created_at}, Expires: {otp.expires_at}")
+            return redirect('profile')
+        else:
+            # Mark used and allow password change
+            otp.is_used = True
+            otp.attempts = otp.attempts + 1
+            otp.save(update_fields=['is_used', 'attempts'])
+            request.session['pw_change_verified'] = True
+            logger.info(f"OTP verified successfully for user {user_id}")
+            messages.success(request, 'Email verified! Now set your new password.')
+            return redirect('profile_set_new_password')
+
+    return render(request, 'clinic/profile_verify_otp.html', {'email': request.user.email})
+
+
+@login_required
+def change_password_set_new(request):
+    """Set new password after OTP verification"""
+    if not request.session.get('pw_change_verified'):
+        messages.error(request, 'Please verify your email first.')
+        return redirect('profile')
+
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
             # Keep the user logged in after password change
             update_session_auth_hash(request, user)
-            messages.success(request, 'Your password has been updated successfully!')
+            # Clear session flags
+            request.session.pop('pw_change_user_id', None)
+            request.session.pop('pw_change_verified', None)
+            messages.success(request, 'Your password has been changed successfully!')
             return redirect('profile')
     else:
         form = PasswordChangeForm(request.user)
 
-    return render(request, 'clinic/change_password.html', {'form': form})
+    return render(request, 'clinic/profile_set_password.html', {'form': form})
 
 
 # Owners

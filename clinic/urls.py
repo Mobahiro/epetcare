@@ -10,7 +10,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile/', views.edit_profile, name='profile'),
-    path('profile/password/', views.change_password, name='change_password'),
+    path('profile/password/request-otp/', views.change_password_request_otp, name='profile_request_password_otp'),
+    path('profile/password/verify-otp/', views.change_password_verify_otp, name='profile_verify_password_otp'),
+    path('profile/password/set-new/', views.change_password_set_new, name='profile_set_new_password'),
 
     path('login/', auth_views.LoginView.as_view(template_name='clinic/login.html'), name='login'),
     path('logout/', views.logout_view, name='logout'),

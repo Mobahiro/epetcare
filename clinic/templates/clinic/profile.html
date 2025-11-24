@@ -24,16 +24,6 @@
 <section class="summary-tiles">
   <div class="tile">
     <div class="tile-head">
-      <div class="tile-icon">🐾</div>
-      <div class="tile-text">
-        <div class="tile-title">Your Pets</div>
-        <div class="tile-sub">Registered</div>
-      </div>
-    </div>
-    <div class="tile-metric">{{ pet_count|default:"0" }}</div>
-  </div>
-  <div class="tile">
-    <div class="tile-head">
       <div class="tile-icon">📋</div>
       <div class="tile-text">
         <div class="tile-title">Account</div>
@@ -58,7 +48,7 @@
   <div class="card-head with-tabs">
     <nav class="card-tabs" role="tablist">
       <a href="#personal" class="card-tab active" role="tab" aria-controls="personal" aria-selected="true">Personal Information</a>
-      <a href="{% url 'change_password' %}" class="card-tab" role="tab" aria-controls="security" aria-selected="false">Security</a>
+      <a href="#security" class="card-tab" role="tab" aria-controls="security" aria-selected="false">Security</a>
     </nav>
   </div>
 
@@ -137,5 +127,53 @@
       </div>
     </form>
   </div>
+
+  <div class="tab-panel" id="security">
+    <div style="padding: 20px;">
+      <div class="form-section">
+        <h3>Change Password</h3>
+        <p style="color: #666; margin-bottom: 20px;">For security, we'll send a verification code to your email before allowing password changes.</p>
+
+        <form method="post" action="{% url 'profile_request_password_otp' %}" id="passwordChangeForm">
+          {% csrf_token %}
+          <input type="hidden" name="email" value="{{ request.user.email }}">
+          <div class="form-group">
+            <label>Current Email:</label>
+            <input type="text" value="{{ request.user.email }}" disabled class="form-control" style="background: #f5f5f5;">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Send Verification Code</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+(function(){
+  const tabs = document.querySelectorAll('.card-tabs .card-tab');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  function activate(id){
+    panels.forEach(p=>p.classList.toggle('active', '#'+p.id===id));
+    tabs.forEach(t=>t.classList.toggle('active', t.getAttribute('href')===id));
+  }
+
+  if(location.hash){
+    activate(location.hash);
+  } else {
+    activate('#personal');
+  }
+
+  tabs.forEach(t=>t.addEventListener('click', function(e){
+    e.preventDefault();
+    const href = this.getAttribute('href');
+    history.pushState(null, null, href);
+    activate(href);
+  }));
+
+  window.addEventListener('hashchange', ()=>activate(location.hash||'#personal'));
+})();
+</script>
 {% endblock %}
