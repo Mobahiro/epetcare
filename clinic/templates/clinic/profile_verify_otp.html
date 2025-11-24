@@ -21,16 +21,6 @@
 
 <div class="main-card" style="max-width: 500px; margin: 40px auto;">
   <div style="padding: 30px;">
-    {% if messages %}
-      <div style="margin-bottom: 20px;">
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}" style="padding: 12px; margin-bottom: 10px; border-radius: 6px; {% if message.tags == 'error' %}background: #fee; color: #c00; border: 1px solid #fcc;{% elif message.tags == 'success' %}background: #efe; color: #0a0; border: 1px solid #cfc;{% else %}background: #eef; color: #007; border: 1px solid #ccf;{% endif %}">
-            {{ message }}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-
     <form method="post">
       {% csrf_token %}
 

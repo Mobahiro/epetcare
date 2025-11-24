@@ -307,9 +307,6 @@ def change_password_request_otp(request):
 @login_required
 def change_password_verify_otp(request):
     """Verify OTP for password change"""
-    # Clear any existing messages from previous pages to prevent notification bleed
-    storage = messages.get_messages(request)
-    storage.used = True
 
     if request.method == 'POST':
         code = request.POST.get('otp', '').strip()
@@ -336,6 +333,10 @@ def change_password_verify_otp(request):
         logger.info(f"OTP lookup result: {otp}")
 
         if not otp:
+            # Clear all old messages first
+            storage = messages.get_messages(request)
+            storage.used = True
+            # Add only the error message we want
             messages.error(request, 'Invalid verification code. Please try again.')
             logger.warning(f"No OTP found for user {user_id} with code '{code}'")
             # Check if any OTPs exist for this user
@@ -358,18 +359,20 @@ def change_password_verify_otp(request):
             otp.save(update_fields=['is_used', 'attempts'])
             request.session['pw_change_verified'] = True
             logger.info(f"OTP verified successfully for user {user_id}")
+            # Clear old messages and add success
+            storage = messages.get_messages(request)
+            storage.used = True
             messages.success(request, 'Email verified! Now set your new password.')
             return redirect('profile_set_new_password')
 
+    # Clear any existing messages from previous pages on GET request
+    storage = messages.get_messages(request)
+    storage.used = True
+
     return render(request, 'clinic/profile_verify_otp.html', {'email': request.user.email})
-
-
 @login_required
 def change_password_set_new(request):
     """Set new password after OTP verification"""
-    # Clear any existing messages to prevent notification bleed
-    storage = messages.get_messages(request)
-    storage.used = True
 
     if not request.session.get('pw_change_verified'):
         messages.error(request, 'Please verify your email first.')
@@ -384,14 +387,19 @@ def change_password_set_new(request):
             # Clear session flags
             request.session.pop('pw_change_user_id', None)
             request.session.pop('pw_change_verified', None)
+            # Clear old messages and add success
+            storage = messages.get_messages(request)
+            storage.used = True
             messages.success(request, 'Your password has been changed successfully!')
             return redirect('profile')
     else:
         form = PasswordChangeForm(request.user)
 
+    # Clear any existing messages to prevent notification bleed on GET
+    storage = messages.get_messages(request)
+    storage.used = True
+
     return render(request, 'clinic/profile_set_password.html', {'form': form})
-
-
 # Owners
 
 @login_required
