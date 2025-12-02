@@ -7,10 +7,12 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
     <link rel="stylesheet" href="{% static 'clinic/modal.css' %}?v={% now "U" %}">
+    <link rel="stylesheet" href="{% static 'clinic/dark-mode.css' %}?v={% now "U" %}">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="{% static 'clinic/refresh.js' %}?v={% now "U" %}" defer></script>
+    <script src="{% static 'clinic/dark-mode-toggle.js' %}?v={% now "U" %}"></script>
     <style>
         /* Simple Vet Portal Styles with Warm Neutrals */
         .site-header {
@@ -173,11 +175,17 @@
                             {% endif %}
                         {% endwith %}
                     </a>
+                    <button class="nav-link" id="darkModeToggle" style="background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-size: 20px; min-width: auto;" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        🌙
+                    </button>
                     <a class="nav-link" href="{% url 'vet:logout' %}">Logout</a>
                 {% else %}
                     <a class="nav-link" href="{% url 'vet:home' %}">Home</a>
                     <a class="nav-link" href="{% url 'vet:login' %}">Login</a>
                     <a class="nav-link" href="{% url 'vet:register' %}">Register</a>
+                    <button class="nav-link" id="darkModeToggle" style="background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-size: 20px; min-width: auto;" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        🌙
+                    </button>
                 {% endif %}
             </nav>
         </div>

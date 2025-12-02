@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
     <link rel="stylesheet" href="{% static 'clinic/modal.css' %}?v={% now "U" %}">
     <link rel="stylesheet" href="{% static 'clinic/modern.css' %}?v={% now "U" %}">
+    <link rel="stylesheet" href="{% static 'clinic/dark-mode.css' %}?v={% now "U" %}">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="{% static 'clinic/refresh.js' %}?v={% now "U" %}" defer></script>
     <script src="{% static 'clinic/main.js' %}?v={% now "U" %}" defer></script>
     <script src="{% static 'clinic/modern.js' %}?v={% now "U" %}" defer></script>
+    <script src="{% static 'clinic/dark-mode-toggle.js' %}?v={% now "U" %}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{% static 'clinic/images/epetcare-logo.png' %}">
     <link rel="apple-touch-icon" href="{% static 'clinic/images/epetcare-logo.png' %}">
@@ -68,6 +70,10 @@
                         <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'login' %}">Login</a>
                         <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'register' %}">Register</a>
                     {% endif %}
+
+                    <button class="nav-link" id="darkModeToggle" style="background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 20px; min-width: auto;" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        🌙
+                    </button>
 
                     {% if request.user.is_staff %}
                         <a class="nav-link nav-with-icon {% if '/owner/' in request.path %}active{% endif %}" href="{% url 'owner_list' %}" title="Owners" aria-label="Owners"><span class="icon">👥</span><span class="label">Owners</span></a>
