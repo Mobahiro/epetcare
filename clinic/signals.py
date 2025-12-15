@@ -27,16 +27,21 @@ def _capture_old_status(sender, instance: Appointment, **kwargs):
 @receiver(post_save, sender=Appointment)
 def appointment_notify(sender, instance: Appointment, created: bool, **kwargs):
     """Create notifications for appointment changes. Never raises exceptions."""
+    import logging
+    logger = logging.getLogger('clinic')
     try:
+        logger.info(f'[SIGNAL] appointment_notify triggered: created={created}, pet={instance.pet.name}, id={instance.id}')
         owner = instance.pet.owner
+        logger.info(f'[SIGNAL] Owner found: {owner.full_name} (id={owner.id})')
         if created:
-            Notification.objects.create(
+            notif = Notification.objects.create(
                 owner=owner,
                 appointment=instance,
                 notif_type=Notification.Type.APPOINTMENT_CREATED,
                 title="Appointment Scheduled",
                 message=f"An appointment for {instance.pet.name} was scheduled on {instance.date_time:%b %d, %H:%M}.",
             )
+            logger.info(f'[SIGNAL] Notification created successfully: id={notif.id}')
             return
 
         # Status change notifications
@@ -67,38 +72,48 @@ def appointment_notify(sender, instance: Appointment, created: bool, **kwargs):
 @receiver(post_save, sender=Prescription)
 def prescription_notify(sender, instance: Prescription, created: bool, **kwargs):
     """Create notifications for new prescriptions. Never raises exceptions."""
+    import logging
+    logger = logging.getLogger('clinic')
     try:
+        logger.info(f'[SIGNAL] prescription_notify triggered: created={created}, pet={instance.pet.name}, medication={instance.medication_name}')
         if not created:
+            logger.info('[SIGNAL] Prescription not new, skipping notification')
             return
         pet = instance.pet
-        Notification.objects.create(
+        logger.info(f'[SIGNAL] Owner found: {pet.owner.full_name} (id={pet.owner.id})')
+        notif = Notification.objects.create(
             owner=pet.owner,
             notif_type=Notification.Type.GENERAL,
             title="New Prescription",
             message=f"A new prescription for {pet.name} was added: {instance.medication_name} ({instance.dosage}).",
         )
+        logger.info(f'[SIGNAL] Notification created successfully: id={notif.id}')
     except Exception as e:
-        import logging
-        logging.getLogger('clinic').error(f'Failed to create prescription notification: {e}', exc_info=True)
+        logger.error(f'Failed to create prescription notification: {e}', exc_info=True)
 
 
 # --- Medical record notifications ---
 @receiver(post_save, sender=MedicalRecord)
 def medical_record_notify(sender, instance: MedicalRecord, created: bool, **kwargs):
     """Create notifications for new medical records. Never raises exceptions."""
+    import logging
+    logger = logging.getLogger('clinic')
     try:
+        logger.info(f'[SIGNAL] medical_record_notify triggered: created={created}, pet={instance.pet.name}, condition={instance.condition}')
         if not created:
+            logger.info('[SIGNAL] Medical record not new, skipping notification')
             return
         pet = instance.pet
-        Notification.objects.create(
+        logger.info(f'[SIGNAL] Owner found: {pet.owner.full_name} (id={pet.owner.id})')
+        notif = Notification.objects.create(
             owner=pet.owner,
             notif_type=Notification.Type.GENERAL,
             title="New Medical Record",
             message=f"A new medical record for {pet.name} was added: {instance.condition}.",
         )
+        logger.info(f'[SIGNAL] Notification created successfully: id={notif.id}')
     except Exception as e:
-        import logging
-        logging.getLogger('clinic').error(f'Failed to create medical record notification: {e}', exc_info=True)
+        logger.error(f'Failed to create medical record notification: {e}', exc_info=True)
 
 
 # --- Email owners when a Notification is created ---
