@@ -84,7 +84,7 @@
 /* Row pill hover/active */
 .side-link:hover{background:var(--color-warm-hover);color:var(--color-text-strong);box-shadow:var(--shadow-soft)}
 .side-link[aria-current="page"], .side-link.active{background:var(--color-warm-active);color:var(--color-text-strong)}
-.side-link .badge{margin-left:6px;background:#4a2c10;color:#fff;border-radius:10px;padding:1px 6px;font-size:11px}
+.side-link .badge{margin-left:8px;background:#dc3545;color:#fff;border-radius:12px;padding:2px 7px;font-size:11px;font-weight:600;min-width:20px;text-align:center;line-height:1.2;box-shadow:0 2px 4px rgba(220,53,69,.3)}
 
 .dash-main{display:flex;flex-direction:column;min-width:0}
 .dash-topbar{height:64px;min-height:64px;border-bottom:1px solid rgba(74,44,16,.1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(255,255,255,.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);position:sticky;top:0;z-index:10;box-shadow:0 4px 14px rgba(0,0,0,.04);overflow:visible}
@@ -97,7 +97,7 @@
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;border:1px solid #e6e6e6;background:#f8f8f8;text-decoration:none;color:#3b2710}
 .icon-btn:hover{background:#f1f1f1; box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .notif-btn{position:relative;text-decoration:none}
-.notif-btn .badge{position:absolute;top:-6px;right:-8px;background:#d9480f;color:#fff;border-radius:10px;padding:0 6px;font-size:11px}
+.notif-btn .badge{position:absolute;top:-6px;right:-8px;background:#dc3545;color:#fff;border-radius:12px;padding:2px 6px;font-size:11px;font-weight:600;min-width:18px;text-align:center;line-height:1.2;box-shadow:0 2px 6px rgba(220,53,69,.4)}
 .profile-chip{display:flex;align-items:center;gap:10px;border:1px solid rgba(74,44,16,.12);border-radius:14px;padding:6px 10px;background:#fff;position:relative;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.04)}
 .profile-chip .chip-text{line-height:1;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* profile chip avatar */

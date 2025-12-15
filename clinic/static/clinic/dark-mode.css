@@ -746,6 +746,14 @@ body.dark-mode .notification-badge {
   color: #121212;
 }
 
+/* Notification badges in sidebar and topbar */
+body.dark-mode .notif-btn .badge,
+body.dark-mode .side-link .badge {
+  background: #dc3545;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.5);
+}
+
 /* ================================
    TYPOGRAPHY
    ================================ */
