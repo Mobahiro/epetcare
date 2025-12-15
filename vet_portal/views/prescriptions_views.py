@@ -14,9 +14,14 @@ def prescription_create(request, pet_id):
     if request.method == 'POST':
         form = PrescriptionForm(request.POST)
         if form.is_valid():
+            import logging
+            logger = logging.getLogger('clinic')
+            logger.info(f'[VET_PORTAL] About to save prescription for pet: {pet.name} (id={pet.id})')
             rx = form.save(commit=False)
             rx.pet = pet  # enforce correct pet
+            logger.info(f'[VET_PORTAL] Calling rx.save() - this should trigger signal')
             rx.save()
+            logger.info(f'[VET_PORTAL] Prescription saved with id={rx.id}')
             messages.success(request, 'Prescription created successfully.')
             return redirect('vet_portal:patient_detail', pk=pet.id)
     else:

@@ -14,9 +14,14 @@ def medical_record_create(request, pet_id):
     if request.method == 'POST':
         form = MedicalRecordForm(request.POST)
         if form.is_valid():
+            import logging
+            logger = logging.getLogger('clinic')
+            logger.info(f'[VET_PORTAL] About to save medical record for pet: {pet.name} (id={pet.id})')
             record = form.save(commit=False)
             record.pet = pet  # enforce correct pet
+            logger.info(f'[VET_PORTAL] Calling record.save() - this should trigger signal')
             record.save()
+            logger.info(f'[VET_PORTAL] Medical record saved with id={record.id}')
             messages.success(request, 'Medical record created successfully.')
             return redirect('vet_portal:patient_detail', pk=pet.id)
     else:

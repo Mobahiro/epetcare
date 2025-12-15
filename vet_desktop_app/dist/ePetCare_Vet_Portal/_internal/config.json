@@ -1,0 +1,32 @@
+{
+    "postgres": {
+        "host": "postgresql://shiro:AfsXuq5zLnQMRn0iFSAxxIV4tYB8tYnG@dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com/epetcare_database",
+        "port": 5432,
+        "database": "epetcare_database",
+        "user": "shiro",
+        "password": "AfsXuq5zLnQMRn0iFSAxxIV4tYB8tYnG",
+        "sslmode": "require",
+        "database_url": "postgresql://shiro:AfsXuq5zLnQMRn0iFSAxxIV4tYB8tYnG@dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com/epetcare_database",
+        "pg_dump_path": "C:\\Program Files\\PostgreSQL\\18\\bin\\pg_dump.exe",
+        "psql_path": "C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe",
+        "pre_clean_restore": false
+    },
+    "database": {
+        "path": "C:\\epetcare\\db.sqlite3",
+        "backup_dir": "C:\\epetcare\\vet_desktop_app\\backups"
+    },
+    "app": {
+        "offline_mode": false,
+        "sync_interval": 300,
+        "auto_backup": false,
+        "server_url": "https://epetcare.onrender.com",
+        "fallback_server_urls": [
+            "http://localhost:8000"
+        ],
+        "read_only_mode": false
+    },
+    "ui": {
+        "theme": "light",
+        "font_size": 10
+    }
+}

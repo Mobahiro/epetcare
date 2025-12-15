@@ -34,9 +34,13 @@ def register(request):
         print(f"Form valid: {form.is_valid()}")
         if form.is_valid():
             try:
-                user, owner = form.create_user_and_owner()
-                login(request, user)
-                messages.success(request, "Registration successful! Welcome to ePetCare.")
+                from django.db import transaction
+                with transaction.atomic():
+                    user, owner = form.create_user_and_owner()
+                    # Set backend attribute for login to work properly
+                    user.backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, user)
+                    messages.success(request, "Registration successful! Welcome to ePetCare.")
                 return redirect('dashboard')
             except Exception as e:
                 print(f"Error creating user: {str(e)}")
@@ -56,7 +60,14 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    owner = getattr(request.user, 'owner_profile', None)
+    try:
+        owner = getattr(request.user, 'owner_profile', None)
+    except Exception as e:
+        # If there's an issue retrieving the user, log them out and redirect to login
+        logout(request)
+        messages.error(request, "Session error. Please log in again.")
+        return redirect('login')
+    
     # Opportunistically process any unsent emails for this owner upon visit
     if owner:
         try:
@@ -652,9 +663,18 @@ def medical_record_delete(request, pk: int):
 
 @login_required
 def appointment_list(request):
+    from django.utils import timezone
     owner = getattr(request.user, 'owner_profile', None)
     appointments = Appointment.objects.select_related('pet').filter(pet__owner=owner).order_by('-date_time') if owner else Appointment.objects.none()
-    return render(request, 'clinic/appointment_list.html', {"appointments": appointments})
+    # Get next upcoming appointment (earliest future appointment)
+    next_appointment = Appointment.objects.select_related('pet').filter(
+        pet__owner=owner,
+        date_time__gte=timezone.now()
+    ).order_by('date_time').first() if owner else None
+    return render(request, 'clinic/appointment_list.html', {
+        "appointments": appointments,
+        "next_appointment": next_appointment
+    })
 
 
 @login_required

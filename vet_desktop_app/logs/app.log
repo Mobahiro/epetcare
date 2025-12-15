@@ -7948,3 +7948,65 @@ DETAIL:  Key (id)=(14) is still referenced from table "clinic_notification".
 2025-11-25 02:44:48,323 - epetcare - INFO - Added action Backup to toolbar with icon from backup.png
 2025-11-25 02:44:48,330 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
 2025-11-25 02:44:49,930 - epetcare - INFO - Application started successfully
+2025-12-15 14:15:19,162 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-15 14:15:19,163 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-15 14:15:19,337 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-15 14:15:19,438 - epetcare - WARNING - openpyxl not available. Excel report generation will be disabled.
+2025-12-15 14:15:19,440 - epetcare - INFO - Initializing application...
+2025-12-15 14:15:19,456 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-12-15 14:15:19,469 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-12-15 14:15:20,516 - epetcare - INFO - PostgreSQL connection established
+2025-12-15 14:15:20,516 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-12-15 14:15:20,858 - epetcare - INFO - Creating main window...
+2025-12-15 14:15:26,987 - epetcare - INFO - Looking for icons in: C:\Users\hamme\Desktop\epetcare\vet_desktop_app\resources
+2025-12-15 14:15:26,988 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'settings.png', 'style.qss']
+2025-12-15 14:15:27,005 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-12-15 14:15:27,020 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-12-15 14:15:27,033 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-12-15 14:15:27,047 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-12-15 14:15:27,059 - epetcare - INFO - Added action Report to toolbar with icon from backup.png
+2025-12-15 14:15:27,071 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-12-15 14:15:27,751 - epetcare - INFO - Application started successfully
+2025-12-15 14:17:21,009 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-15 14:17:21,009 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-15 14:17:21,140 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-15 14:17:21,240 - epetcare - WARNING - openpyxl not available. Excel report generation will be disabled.
+2025-12-15 14:17:21,242 - epetcare - INFO - Initializing application...
+2025-12-15 14:17:21,257 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-12-15 14:17:21,324 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-12-15 14:17:22,268 - epetcare - INFO - PostgreSQL connection established
+2025-12-15 14:17:22,268 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-12-15 14:17:22,602 - epetcare - INFO - Creating main window...
+2025-12-15 14:17:28,062 - epetcare - INFO - Looking for icons in: C:\Users\hamme\Desktop\epetcare\vet_desktop_app\resources
+2025-12-15 14:17:28,062 - epetcare - INFO - Resource directory contents: ['app-icon.ico', 'app-icon.png', 'appointments.png', 'backup.png', 'dark_style.qss', 'dashboard.png', 'light_style.qss', 'logout.png', 'patients.png', 'settings.png', 'style.qss']
+2025-12-15 14:17:28,072 - epetcare - INFO - Added action Dashboard to toolbar with icon from dashboard.png
+2025-12-15 14:17:28,080 - epetcare - INFO - Added action Patients to toolbar with icon from patients.png
+2025-12-15 14:17:28,086 - epetcare - INFO - Added action Appointments to toolbar with icon from appointments.png
+2025-12-15 14:17:28,094 - epetcare - INFO - Added action Settings to toolbar with icon from settings.png
+2025-12-15 14:17:28,099 - epetcare - INFO - Added action Report to toolbar with icon from backup.png
+2025-12-15 14:17:28,105 - epetcare - INFO - Added action Logout to toolbar with icon from logout.png
+2025-12-15 14:17:29,066 - epetcare - INFO - Application started successfully
+2025-12-15 14:17:39,346 - epetcare - INFO - Notification created for medical record - owner_id=1, pet=Michael
+2025-12-15 14:18:16,717 - epetcare - INFO - Notification created for prescription - owner_id=1, pet=Michael, medication=dadaada
+2025-12-15 14:18:21,028 - epetcare - INFO - Notification created for appointment - owner_id=1, pet=Michael
+2025-12-15 14:19:01,815 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-15 14:19:01,816 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-15 14:19:01,927 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-15 14:19:02,029 - epetcare - WARNING - openpyxl not available. Excel report generation will be disabled.
+2025-12-15 14:19:02,031 - epetcare - INFO - Initializing application...
+2025-12-15 14:19:02,046 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-12-15 14:19:02,106 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-12-15 14:19:03,054 - epetcare - INFO - PostgreSQL connection established
+2025-12-15 14:19:03,054 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-12-15 14:19:03,393 - epetcare - INFO - Creating main window...
+2025-12-15 14:19:11,277 - epetcare - INFO - Application started successfully
+2025-12-15 15:18:59,430 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-15 15:18:59,430 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-15 15:18:59,548 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-15 15:18:59,781 - epetcare - INFO - Initializing application...
+2025-12-15 15:18:59,800 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-12-15 15:18:59,857 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-12-15 15:19:00,798 - epetcare - INFO - PostgreSQL connection established
+2025-12-15 15:19:00,798 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-12-15 15:19:01,138 - epetcare - INFO - Creating main window...
+2025-12-15 15:19:11,587 - epetcare - INFO - Application started successfully

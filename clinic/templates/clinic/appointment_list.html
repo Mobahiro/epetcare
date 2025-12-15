@@ -138,29 +138,20 @@
     <div class="rail">
       <div class="rail-card">
         <div class="rail-title">Next Appointment</div>
-        {% with next_appt=appointments|dictsortreversed:"date_time"|first %}
-          {% if next_appt %}
-            <div class="rail-row">
-              <div class="rail-primary">{{ next_appt.date_time|date:"M d, Y H:i" }}</div>
-              <div class="rail-secondary">{{ next_appt.pet.name }}</div>
-            </div>
-            <div>
-              <span class="pill scheduled">{{ next_appt.reason|truncatechars:30 }}</span>
-            </div>
-            <div class="rail-actions" style="margin-top:8px">
-              <a class="btn btn-sm" href="#">View Details</a>
-            </div>
-          {% else %}
-            <div class="empty-message">No upcoming appointments.</div>
-          {% endif %}
-        {% endwith %}
-      </div>
-
-      <div class="rail-card">
-        <div class="rail-title">Quick Actions</div>
-        <div class="rail-actions">
-          <a class="btn btn-primary btn-sm" href="{% url 'appointment_create' %}">New Appointment</a>
-        </div>
+        {% if next_appointment %}
+          <div class="rail-row">
+            <div class="rail-primary">{{ next_appointment.date_time|date:"M d, Y H:i" }}</div>
+            <div class="rail-secondary">{{ next_appointment.pet.name }}</div>
+          </div>
+          <div>
+            <span class="pill scheduled">{{ next_appointment.reason|truncatechars:30 }}</span>
+          </div>
+          <div class="rail-actions" style="margin-top:8px">
+            <a class="btn btn-sm" href="#">View Details</a>
+          </div>
+        {% else %}
+          <div class="empty-message">No upcoming appointments.</div>
+        {% endif %}
       </div>
     </div>
   </aside>
@@ -174,7 +165,6 @@
         <th>Pet</th>
         <th>Reason</th>
         <th>Status</th>
-        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -197,15 +187,9 @@
               <span class="badge">{{ a.get_status_display }}</span>
             {% endif %}
           </td>
-          <td class="actions-cell">
-            <div class="table-actions">
-              <a href="#" class="table-action">Edit</a>
-              <a href="#" class="table-action danger">Cancel</a>
-            </div>
-          </td>
         </tr>
       {% empty %}
-        <tr><td colspan="5" class="empty-cell">No appointments scheduled.</td></tr>
+        <tr><td colspan="4" class="empty-cell">No appointments scheduled.</td></tr>
       {% endfor %}
     </tbody>
   </table>

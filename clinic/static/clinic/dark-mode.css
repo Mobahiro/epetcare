@@ -87,6 +87,38 @@ body.dark-mode *:not(img):not(svg):not(.fa):not([class*="icon"]):not(i) {
   border-color: var(--dm-border);
 }
 
+/* Force text to be visible */
+body.dark-mode,
+body.dark-mode * {
+  color: var(--dm-text-high) !important;
+}
+
+/* Specific text elements */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
+body.dark-mode h4, body.dark-mode h5, body.dark-mode h6,
+body.dark-mode p, body.dark-mode span, body.dark-mode div,
+body.dark-mode label, body.dark-mode a, body.dark-mode li,
+body.dark-mode td, body.dark-mode th {
+  color: var(--dm-text-high) !important;
+}
+
+/* Muted text */
+body.dark-mode .muted,
+body.dark-mode .text-muted,
+body.dark-mode small,
+body.dark-mode .small {
+  color: var(--dm-text-med) !important;
+}
+
+/* Links */
+body.dark-mode a {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode a:hover {
+  color: var(--dm-primary-light) !important;
+}
+
 /* Force dark backgrounds - ALL white/light colors */
 body.dark-mode [style*="background: white"],
 body.dark-mode [style*="background-color: white"],
@@ -446,6 +478,16 @@ body.dark-mode .list-item:nth-child(odd) { background: var(--dm-surface-1) !impo
    ================================ */
 
 body.dark-mode .btn,
+body.dark-mode button {
+  color: #FFFFFF !important;
+  font-weight: 500;
+}
+
+body.dark-mode .btn-primary {
+  background: linear-gradient(135deg, var(--dm-primary) 0%, var(--dm-primary-variant) 100%) !important;
+  color: #121212 !important;
+  border: none !important;
+}
 body.dark-mode button:not(#darkModeToggle) {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 8px;
@@ -1244,6 +1286,161 @@ body.dark-mode span[style*="color"],
 body.dark-mode label[style*="color"],
 body.dark-mode small[style*="color"],
 body.dark-mode p[style*="color"],
+body.dark-mode div[style*="color"] {
+  color: var(--dm-text-high) !important;
+}
+
+/* ================================
+   HOMEPAGE, ABOUT, LOGIN, REGISTER PAGES
+   ================================ */
+
+/* Hero sections */
+body.dark-mode .hero-section,
+body.dark-mode .page-hero,
+body.dark-mode .hero,
+body.dark-mode .jumbotron {
+  background: linear-gradient(135deg, var(--dm-surface-2) 0%, var(--dm-surface-1) 100%) !important;
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .hero-section h1,
+body.dark-mode .page-hero h1,
+body.dark-mode .hero h1,
+body.dark-mode .jumbotron h1 {
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .hero-section p,
+body.dark-mode .page-hero p,
+body.dark-mode .hero p,
+body.dark-mode .jumbotron p {
+  color: var(--dm-text-med) !important;
+}
+
+/* Feature sections */
+body.dark-mode .features,
+body.dark-mode .feature-grid,
+body.dark-mode .services {
+  background: var(--dm-base) !important;
+  color: var(--dm-text-high) !important;
+}
+
+/* Auth forms (login/register) */
+body.dark-mode .auth-form,
+body.dark-mode .login-form,
+body.dark-mode .register-form,
+body.dark-mode .form-wrapper {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .auth-form h2,
+body.dark-mode .login-form h2,
+body.dark-mode .register-form h2 {
+  color: var(--dm-text-high) !important;
+}
+
+/* Form fields */
+body.dark-mode .form-group label,
+body.dark-mode .form-field label {
+  color: var(--dm-text-med) !important;
+}
+
+body.dark-mode .form-help,
+body.dark-mode .help-text {
+  color: var(--dm-text-low) !important;
+}
+
+/* Error messages */
+body.dark-mode .errorlist,
+body.dark-mode .error,
+body.dark-mode .alert-danger,
+body.dark-mode .form-error {
+  background: rgba(207, 102, 121, 0.18) !important;
+  color: var(--dm-error) !important;
+  border-color: var(--dm-error) !important;
+}
+
+/* Success messages */
+body.dark-mode .alert-success,
+body.dark-mode .success-message {
+  background: rgba(3, 218, 198, 0.18) !important;
+  color: var(--dm-success) !important;
+  border-color: var(--dm-success) !important;
+}
+
+/* Info messages */
+body.dark-mode .alert-info {
+  background: rgba(130, 177, 255, 0.18) !important;
+  color: var(--dm-info) !important;
+  border-color: var(--dm-info) !important;
+}
+
+/* About page specific */
+body.dark-mode .about-section,
+body.dark-mode .team-section,
+body.dark-mode .mission-section {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .team-member,
+body.dark-mode .staff-card {
+  background: var(--dm-surface-2) !important;
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .team-member h3,
+body.dark-mode .staff-card h3 {
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .team-member p,
+body.dark-mode .staff-card p {
+  color: var(--dm-text-med) !important;
+}
+
+/* Footer */
+body.dark-mode footer,
+body.dark-mode .site-footer {
+  background: var(--dm-surface-2) !important;
+  color: var(--dm-text-med) !important;
+  border-top: 1px solid var(--dm-border) !important;
+}
+
+body.dark-mode footer a,
+body.dark-mode .site-footer a {
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode footer a:hover,
+body.dark-mode .site-footer a:hover {
+  color: var(--dm-primary-light) !important;
+}
+
+/* Checkboxes and radio buttons */
+body.dark-mode input[type="checkbox"],
+body.dark-mode input[type="radio"] {
+  accent-color: var(--dm-primary) !important;
+}
+
+/* All headings across all pages */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
+  color: var(--dm-text-high) !important;
+}
+
+/* All paragraphs */
+body.dark-mode p {
+  color: var(--dm-text-med) !important;
+}
+
+/* All list items */
+body.dark-mode li {
+  color: var(--dm-text-med) !important;
+}
 body.dark-mode div[style*="color"] {
   color: var(--dm-text-high) !important;
 }
