@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QStackedWidget, QTabWidget, QStatusBar, QMessageBox, QToolBar,
     QMenu, QDialog
 )
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QObject, Signal, QThread
 from PySide6.QtGui import QIcon, QFont, QAction
 import sys
 import os
@@ -28,7 +28,7 @@ if getattr(sys, 'frozen', False):
         from views.patients_view import PatientsView
         from views.appointments_view import AppointmentsView
         from views.settings_view import SettingsView
-        from utils.pg_backup import backup_postgres_data
+        from utils.report_generator import generate_patients_report
         from utils.notification_manager import NotificationManager
         logger.debug("Successfully imported modules in main_window.py")
     except ImportError as e:
@@ -102,8 +102,8 @@ if getattr(sys, 'frozen', False):
             else:
                 logger.error(f"settings_view.py not found at {settings_view_path}")
 
-            # Import utils.pg_backup
-            from utils.pg_backup import backup_postgres_data
+            # Import utils.report_generator
+            from utils.report_generator import generate_patients_report
 
             # Import utils.notification_manager
             from utils.notification_manager import NotificationManager
@@ -120,7 +120,7 @@ else:
     from views.patients_view import PatientsView
     from views.appointments_view import AppointmentsView
     from views.settings_view import SettingsView
-    from utils.pg_backup import backup_postgres_data
+    from utils.report_generator import generate_patients_report
     from utils.notification_manager import NotificationManager
 
 
@@ -178,9 +178,9 @@ class MainWindow(QMainWindow):
         # File menu
         file_menu = menu_bar.addMenu("&File")
 
-        backup_action = QAction("&Backup Database", self)
-        backup_action.triggered.connect(self.backup_database)
-        file_menu.addAction(backup_action)
+        report_action = QAction("&Generate Patients Report", self)
+        report_action.triggered.connect(self.generate_report)
+        file_menu.addAction(report_action)
 
         file_menu.addSeparator()
 
@@ -248,7 +248,7 @@ class MainWindow(QMainWindow):
             ('patients.png', 'P', "Patients", lambda: self.show_view("patients"), "Manage patients"),
             ('appointments.png', 'A', "Appointments", lambda: self.show_view("appointments"), "Manage appointments"),
             ('settings.png', 'S', "Settings", lambda: self.show_view("settings"), "Configure application settings"),
-            ('backup.png', 'B', "Backup", self.backup_database, "Backup the database"),
+            ('backup.png', 'R', "Report", self.generate_report, "Generate Excel report of patients and owners"),
             ('logout.png', 'L', "Logout", self.logout, "Log out of the application")
         ]
 
@@ -360,22 +360,68 @@ class MainWindow(QMainWindow):
             # Show login dialog
             self.show_login_dialog()
 
-    def backup_database(self):
-        """Backup the PostgreSQL database"""
-        success, result = backup_postgres_data()
+    def generate_report(self):
+        """Generate an Excel report of all patients and owners"""
+        from PySide6.QtWidgets import QFileDialog
+        from datetime import datetime
+        
+        # Show save file dialog
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_filename = f"patients_report_{timestamp}.xlsx"
+        
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Patients Report",
+            os.path.join(os.path.expanduser("~"), "Documents", default_filename),
+            "Excel Files (*.xlsx);;All Files (*)"
+        )
+        
+        if not file_path:
+            # User cancelled
+            return
+        
+        # Ensure .xlsx extension
+        if not file_path.lower().endswith('.xlsx'):
+            file_path += '.xlsx'
+        
+        # Show progress in status bar
+        self.status_bar.showMessage("Generating report...")
+        
+        try:
+            # Generate report and save to specified location
+            from utils.report_generator import generate_patients_report_to_path
+            success, result = generate_patients_report_to_path(file_path)
+            
+            self.status_bar.clearMessage()
+            
+            if success:
+                # Ask if user wants to open the report
+                reply = QMessageBox.question(
+                    self,
+                    "Report Generated",
+                    f"Report saved successfully to:\n{file_path}\n\nWould you like to open the file?",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.Yes
+                )
+                if reply == QMessageBox.Yes:
+                    # Open the file with the default application
+                    import subprocess
+                    import platform
+                    try:
+                        if platform.system() == 'Windows':
+                            os.startfile(file_path)
+                        elif platform.system() == 'Darwin':  # macOS
+                            subprocess.run(['open', file_path])
+                        else:  # Linux
+                            subprocess.run(['xdg-open', file_path])
+                    except Exception as e:
+                        QMessageBox.warning(self, "Open Failed", f"Could not open file: {e}")
+            else:
+                QMessageBox.critical(self, "Report Generation Failed", result)
+        except Exception as e:
+            self.status_bar.clearMessage()
+            QMessageBox.critical(self, "Report Generation Failed", f"An error occurred: {str(e)}")
 
-        if success:
-            QMessageBox.information(
-                self,
-                "Backup Successful",
-                f"Database backup created successfully at:\n{result}"
-            )
-        else:
-            QMessageBox.critical(
-                self,
-                "Backup Failed",
-                f"Failed to create database backup:\n{result}"
-            )
 
     def show_about_dialog(self):
         """Show the about dialog"""

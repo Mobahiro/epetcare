@@ -577,12 +577,14 @@ def pet_detail(request, pk: int):
     appointments = pet.appointments.all().order_by('-date_time')
     prescriptions = pet.prescriptions.all().order_by('-date_prescribed')
     medical_records = MedicalRecord.objects.filter(pet=pet).order_by('-visit_date')
+    active_rx_count = pet.prescriptions.filter(is_active=True).count()
 
     return render(request, 'clinic/pet_detail.html', {
         "pet": pet,
         "appointments": appointments,
         "prescriptions": prescriptions,
         "medical_records": medical_records,
+        "active_rx_count": active_rx_count,
     })
 
 

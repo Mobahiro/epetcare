@@ -95,10 +95,6 @@ class SettingsView(QWidget):
         self.sync_interval_spin.setSuffix(" seconds")
         app_layout.addRow("Sync Interval:", self.sync_interval_spin)
         
-        self.auto_backup_check = QCheckBox()
-        self.auto_backup_check.setChecked(self.config['app']['auto_backup'])
-        app_layout.addRow("Auto Backup:", self.auto_backup_check)
-        
         app_group.setLayout(app_layout)
         general_layout.addWidget(app_group)
         
@@ -189,7 +185,6 @@ class SettingsView(QWidget):
         # Update config
         self.config['app']['offline_mode'] = self.offline_mode_check.isChecked()
         self.config['app']['sync_interval'] = self.sync_interval_spin.value()
-        self.config['app']['auto_backup'] = self.auto_backup_check.isChecked()
         
         # Store previous theme and font size to detect changes
         previous_theme = self.config['ui']['theme']
@@ -257,7 +252,6 @@ class SettingsView(QWidget):
         # Update UI
         self.offline_mode_check.setChecked(self.config['app']['offline_mode'])
         self.sync_interval_spin.setValue(self.config['app']['sync_interval'])
-        self.auto_backup_check.setChecked(self.config['app']['auto_backup'])
         
         index = self.theme_combo.findData(self.config['ui']['theme'])
         if index >= 0:

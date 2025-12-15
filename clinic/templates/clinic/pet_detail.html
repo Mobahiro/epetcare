@@ -61,7 +61,7 @@
         <div class="tile-sub">Active</div>
       </div>
     </div>
-    <div class="tile-metric">{% with active=0 %}{% for p in prescriptions %}{% if p.is_active %}{% widthratio 1 1 1 %}{% endif %}{% endfor %}{% endwith %}</div>
+    <div class="tile-metric">{{ active_rx_count }}</div>
   </div>
   <div class="tile">
     <div class="tile-head">

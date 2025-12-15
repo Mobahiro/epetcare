@@ -57,7 +57,7 @@ class PetCreateForm(forms.ModelForm):
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ["pet", "date_time", "reason", "notes", "status"]
+        fields = ["pet", "date_time", "reason", "notes"]
         widgets = {
             "date_time": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }

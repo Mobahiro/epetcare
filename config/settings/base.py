@@ -55,6 +55,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'clinic.context_processors.branding',
+                'clinic.context_processors.notifications',
             ],
         },
     },

@@ -1,0 +1,1247 @@
+/* ================================
+   SLEEK MODERN DARK MODE
+   Material Design Inspired
+   Deep Charcoal #121212 + Violet #BB86FC
+   ================================ */
+
+/* Dark Mode Toggle Button - Icon Only */
+#darkModeToggle {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  padding: 6px 12px !important;
+  font-size: 20px;
+  min-width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#darkModeToggle:hover {
+  transform: scale(1.1);
+  background: rgba(187, 134, 252, 0.08) !important;
+}
+
+/* ================================
+   COLOR SYSTEM
+   ================================ */
+
+body.dark-mode {
+  /* Base Surfaces */
+  --dm-base: #121212;                              /* Deep charcoal base */
+  --dm-surface: #1F1B24;                           /* Elevated surface */
+  --dm-surface-1: #2A2530;                         /* Surface level 1 */
+  --dm-surface-2: #352F3C;                         /* Surface level 2 */
+  --dm-surface-3: #403948;                         /* Surface level 3 */
+  
+  /* Primary Violet System */
+  --dm-primary: #BB86FC;                           /* Soft violet */
+  --dm-primary-variant: #9965F4;                   /* Deeper violet */
+  --dm-primary-light: #E7D6FD;                     /* Light violet tint */
+  --dm-primary-dark: #7F39FB;                      /* Dark violet */
+  
+  /* Translucent Overlays (8% Primary Violet Tint) */
+  --dm-overlay-4: rgba(187, 134, 252, 0.04);
+  --dm-overlay-8: rgba(187, 134, 252, 0.08);
+  --dm-overlay-12: rgba(187, 134, 252, 0.12);
+  --dm-overlay-16: rgba(187, 134, 252, 0.16);
+  --dm-overlay-24: rgba(187, 134, 252, 0.24);
+  
+  /* Typography */
+  --dm-text-high: #E0E0E0;                         /* High emphasis - 87% */
+  --dm-text-med: rgba(224, 224, 224, 0.74);        /* Medium emphasis - 74% */
+  --dm-text-low: rgba(224, 224, 224, 0.50);        /* Low emphasis - 50% */
+  --dm-text-disabled: rgba(224, 224, 224, 0.38);   /* Disabled - 38% */
+  
+  /* Semantic Colors */
+  --dm-success: #03DAC6;                           /* Teal accent */
+  --dm-warning: #FFB74D;                           /* Warm orange */
+  --dm-error: #CF6679;                             /* Soft red */
+  --dm-info: #82B1FF;                              /* Soft blue */
+  
+  /* Borders & Dividers */
+  --dm-border: rgba(224, 224, 224, 0.12);
+  --dm-border-light: rgba(224, 224, 224, 0.08);
+  --dm-divider: rgba(224, 224, 224, 0.08);
+  
+  /* Glass Morphism */
+  --dm-glass-bg: rgba(31, 27, 36, 0.75);
+  --dm-glass-border: rgba(187, 134, 252, 0.15);
+  --dm-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  /* Elevation Shadows */
+  --dm-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --dm-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --dm-shadow-3: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --dm-shadow-4: 0 8px 32px rgba(0, 0, 0, 0.55);
+  --dm-shadow-glow: 0 0 24px rgba(187, 134, 252, 0.25);
+  
+  background-color: #121212 !important;
+  color: #E0E0E0 !important;
+}
+
+/* ================================
+   GLOBAL OVERRIDES
+   ================================ */
+
+body.dark-mode *:not(img):not(svg):not(.fa):not([class*="icon"]):not(i) {
+  border-color: var(--dm-border);
+}
+
+/* Force dark backgrounds - ALL white/light colors */
+body.dark-mode [style*="background: white"],
+body.dark-mode [style*="background-color: white"],
+body.dark-mode [style*="background:#fff"],
+body.dark-mode [style*="background-color:#fff"],
+body.dark-mode [style*="background: #fff"],
+body.dark-mode [style*="background-color: #fff"],
+body.dark-mode .bg-white,
+body.dark-mode [class*="bg-white"],
+body.dark-mode [style*="background: #F"],
+body.dark-mode [style*="background-color: #F"],
+body.dark-mode [class*="bg-light"],
+body.dark-mode [style*="background: rgb(255"],
+body.dark-mode [style*="background-color: rgb(255"] {
+  background-color: var(--dm-surface) !important;
+}
+
+/* Force dark for any element with light background colors */
+body.dark-mode * {
+  background-image: none !important;
+}
+
+body.dark-mode *[style*="background: linear-gradient"],
+body.dark-mode *[style*="background-image: linear-gradient"] {
+  background: var(--dm-surface) !important;
+  background-image: none !important;
+}
+
+/* ================================
+   HEADER & NAVIGATION
+   ================================ */
+
+body.dark-mode .site-header {
+  background: var(--dm-surface) !important;
+  border-bottom: 1px solid var(--dm-border);
+  box-shadow: var(--dm-shadow-2);
+}
+
+body.dark-mode .brand {
+  color: var(--dm-text-high);
+  text-shadow: var(--dm-shadow-glow);
+}
+
+body.dark-mode .nav-link {
+  color: var(--dm-text-med);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+body.dark-mode .nav-link:hover {
+  background: var(--dm-overlay-8) !important;
+  color: var(--dm-primary);
+}
+
+body.dark-mode .nav-link.active {
+  background: var(--dm-overlay-12) !important;
+  color: var(--dm-primary);
+}
+
+body.dark-mode .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: var(--dm-primary);
+  box-shadow: var(--dm-shadow-glow);
+}
+
+/* ================================
+   GLASS CARDS
+   ================================ */
+
+body.dark-mode .card,
+body.dark-mode .about-section,
+body.dark-mode .stat-card,
+body.dark-mode .feature-card,
+body.dark-mode [class*="card"] {
+  background: linear-gradient(135deg, 
+    var(--dm-surface-1) 0%, 
+    var(--dm-surface) 100%) !important;
+  border: 1px solid var(--dm-glass-border) !important;
+  border-radius: 16px !important;
+  color: var(--dm-text-high) !important;
+  box-shadow: var(--dm-shadow-3) !important;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+body.dark-mode .card::before,
+body.dark-mode .stat-card::before,
+body.dark-mode .feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--dm-overlay-8);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+body.dark-mode .card > *,
+body.dark-mode .stat-card > *,
+body.dark-mode .feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+body.dark-mode .card:hover,
+body.dark-mode .stat-card:hover,
+body.dark-mode .feature-card:hover {
+  border-color: var(--dm-primary) !important;
+  box-shadow: var(--dm-shadow-4), var(--dm-shadow-glow) !important;
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-mode .card-header,
+body.dark-mode .card-title {
+  background: var(--dm-surface-2) !important;
+  color: var(--dm-text-high) !important;
+  border-bottom: 1px solid var(--dm-border-light) !important;
+}
+
+body.dark-mode .card-body {
+  color: var(--dm-text-med);
+}
+
+/* ================================
+   DASHBOARD COMPONENTS
+   ================================ */
+
+body.dark-mode .dashboard-card,
+body.dark-mode .welcome-card,
+body.dark-mode .info-card {
+  background: var(--dm-glass-bg) !important;
+  border: 1px solid var(--dm-glass-border) !important;
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--dm-shadow-3);
+}
+
+body.dark-mode .stat-value {
+  color: var(--dm-primary) !important;
+  text-shadow: var(--dm-shadow-glow);
+}
+
+body.dark-mode .stat-label {
+  color: var(--dm-text-low);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+body.dark-mode .welcome-banner {
+  background: linear-gradient(135deg, 
+    var(--dm-surface-2) 0%,
+    var(--dm-surface-1) 100%) !important;
+  border: 1px solid var(--dm-border);
+  border-left: 4px solid var(--dm-primary);
+  box-shadow: var(--dm-shadow-2);
+}
+
+/* Force all text in welcome banner to be visible */
+body.dark-mode .welcome-banner,
+body.dark-mode .welcome-banner * {
+  color: var(--dm-text-high) !important;
+  background-image: none !important;
+}
+
+body.dark-mode .welcome-banner h1,
+body.dark-mode .welcome-banner h2,
+body.dark-mode .welcome-banner h3 {
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .welcome-banner p {
+  color: var(--dm-text-med) !important;
+}
+
+/* Dashboard specific overrides */
+body.dark-mode .stat-card {
+  background: var(--dm-surface-1) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .stat-icon {
+  background: var(--dm-overlay-16) !important;
+}
+
+body.dark-mode .panel {
+  background: var(--dm-surface) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .timeline-card {
+  background: var(--dm-surface-1) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .timeline-date {
+  background: var(--dm-surface-2) !important;
+  border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .pet-card {
+  background: var(--dm-surface-1) !important;
+  border-color: var(--dm-glass-border) !important;
+}
+
+body.dark-mode .avatar {
+  background: linear-gradient(135deg, var(--dm-primary) 0%, var(--dm-primary-variant) 100%) !important;
+  color: #121212 !important;
+}
+
+body.dark-mode .empty-block {
+  background: var(--dm-surface-2) !important;
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-med) !important;
+}
+
+body.dark-mode .notif-dropdown {
+  background: var(--dm-glass-bg) !important;
+  border-color: var(--dm-glass-border) !important;
+}
+
+body.dark-mode .notif-item {
+  background: var(--dm-surface-1) !important;
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .notif-item.unread {
+  background: var(--dm-overlay-16) !important;
+  border-color: var(--dm-primary) !important;
+}
+
+body.dark-mode .dash-search input {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+  border-color: var(--dm-border) !important;
+}
+
+/* ================================
+   DASHBOARD CSS CLASS-SPECIFIC OVERRIDES
+   Ensure dark mode wins over hardcoded light styles
+   ================================ */
+
+/* Hero/welcome banner gradient and cards */
+body.dark-mode :root { --hero-grad: linear-gradient(135deg, var(--dm-surface-2), var(--dm-surface-1)) !important; }
+body.dark-mode .dash-hero, 
+body.dark-mode .page-hero, 
+body.dark-mode .dash-hero__content, 
+body.dark-mode .page-hero__content {
+  background: var(--dm-surface) !important;
+}
+
+/* Search input */
+body.dark-mode .dash-search input { background: var(--dm-surface-1) !important; color: var(--dm-text-high) !important; }
+
+/* Stat cards + icons */
+body.dark-mode .stat-card { background: var(--dm-surface-1) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .stat-icon,
+body.dark-mode .stat-icon.pet,
+body.dark-mode .stat-icon.visit,
+body.dark-mode .stat-icon.next { background: var(--dm-overlay-16) !important; }
+
+/* Panels */
+body.dark-mode .panel { background: var(--dm-surface) !important; border-color: var(--dm-border) !important; }
+
+/* Timeline */
+body.dark-mode .timeline:before { background: linear-gradient(var(--dm-primary), var(--dm-primary-variant)) !important; }
+body.dark-mode .timeline-date { background: var(--dm-surface-2) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .timeline-date:after { background: var(--dm-primary) !important; box-shadow: 0 0 0 4px var(--dm-base) !important; }
+body.dark-mode .timeline-card { background: var(--dm-surface-1) !important; border-color: var(--dm-border) !important; }
+
+/* Pet cards */
+body.dark-mode .pet-card { background: linear-gradient(180deg, var(--dm-surface-2), var(--dm-surface-1)) !important; border-color: var(--dm-glass-border) !important; color: var(--dm-text-high) !important; }
+body.dark-mode .avatar { background: linear-gradient(135deg, var(--dm-primary) 0%, var(--dm-primary-variant) 100%) !important; color: #121212 !important; }
+
+/* Empty block */
+body.dark-mode .empty-block { background: var(--dm-surface-2) !important; border-color: var(--dm-border) !important; color: var(--dm-text-med) !important; }
+
+/* Buttons */
+body.dark-mode .btn-secondary { background: var(--dm-surface-1) !important; color: var(--dm-text-high) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .btn { background: linear-gradient(135deg, var(--dm-primary) 0%, var(--dm-primary-variant) 100%) !important; color: #121212 !important; border: none !important; box-shadow: var(--dm-shadow-2), var(--dm-shadow-glow) !important; }
+body.dark-mode .btn:hover { background: linear-gradient(135deg, var(--dm-primary-variant), var(--dm-primary-dark)) !important; box-shadow: var(--dm-shadow-3), var(--dm-shadow-glow) !important; }
+body.dark-mode .btn.primary { background: linear-gradient(135deg, var(--dm-primary), var(--dm-primary-variant)) !important; }
+
+/* Notifications */
+body.dark-mode .notif-link { background: var(--dm-surface-1) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .notif-badge { background: var(--dm-error) !important; }
+body.dark-mode .notif-dropdown { background: var(--dm-glass-bg) !important; border-color: var(--dm-glass-border) !important; box-shadow: var(--dm-shadow-4) !important; }
+body.dark-mode .notif-item.unread { background: var(--dm-overlay-16) !important; border-color: var(--dm-primary) !important; }
+
+/* Status pills */
+body.dark-mode .status-pill.scheduled { background: rgba(130, 177, 255, 0.18) !important; color: #E0E0E0 !important; border-color: rgba(130, 177, 255, 0.35) !important; }
+body.dark-mode .status-pill.completed { background: rgba(3, 218, 198, 0.18) !important; color: #E0E0E0 !important; border-color: rgba(3, 218, 198, 0.35) !important; }
+body.dark-mode .status-pill.cancelled { background: rgba(207, 102, 121, 0.18) !important; color: #E0E0E0 !important; border-color: rgba(207, 102, 121, 0.35) !important; }
+
+/* Dashboard common/components generics */
+body.dark-mode .dash-card,
+body.dark-mode .dash-box,
+body.dark-mode .dash-panel,
+body.dark-mode .dash-module,
+body.dark-mode .dash-widget {
+  background: var(--dm-surface-1) !important;
+  border-color: var(--dm-border) !important;
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .dash-divider { background: var(--dm-divider) !important; }
+body.dark-mode .dash-primary { background: var(--dm-primary) !important; color: #121212 !important; }
+body.dark-mode .dash-item,
+body.dark-mode .dash-list-item { background: var(--dm-surface) !important; }
+
+/* ================================
+  DASHBOARD-COMMON OVERRIDES (hero, tiles, cards, rail)
+  ================================ */
+/* Hero container */
+body.dark-mode .hero-main { background: var(--dm-surface-1) !important; border-color: var(--dm-border) !important; color: var(--dm-text-high) !important; }
+body.dark-mode .hero-title { color: var(--dm-text-high) !important; }
+body.dark-mode .hero-meta-line { color: var(--dm-text-med) !important; }
+body.dark-mode .hero-divider { background: var(--dm-divider) !important; }
+
+/* Summary tiles */
+body.dark-mode .tile { background: var(--dm-surface-1) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .tile-icon { background: var(--dm-overlay-16) !important; color: var(--dm-primary) !important; }
+body.dark-mode .tile-title { color: var(--dm-text-low) !important; }
+body.dark-mode .tile-sub { color: var(--dm-text-med) !important; }
+body.dark-mode .tile-metric { color: var(--dm-text-high) !important; }
+
+/* Main card + head */
+body.dark-mode .main-card { background: var(--dm-surface) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .card-head { background: var(--dm-surface-2) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .card-head h2 { color: var(--dm-text-high) !important; }
+body.dark-mode .card-tab { color: var(--dm-text-med) !important; }
+body.dark-mode .card-tab.active { color: var(--dm-text-high) !important; }
+body.dark-mode .card-tab.active::after { background: var(--dm-primary) !important; }
+body.dark-mode .tab-panel { border-color: var(--dm-border) !important; }
+
+/* Right rail */
+body.dark-mode .rail-card { background: var(--dm-surface-1) !important; border-color: var(--dm-border) !important; }
+body.dark-mode .rail-title { color: var(--dm-text-high) !important; }
+
+/* List items */
+body.dark-mode .list-item { background: var(--dm-surface) !important; border-color: var(--dm-border-light) !important; }
+body.dark-mode .list-item:nth-child(odd) { background: var(--dm-surface-1) !important; }
+
+/* ================================
+   BUTTONS
+   ================================ */
+
+body.dark-mode .btn,
+body.dark-mode button:not(#darkModeToggle) {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+body.dark-mode .btn-primary {
+  background: linear-gradient(135deg, var(--dm-primary) 0%, var(--dm-primary-variant) 100%) !important;
+  border: none !important;
+  color: #121212 !important;
+  box-shadow: var(--dm-shadow-2), 0 0 16px rgba(187, 134, 252, 0.3);
+}
+
+body.dark-mode .btn-primary:hover {
+  background: linear-gradient(135deg, var(--dm-primary-variant) 0%, var(--dm-primary-dark) 100%) !important;
+  box-shadow: var(--dm-shadow-3), var(--dm-shadow-glow);
+  transform: translateY(-2px);
+}
+
+body.dark-mode .btn-secondary {
+  background: var(--dm-surface-2) !important;
+  border: 1px solid var(--dm-border) !important;
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode .btn-secondary:hover {
+  background: var(--dm-surface-3) !important;
+  border-color: var(--dm-primary) !important;
+}
+
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-secondary {
+  background: transparent !important;
+  border: 1px solid var(--dm-primary) !important;
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-secondary:hover {
+  background: var(--dm-overlay-12) !important;
+  box-shadow: var(--dm-shadow-glow);
+}
+
+/* ================================
+   FORMS & INPUTS
+   ================================ */
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+  border: 1px solid var(--dm-border) !important;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+  background: var(--dm-surface-2) !important;
+  border-color: var(--dm-primary) !important;
+  box-shadow: 0 0 0 3px var(--dm-overlay-12);
+  outline: none !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: var(--dm-text-disabled);
+}
+
+body.dark-mode .form-control {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+  border: 1px solid var(--dm-border) !important;
+}
+
+body.dark-mode .form-label {
+  color: var(--dm-text-med);
+  font-weight: 500;
+}
+
+/* ================================
+   TABLES
+   ================================ */
+
+body.dark-mode table,
+body.dark-mode .table {
+  color: var(--dm-text-high);
+  border-color: var(--dm-border);
+}
+
+body.dark-mode table thead,
+body.dark-mode .table thead {
+  background: var(--dm-surface-2);
+  color: var(--dm-text-high);
+  border-bottom: 2px solid var(--dm-primary);
+}
+
+body.dark-mode table tbody tr,
+body.dark-mode .table tbody tr {
+  background: var(--dm-surface);
+  border-bottom: 1px solid var(--dm-border-light);
+  transition: all 0.2s ease;
+}
+
+body.dark-mode table tbody tr:hover,
+body.dark-mode .table tbody tr:hover {
+  background: var(--dm-surface-1);
+  box-shadow: var(--dm-shadow-1);
+}
+
+body.dark-mode td,
+body.dark-mode th {
+  border-color: var(--dm-border-light);
+}
+
+/* ================================
+   ALERTS & TOASTS
+   ================================ */
+
+body.dark-mode .alert,
+body.dark-mode .toast {
+  background: var(--dm-glass-bg);
+  border: 1px solid var(--dm-border);
+  border-radius: 12px;
+  color: var(--dm-text-high);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--dm-shadow-2);
+}
+
+body.dark-mode .alert-success,
+body.dark-mode .toast.success {
+  background: linear-gradient(135deg, rgba(3, 218, 198, 0.15) 0%, var(--dm-surface) 100%);
+  border-left: 4px solid var(--dm-success);
+  color: var(--dm-success);
+}
+
+body.dark-mode .alert-error,
+body.dark-mode .alert-danger,
+body.dark-mode .toast.error {
+  background: linear-gradient(135deg, rgba(207, 102, 121, 0.15) 0%, var(--dm-surface) 100%);
+  border-left: 4px solid var(--dm-error);
+  color: var(--dm-error);
+}
+
+body.dark-mode .alert-warning,
+body.dark-mode .toast.warning {
+  background: linear-gradient(135deg, rgba(255, 183, 77, 0.15) 0%, var(--dm-surface) 100%);
+  border-left: 4px solid var(--dm-warning);
+  color: var(--dm-warning);
+}
+
+body.dark-mode .alert-info,
+body.dark-mode .toast.info {
+  background: linear-gradient(135deg, rgba(130, 177, 255, 0.15) 0%, var(--dm-surface) 100%);
+  border-left: 4px solid var(--dm-info);
+  color: var(--dm-info);
+}
+
+/* ================================
+   DROPDOWNS & MODALS
+   ================================ */
+
+body.dark-mode .dropdown-menu,
+body.dark-mode .modal-content {
+  background: var(--dm-glass-bg);
+  border: 1px solid var(--dm-glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--dm-shadow-4);
+}
+
+body.dark-mode .dropdown-item,
+body.dark-mode .modal-body {
+  color: var(--dm-text-high);
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background: var(--dm-overlay-12);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .modal-header {
+  background: var(--dm-surface-2);
+  border-bottom: 1px solid var(--dm-border);
+  color: var(--dm-text-high);
+}
+
+body.dark-mode .modal-footer {
+  border-top: 1px solid var(--dm-border);
+}
+
+body.dark-mode .dropdown-header {
+  color: var(--dm-text-low);
+}
+
+body.dark-mode .dropdown-divider {
+  border-color: var(--dm-divider);
+}
+
+/* ================================
+   SIDEBAR & NAVIGATION
+   ================================ */
+
+body.dark-mode .sidebar,
+body.dark-mode .dash-sidebar {
+  background: var(--dm-surface) !important;
+  border-right: 1px solid var(--dm-border) !important;
+  box-shadow: var(--dm-shadow-2);
+}
+
+body.dark-mode .sidebar-link,
+body.dark-mode .side-link {
+  color: var(--dm-text-med) !important;
+  border-bottom: 1px solid var(--dm-border-light) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-mode .sidebar-link:hover,
+body.dark-mode .side-link:hover {
+  background: var(--dm-overlay-8) !important;
+  color: var(--dm-primary) !important;
+}
+
+body.dark-mode .sidebar-link.active,
+body.dark-mode .side-link.active {
+  background: var(--dm-overlay-16) !important;
+  color: var(--dm-primary) !important;
+  border-left: 4px solid var(--dm-primary) !important;
+  box-shadow: var(--dm-shadow-glow);
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+
+body.dark-mode .site-footer,
+body.dark-mode footer {
+  background: var(--dm-surface) !important;
+  border-top: 1px solid var(--dm-border) !important;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .footer-section h4 {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .footer-section a {
+  color: var(--dm-text-med);
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .footer-section a:hover {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .copyright,
+body.dark-mode .footer-tagline {
+  color: var(--dm-text-low);
+}
+
+body.dark-mode .footer-bottom {
+  background: var(--dm-surface) !important;
+}
+
+/* ================================
+   BADGES & LABELS
+   ================================ */
+
+body.dark-mode .badge {
+  background: var(--dm-primary);
+  color: #121212;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  box-shadow: var(--dm-shadow-glow);
+}
+
+body.dark-mode .badge-success {
+  background: var(--dm-success);
+}
+
+body.dark-mode .badge-warning {
+  background: var(--dm-warning);
+}
+
+body.dark-mode .badge-danger {
+  background: var(--dm-error);
+}
+
+body.dark-mode .notification-badge {
+  background: var(--dm-primary);
+  color: #121212;
+}
+
+/* ================================
+   TYPOGRAPHY
+   ================================ */
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: var(--dm-text-high);
+  font-weight: 600;
+}
+
+body.dark-mode p {
+  color: var(--dm-text-med);
+  line-height: 1.6;
+}
+
+body.dark-mode a {
+  color: var(--dm-primary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+body.dark-mode a:hover {
+  color: var(--dm-primary-light);
+}
+
+body.dark-mode .text-muted {
+  color: var(--dm-text-low) !important;
+}
+
+/* ================================
+   SCROLLBAR
+   ================================ */
+
+body.dark-mode ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: var(--dm-base);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--dm-surface-2);
+  border-radius: 6px;
+  border: 2px solid var(--dm-base);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--dm-surface-3);
+  box-shadow: var(--dm-shadow-glow);
+}
+
+/* ================================
+   SPECIAL EFFECTS
+   ================================ */
+
+body.dark-mode .page-title {
+  color: var(--dm-text-high);
+  border-bottom: 3px solid var(--dm-primary);
+  padding-bottom: 12px;
+  text-shadow: var(--dm-shadow-glow);
+}
+
+body.dark-mode .feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--dm-shadow-4), var(--dm-shadow-glow);
+}
+
+body.dark-mode .team-image-placeholder {
+  background: var(--dm-surface-2) !important;
+  border: 2px solid var(--dm-primary);
+}
+
+/* ================================
+   MAIN CONTENT AREAS
+   ================================ */
+
+body.dark-mode .site-main,
+body.dark-mode .dash-content {
+  background-color: var(--dm-base) !important;
+}
+
+body.dark-mode .container,
+body.dark-mode .container-fluid {
+  color: var(--dm-text-high);
+}
+
+body.dark-mode section {
+  background-color: transparent !important;
+}
+
+body.dark-mode .content-wrapper {
+  background-color: transparent !important;
+}
+
+body.dark-mode div,
+body.dark-mode main,
+body.dark-mode article,
+body.dark-mode aside {
+  color: var(--dm-text-high);
+}
+
+/* Force readable text everywhere */
+body.dark-mode * {
+  color: inherit;
+}
+
+body.dark-mode span,
+body.dark-mode label,
+body.dark-mode small {
+  color: var(--dm-text-med) !important;
+}
+
+/* Specific fixes for dashboard welcome area */
+body.dark-mode .dash-content > div[style],
+body.dark-mode .dash-content > section[style] {
+  background: transparent !important;
+}
+
+body.dark-mode .dash-content [class*="welcome"],
+body.dark-mode .dash-content [class*="banner"] {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+}
+
+/* ================================
+   PROFILE & AVATAR
+   ================================ */
+
+body.dark-mode .avatar-sm {
+  background: linear-gradient(135deg, var(--dm-primary) 0%, var(--dm-primary-variant) 100%);
+  color: #121212;
+  font-weight: 600;
+  box-shadow: var(--dm-shadow-glow);
+}
+
+body.dark-mode .profile-dropdown {
+  background: var(--dm-glass-bg);
+  border: 1px solid var(--dm-glass-border);
+  box-shadow: var(--dm-shadow-4);
+  backdrop-filter: blur(20px);
+}
+
+body.dark-mode .profile-item {
+  color: var(--dm-text-high);
+}
+
+body.dark-mode .profile-item:hover {
+  background: var(--dm-overlay-12);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .profile-trigger {
+  color: var(--dm-text-high);
+}
+
+/* ================================
+   DASHBOARD TOPBAR
+   ================================ */
+
+body.dark-mode .dash-topbar {
+  background: var(--dm-surface) !important;
+  border-bottom: 1px solid var(--dm-border);
+  box-shadow: var(--dm-shadow-2);
+}
+
+body.dark-mode .topbar-search input {
+  background: var(--dm-surface-1) !important;
+  color: var(--dm-text-high) !important;
+  border: 1px solid var(--dm-border) !important;
+}
+
+body.dark-mode .topbar-search input:focus {
+  border-color: var(--dm-primary) !important;
+  box-shadow: 0 0 0 3px var(--dm-overlay-12);
+}
+
+body.dark-mode .icon-btn {
+  color: var(--dm-text-med);
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .icon-btn:hover {
+  background: var(--dm-overlay-8);
+  color: var(--dm-primary);
+}
+
+/* ================================
+   TERMS & NOTIFICATIONS
+   ================================ */
+
+body.dark-mode .terms-container {
+  background: var(--dm-surface);
+  border: 1px solid var(--dm-border);
+}
+
+body.dark-mode .terms-header {
+  background: var(--dm-surface-2);
+  color: var(--dm-text-high);
+}
+
+body.dark-mode .terms-content {
+  color: var(--dm-text-med);
+}
+
+body.dark-mode .terms-content h4 {
+  color: var(--dm-primary);
+  border-bottom-color: var(--dm-border);
+}
+
+body.dark-mode .notification-item {
+  color: var(--dm-text-high);
+  border-bottom-color: var(--dm-border-light);
+}
+
+body.dark-mode .notification-item:hover {
+  background: var(--dm-overlay-8);
+}
+
+body.dark-mode .notification-item.unread {
+  background: var(--dm-overlay-12);
+}
+
+body.dark-mode .notification-title {
+  color: var(--dm-text-high);
+}
+
+body.dark-mode .notification-text {
+  color: var(--dm-text-low);
+}
+
+body.dark-mode .notification-time {
+  color: var(--dm-text-disabled);
+}
+
+body.dark-mode .notification-dropdown {
+  background: var(--dm-glass-bg);
+  border: 1px solid var(--dm-glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--dm-shadow-4);
+}
+
+/* ================================
+   BREADCRUMBS & PAGINATION
+   ================================ */
+
+body.dark-mode .breadcrumb {
+  background: var(--dm-surface);
+}
+
+body.dark-mode .breadcrumb-item a {
+  color: var(--dm-primary);
+}
+
+body.dark-mode .breadcrumb-item.active {
+  color: var(--dm-text-med);
+}
+
+body.dark-mode .pagination .page-link {
+  background: var(--dm-surface-1);
+  border-color: var(--dm-border);
+  color: var(--dm-text-high);
+}
+
+body.dark-mode .pagination .page-link:hover {
+  background: var(--dm-surface-2);
+  border-color: var(--dm-primary);
+  color: var(--dm-primary);
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+  background: var(--dm-primary);
+  border-color: var(--dm-primary);
+  color: #121212;
+}
+
+/* ================================
+   LIST GROUPS
+   ================================ */
+
+body.dark-mode .list-group-item {
+  background: var(--dm-surface);
+  border-color: var(--dm-border);
+  color: var(--dm-text-high);
+}
+
+body.dark-mode .list-group-item:hover {
+  background: var(--dm-surface-1);
+}
+
+/* ================================
+   HR & BORDERS
+   ================================ */
+
+body.dark-mode hr {
+  border-color: var(--dm-divider);
+}
+
+body.dark-mode .border {
+  border-color: var(--dm-border) !important;
+}
+
+/* ================================
+   SHADOWS
+   ================================ */
+
+body.dark-mode .shadow-sm {
+  box-shadow: var(--dm-shadow-2) !important;
+}
+
+body.dark-mode .shadow {
+  box-shadow: var(--dm-shadow-3) !important;
+}
+
+body.dark-mode .shadow-lg {
+  box-shadow: var(--dm-shadow-4) !important;
+}
+
+/* ================================
+   TAB CONTENT
+   ================================ */
+
+body.dark-mode .tab-content,
+body.dark-mode .tab-pane {
+  background: var(--dm-base) !important;
+  color: var(--dm-text-high) !important;
+}
+
+/* ================================
+   OVERRIDE ALL BEIGE/TAN COLORS
+   ================================ */
+
+/* Remove all warm beige/tan/orange backgrounds */
+body.dark-mode [style*="#FFE"],
+body.dark-mode [style*="#FED"],
+body.dark-mode [style*="#FEC"],
+body.dark-mode [style*="#FDB"],
+body.dark-mode [style*="#FCA"],
+body.dark-mode [style*="rgb(255, 2"],
+body.dark-mode [style*="rgb(254,"],
+body.dark-mode [style*="rgb(253,"],
+body.dark-mode [style*="background: #E"],
+body.dark-mode [style*="background: #D"],
+body.dark-mode [style*="background: #C"] {
+  background: var(--dm-surface) !important;
+  background-color: var(--dm-surface) !important;
+}
+
+/* Override inline gradient backgrounds */
+body.dark-mode [style*="linear-gradient"] {
+  background: var(--dm-surface) !important;
+}
+
+/* Ensure all text is readable */
+body.dark-mode [style*="color: white"],
+body.dark-mode [style*="color: #fff"],
+body.dark-mode [style*="color: rgb(255, 255, 255)"] {
+  color: var(--dm-text-high) !important;
+}
+
+body.dark-mode [style*="color: #333"],
+body.dark-mode [style*="color: #000"],
+body.dark-mode [style*="color: black"] {
+  color: var(--dm-text-high) !important;
+}
+
+/* ================================
+   CLOSE BUTTONS
+   ================================ */
+
+body.dark-mode .btn-close {
+  filter: invert(1) opacity(0.74);
+}
+
+body.dark-mode .btn-close:hover {
+  filter: invert(1) opacity(1);
+}
+
+body.dark-mode .toast-close,
+body.dark-mode .modal-close {
+  color: var(--dm-text-med);
+}
+
+body.dark-mode .toast-close:hover,
+body.dark-mode .modal-close:hover {
+  color: var(--dm-primary);
+}
+
+/* ================================
+   NUCLEAR OVERRIDES - MAXIMUM POWER
+   Catches ALL white/beige inline styles
+   ================================ */
+
+/* Override EVERY white variation with inline styles */
+body.dark-mode [style*="background:#fff"],
+body.dark-mode [style*="background: #fff"],
+body.dark-mode [style*="background-color:#fff"],
+body.dark-mode [style*="background-color: #fff"],
+body.dark-mode [style*="background: white"],
+body.dark-mode [style*="background:white"],
+body.dark-mode [style*="background: rgb(255, 255, 255)"],
+body.dark-mode [style*="background-color: white"],
+body.dark-mode [style*="background-color:white"] {
+  background: var(--dm-surface-1) !important;
+  background-color: var(--dm-surface-1) !important;
+}
+
+/* Override ALL beige/cream/tan variations (catches #FFF7, #FFF8, etc.) */
+body.dark-mode [style*="#fff7"],
+body.dark-mode [style*="#fff8"],
+body.dark-mode [style*="#fff9"],
+body.dark-mode [style*="#fffa"],
+body.dark-mode [style*="#fffb"],
+body.dark-mode [style*="#fffc"],
+body.dark-mode [style*="#fffd"],
+body.dark-mode [style*="#fffe"],
+body.dark-mode [style*="#ffff"],
+body.dark-mode [style*="#ffe"],
+body.dark-mode [style*="#fed"],
+body.dark-mode [style*="#fec"],
+body.dark-mode [style*="#fdb"],
+body.dark-mode [style*="#fca"],
+body.dark-mode [style*="#fb"],
+body.dark-mode [style*="#fc"],
+body.dark-mode [style*="#fd"],
+body.dark-mode [style*="#fe"],
+body.dark-mode [style*="rgb(255, 247"],
+body.dark-mode [style*="rgb(255, 248"],
+body.dark-mode [style*="rgb(255, 249"],
+body.dark-mode [style*="rgb(255, 250"],
+body.dark-mode [style*="rgb(255, 251"],
+body.dark-mode [style*="rgb(255, 252"],
+body.dark-mode [style*="rgb(255, 253"],
+body.dark-mode [style*="rgb(255, 254"],
+body.dark-mode [style*="rgb(254,"],
+body.dark-mode [style*="rgb(253,"] {
+  background: var(--dm-surface-1) !important;
+  background-color: var(--dm-surface-1) !important;
+}
+
+/* Override ALL light gray/light backgrounds */
+body.dark-mode [style*="background: #E"],
+body.dark-mode [style*="background: #D"],
+body.dark-mode [style*="background: #C"],
+body.dark-mode [style*="background:#E"],
+body.dark-mode [style*="background:#D"],
+body.dark-mode [style*="background:#C"] {
+  background: var(--dm-surface-1) !important;
+  background-color: var(--dm-surface-1) !important;
+}
+
+/* Override ALL inline gradients */
+body.dark-mode [style*="linear-gradient("],
+body.dark-mode [style*="radial-gradient("] {
+  background: linear-gradient(135deg, var(--dm-surface-2) 0%, var(--dm-surface-1) 100%) !important;
+  background-image: none !important;
+}
+
+/* Force readable text on all overridden backgrounds */
+body.dark-mode [style*="#fff"] *,
+body.dark-mode [style*="#ffe"] *,
+body.dark-mode [style*="#fed"] *,
+body.dark-mode [style*="#fec"] *,
+body.dark-mode [style*="linear-gradient"] *,
+body.dark-mode [style*="white"] * {
+  color: var(--dm-text-high) !important;
+}
+
+/* Override specific problematic text colors */
+body.dark-mode [style*="color: white"],
+body.dark-mode [style*="color:#fff"],
+body.dark-mode [style*="color: #fff"],
+body.dark-mode [style*="color: rgb(255, 255, 255)"],
+body.dark-mode [style*="color: #000"],
+body.dark-mode [style*="color:#000"],
+body.dark-mode [style*="color: black"],
+body.dark-mode [style*="color:#333"] {
+  color: var(--dm-text-high) !important;
+}
+
+/* Override all small text elements that might have inline styles */
+body.dark-mode span[style*="color"],
+body.dark-mode label[style*="color"],
+body.dark-mode small[style*="color"],
+body.dark-mode p[style*="color"],
+body.dark-mode div[style*="color"] {
+  color: var(--dm-text-high) !important;
+}
+
+/* Remove all background images that might show through */
+body.dark-mode [style*="background-image"] {
+  background-image: none !important;
+}
+

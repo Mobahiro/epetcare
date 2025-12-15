@@ -10,6 +10,9 @@ requests>=2.25.0
 # Database support
 psycopg2-binary>=2.9.9  # PostgreSQL support
 
+# Excel report generation
+openpyxl>=3.0.0
+
 # Additional utilities
 pathlib2>=2.3.0
 typing-extensions>=3.10.0
