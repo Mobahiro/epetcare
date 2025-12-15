@@ -71,9 +71,13 @@ def send_mail_async_safe(subject: str, message: str, recipient_list: List[str], 
     """
     Dispatch email send on a daemon thread to avoid blocking the request.
     The thread is fire-and-forget; failures are logged by _send.
+    This function never raises exceptions.
     """
-    t = threading.Thread(target=_send, args=(subject, message, recipient_list, from_email, html_message), daemon=True)
-    t.start()
+    try:
+        t = threading.Thread(target=_send, args=(subject, message, recipient_list, from_email, html_message), daemon=True)
+        t.start()
+    except Exception as e:
+        logger.error('Failed to start email thread: %s', e)
 
 
 def send_mail_http(subject: str, message: str, recipient_list: List[str], from_email: Optional[str] = None, html_message: Optional[str] = None) -> bool:
