@@ -7,4 +7,8 @@ class ClinicConfig(AppConfig):
 
     def ready(self):
         # Import signal handlers
+        import logging
+        logger = logging.getLogger('clinic')
+        logger.info('[APP] ClinicConfig.ready() called - importing signals')
         from . import signals  # noqa: F401
+        logger.info('[APP] Signals imported successfully')

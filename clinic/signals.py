@@ -8,6 +8,10 @@ from django.conf import settings
 from .utils.emailing import send_mail_async_safe
 from django.db import transaction
 
+import logging
+logger = logging.getLogger('clinic')
+logger.info('[SIGNALS MODULE] clinic.signals module loaded - registering signal handlers')
+
 
 # --- Appointment notifications ---
 
@@ -195,3 +199,7 @@ def sync_user_email(sender, instance: Owner, **kwargs):
     except Exception:
         # Avoid breaking owner updates if the user cannot be updated
         pass
+
+
+# Log that all signal handlers have been registered
+logger.info('[SIGNALS MODULE] All signal handlers registered: appointment_notify, prescription_notify, medical_record_notify, email_owner_on_notification, sync_owner_email, sync_user_email')
