@@ -1,55 +1,155 @@
-{% extends 'vet_portal/base.html' %}
+{% extends 'vet_portal/dashboard_base.html' %}
 {% load static %}
 
 {% block title %}Offline - ePetCare Vet Portal{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <div class="offline-message mt-5">
-                <img src="{% static 'vet_portal/img/offline.svg' %}" alt="Offline" class="img-fluid mb-4" style="max-width: 200px;">
-                
-                <h1 class="mb-4">You're offline</h1>
-                
-                <p class="lead mb-4">
-                    It looks like you've lost your internet connection. 
-                    Don't worry, you can still access some features and your changes will be saved.
-                </p>
-                
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">What you can do offline:</h5>
-                        <ul class="list-group list-group-flush text-start">
-                            <li class="list-group-item bg-transparent">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                View cached patient records
-                            </li>
-                            <li class="list-group-item bg-transparent">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                Create new appointments (will sync when online)
-                            </li>
-                            <li class="list-group-item bg-transparent">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                Update medical records (will sync when online)
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                    <button id="check-connection" class="btn btn-primary">
-                        <i class="bi bi-arrow-repeat me-2"></i> Try Again
-                    </button>
-                    <a href="{% url 'vet_portal:dashboard' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-house me-2"></i> Go to Dashboard
-                    </a>
-                </div>
-                
-                <div id="connection-status" class="mt-4"></div>
-            </div>
-        </div>
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .offline-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 40px 20px;
+  }
+  .offline-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 16px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+  .offline-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 32px;
+  }
+  .offline-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  .offline-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .offline-body {
+    padding: 32px;
+  }
+  .offline-message {
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .features-list {
+    background: #f8f6f4;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .features-list h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    margin-bottom: 12px;
+  }
+  .features-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .features-list li {
+    padding: 8px 0;
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .features-list li:before {
+    content: "✅";
+    font-size: 14px;
+  }
+  .offline-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  #connection-status {
+    margin-top: 20px;
+  }
+  .status-checking {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--vet-text-secondary, #6b6b6b);
+  }
+  .status-success {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  .status-error {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<div class="offline-container">
+  <div class="offline-card">
+    <div class="offline-header">
+      <div class="offline-icon">📡</div>
+      <h1 class="offline-title">You're Offline</h1>
     </div>
+    <div class="offline-body">
+      <p class="offline-message">
+        It looks like you've lost your internet connection. 
+        Don't worry, you can still access some features and your changes will be saved.
+      </p>
+      
+      <div class="features-list">
+        <h4>What you can do offline:</h4>
+        <ul>
+          <li>View cached patient records</li>
+          <li>Create new appointments (will sync when online)</li>
+          <li>Update medical records (will sync when online)</li>
+        </ul>
+      </div>
+      
+      <div class="offline-actions">
+        <button id="check-connection" class="btn btn-primary">
+          🔄 Try Again
+        </button>
+        <a href="{% url 'vet_portal:dashboard' %}" class="btn btn-secondary">
+          🏠 Go to Dashboard
+        </a>
+      </div>
+      
+      <div id="connection-status"></div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -61,9 +161,8 @@
         
         checkConnectionBtn.addEventListener('click', function() {
             checkConnectionBtn.disabled = true;
-            connectionStatus.innerHTML = '<div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> Checking connection...';
+            connectionStatus.innerHTML = '<div class="status-checking"><span class="spinner">🔄</span> Checking connection...</div>';
             
-            // Try to fetch a small file to check connection
             fetch('/vet-portal/api/ping/', { 
                 method: 'GET',
                 cache: 'no-store',
@@ -71,7 +170,7 @@
             })
             .then(response => {
                 if (response.ok) {
-                    connectionStatus.innerHTML = '<div class="alert alert-success">You\'re back online! Redirecting...</div>';
+                    connectionStatus.innerHTML = '<div class="status-success">✅ You\'re back online! Redirecting...</div>';
                     setTimeout(() => {
                         window.location.href = "{% url 'vet_portal:dashboard' %}";
                     }, 1500);
@@ -80,21 +179,20 @@
                 }
             })
             .catch(error => {
-                connectionStatus.innerHTML = '<div class="alert alert-danger">Still offline. Please check your connection.</div>';
+                connectionStatus.innerHTML = '<div class="status-error">❌ Still offline. Please check your connection.</div>';
                 checkConnectionBtn.disabled = false;
             });
         });
         
-        // Listen for online/offline events
         window.addEventListener('online', function() {
-            connectionStatus.innerHTML = '<div class="alert alert-success">You\'re back online! Redirecting...</div>';
+            connectionStatus.innerHTML = '<div class="status-success">✅ You\'re back online! Redirecting...</div>';
             setTimeout(() => {
                 window.location.href = "{% url 'vet_portal:dashboard' %}";
             }, 1500);
         });
         
         window.addEventListener('offline', function() {
-            connectionStatus.innerHTML = '<div class="alert alert-danger">You\'re offline. Please check your connection.</div>';
+            connectionStatus.innerHTML = '<div class="status-error">❌ You\'re offline. Please check your connection.</div>';
         });
     });
 </script>

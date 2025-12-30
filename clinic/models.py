@@ -5,16 +5,29 @@ import os
 from django.utils import timezone
 
 
+# Branch choices for vet clinic locations (imported from vet.models or defined here)
+class Branch(models.TextChoices):
+    TAGUIG = 'taguig', 'Taguig'
+    PASIG = 'pasig', 'Pasig'
+    MAKATI = 'makati', 'Makati'
+
+
 class Owner(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner_profile', null=True, blank=True)
     full_name = models.CharField(max_length=120)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
     address = models.TextField(blank=True)
+    branch = models.CharField(
+        max_length=20,
+        choices=Branch.choices,
+        default=Branch.TAGUIG,
+        help_text='Preferred vet clinic branch location'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return self.full_name
+        return f"{self.full_name} ({self.get_branch_display()})"
 
 
 class Pet(models.Model):
@@ -106,6 +119,7 @@ class Appointment(models.Model):
     reason = models.CharField(max_length=160)
     notes = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.SCHEDULED)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)  # When the appointment was booked
 
     def __str__(self) -> str:
         return f"Appt: {self.pet.name} on {self.date_time:%Y-%m-%d %H:%M}"
@@ -153,6 +167,36 @@ class PasswordResetOTP(models.Model):
 
     def __str__(self):
         return f"OTP for {self.user.username} (used={self.is_used})"
+
+
+class OwnerRegistrationOTP(models.Model):
+    """Store OTP codes for pet owner registration flow.
+    Account is NOT created until branch is selected after OTP verification."""
+    email = models.EmailField()
+    otp_code = models.CharField(max_length=6)
+    registration_data = models.JSONField()  # Stores form data until registration is complete
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    otp_verified = models.BooleanField(default=False)  # True after OTP verification, awaiting branch selection
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["email", "is_used"]),
+            models.Index(fields=["expires_at"]),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=30)  # 30 min expiry
+        super().save(*args, **kwargs)
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        status = "verified" if self.otp_verified else "pending"
+        return f"Owner Registration OTP for {self.email} ({status})"
 
 
 class Prescription(models.Model):

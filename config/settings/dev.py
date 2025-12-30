@@ -18,22 +18,16 @@ if not os.environ.get('DATABASE_URL'):
 		}
 	}
 
-# Email settings for development
-# Default to console backend (prints emails in terminal)
-# You can override to SMTP (e.g., Gmail) by setting these in your local .env
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '0')) or None
+# Brevo (Sendinblue) SMTP Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
-EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'false').lower() in ('1', 'true', 'yes')
-EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '15'))
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ePetCare <no-reply@localhost>')
-
-# If an HTTP email provider is configured (e.g., SendGrid), prefer it and avoid SMTP
-if os.environ.get('EMAIL_HTTP_PROVIDER', '').strip():
-	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'ePetCare <epetcarewebsystem@gmail.com>'
+EMAIL_TIMEOUT = 30
+SERVER_EMAIL = 'epetcarewebsystem@gmail.com'
 
 # Branding (optional) for emails/templates
 BRAND_NAME = os.environ.get('BRAND_NAME', 'ePetCare')

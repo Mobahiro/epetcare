@@ -19,10 +19,60 @@ def register(request):
         form = VetRegisterForm(request.POST)
         if form.is_valid():
             try:
-                user, vet = form.create_user_and_vet()
-                login(request, user)
-                messages.success(request, "Registration successful! Welcome to ePetCare Veterinarian Portal.")
-                return redirect('vet:dashboard')
+                user, vet, access_code = form.create_user_and_vet()
+                
+                # Send access code via email
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                email_subject = "Your ePetCare Veterinarian Access Code"
+                email_body = f"""
+Dear {vet.full_name},
+
+Welcome to ePetCare Veterinarian Portal!
+
+Your registration is successful and pending admin approval. Once approved, you'll need the following credentials to login:
+
+Username: {user.username}
+Access Code: {access_code}
+
+⚠️ IMPORTANT: Keep this access code secure! You will need it every time you login along with your password.
+
+Your account will be activated once an administrator approves your registration.
+
+Best regards,
+ePetCare Team
+                """
+                
+                try:
+                    send_mail(
+                        email_subject,
+                        email_body,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [vet.personal_email],
+                        fail_silently=False,
+                    )
+                    email_sent = True
+                except Exception as email_error:
+                    print(f"Email send error: {email_error}")
+                    email_sent = False
+                
+                if email_sent:
+                    messages.success(
+                        request, 
+                        f"Registration successful! Your access code has been sent to {vet.personal_email}. "
+                        "Keep this code secure - you'll need it to login. "
+                        "Your account is pending admin approval."
+                    )
+                else:
+                    messages.success(
+                        request, 
+                        f"Registration successful! Your access code is: {access_code} "
+                        "(Save this code - you'll need it to login). "
+                        "Your account is pending admin approval."
+                    )
+                
+                return redirect('unified_login')
             except Exception as e:
                 messages.error(request, f"Error creating account: {str(e)}")
     else:
@@ -41,6 +91,16 @@ def logout_view(request):
 def dashboard(request):
     """Veterinarian dashboard with patient stats and recent appointments"""
     vet = getattr(request.user, 'vet_profile', None)
+    
+    # Check if vet exists and is approved
+    if vet and not vet.is_approved:
+        logout(request)
+        messages.warning(
+            request, 
+            "Your veterinarian account is pending approval. "
+            "Please contact the administrator."
+        )
+        return redirect('unified_login')
     
     # Get counts for dashboard stats
     total_owners = Owner.objects.count()

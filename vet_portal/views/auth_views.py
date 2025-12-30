@@ -2,6 +2,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from ..forms import VetLoginForm, VetRegistrationForm
 from django.shortcuts import redirect
+from django.contrib.auth import logout
+from django.contrib import messages
 
 
 class VetLoginView(LoginView):
@@ -13,8 +15,11 @@ class VetLoginView(LoginView):
         return reverse_lazy('vet_portal:dashboard')
 
 
-class VetLogoutView(LogoutView):
-    next_page = reverse_lazy('vet_portal:login')
+def vet_logout_view(request):
+    """Simple logout view that redirects to homepage"""
+    logout(request)
+    messages.success(request, "You have been logged out successfully.")
+    return redirect('home')
 
 
 def register(request):

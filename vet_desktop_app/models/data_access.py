@@ -221,7 +221,9 @@ class UserDataAccess(DataAccessBase):
             email=user_dict['email'],
             is_active=bool(user_dict['is_active']),
             date_joined=self._parse_datetime(user_dict['date_joined']),
-            last_login=self._parse_datetime(user_dict['last_login'])
+            last_login=self._parse_datetime(user_dict['last_login']),
+            is_superuser=bool(user_dict.get('is_superuser', False)),
+            is_staff=bool(user_dict.get('is_staff', False))
         )
 
     def get_by_username(self, username: str) -> Optional[Any]:
@@ -241,7 +243,9 @@ class UserDataAccess(DataAccessBase):
             email=user_dict['email'],
             is_active=bool(user_dict['is_active']),
             date_joined=self._parse_datetime(user_dict['date_joined']),
-            last_login=self._parse_datetime(user_dict['last_login'])
+            last_login=self._parse_datetime(user_dict['last_login']),
+            is_superuser=bool(user_dict.get('is_superuser', False)),
+            is_staff=bool(user_dict.get('is_staff', False))
         )
 
     def get_by_email(self, email: str) -> Optional[Any]:
@@ -261,7 +265,9 @@ class UserDataAccess(DataAccessBase):
             email=user_dict['email'],
             is_active=bool(user_dict['is_active']),
             date_joined=self._parse_datetime(user_dict['date_joined']),
-            last_login=self._parse_datetime(user_dict['last_login'])
+            last_login=self._parse_datetime(user_dict['last_login']),
+            is_superuser=bool(user_dict.get('is_superuser', False)),
+            is_staff=bool(user_dict.get('is_staff', False))
         )
 
     def authenticate(self, username: str, password: str) -> Optional[Any]:
@@ -326,7 +332,9 @@ class UserDataAccess(DataAccessBase):
                                 email=user_dict['email'],
                                 is_active=bool(user_dict['is_active']),
                                 date_joined=self._parse_datetime(user_dict['date_joined']),
-                                last_login=self._parse_datetime(user_dict['last_login'])
+                                last_login=self._parse_datetime(user_dict['last_login']),
+                                is_superuser=bool(user_dict.get('is_superuser', False)),
+                                is_staff=bool(user_dict.get('is_staff', False))
                             )
                         # Backward compatibility: some older desktop builds stored hex-encoded hash
                         try:
@@ -342,7 +350,9 @@ class UserDataAccess(DataAccessBase):
                                         email=user_dict['email'],
                                         is_active=bool(user_dict['is_active']),
                                         date_joined=self._parse_datetime(user_dict['date_joined']),
-                                        last_login=self._parse_datetime(user_dict['last_login'])
+                                        last_login=self._parse_datetime(user_dict['last_login']),
+                                        is_superuser=bool(user_dict.get('is_superuser', False)),
+                                        is_staff=bool(user_dict.get('is_staff', False))
                                     )
                         except Exception:
                             pass

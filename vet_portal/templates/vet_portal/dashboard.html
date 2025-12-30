@@ -1,230 +1,368 @@
-{% extends 'vet_portal/base.html' %}
-{% load static %}
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static tz %}
 
 {% block title %}Dashboard - ePetCare Vet Portal{% endblock %}
 
-{% block content %}
-<div class="row mb-4">
-    <div class="col-12 text-center">
-        <h1 style="color: #6B705C; margin-bottom: 15px;">Welcome, Dr. {{ vet.full_name }}!</h1>
-        <p style="font-size: 16px; color: #666666;">Here's what's happening at your clinic today</p>
-        <hr style="border: 1px dashed #A5A58D; margin: 20px 0;">
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--vet-surface, #fff);
+    border: 1px solid var(--vet-border, #e5e1dc);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all 0.2s ease;
+  }
+  .stat-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .stat-icon.patients { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+  .stat-icon.appointments { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+  .stat-icon.prescriptions { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--vet-text, #3d3d3d);
+    line-height: 1.1;
+  }
+  .stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--vet-text-secondary, #6b6b6b);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .stat-desc {
+    font-size: 13px;
+    color: var(--vet-text-secondary, #6b6b6b);
+    margin-top: 4px;
+  }
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .main-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+  }
+  .main-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .main-card-header a {
+    color: #fff;
+    text-decoration: underline;
+    font-size: 13px;
+  }
+  .main-card-body {
+    padding: 0;
+  }
+  .main-card-footer {
+    text-align: center;
+    padding: 16px;
+    background: #f8f6f4;
+    border-top: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .dash-table th, .dash-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .dash-table th {
+    background: #f8f6f4;
+    font-weight: 600;
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .dash-table tr:last-child td {
+    border-bottom: none;
+  }
+  .dash-table tr:hover {
+    background: #fafaf9;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--vet-text-secondary, #6b6b6b);
+  }
+  .empty-state-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .notification-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+    transition: background 0.15s;
+  }
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  .notification-item.unread {
+    background: #fff8f0;
+    border-left: 3px solid #cb997e;
+  }
+  .notification-title {
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    margin-bottom: 4px;
+  }
+  .notification-message {
+    font-size: 13px;
+    color: var(--vet-text-secondary, #6b6b6b);
+    line-height: 1.5;
+  }
+  .notification-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #999;
+  }
+  .notification-meta a {
+    color: #cb997e;
+    text-decoration: none;
+  }
+  .notification-meta a:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 1000px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Welcome, Dr. {{ vet.full_name }}!</h1>
     </div>
-</div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Here's what's happening at your clinic today</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
 
 <!-- Stats Cards -->
-<div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="dashboard-card">
-            <div class="dashboard-card-title">
-                🐾 Total Patients
-            </div>
-            <div class="dashboard-stat">
-                {{ total_pets }}
-            </div>
-            <div class="dashboard-stat-label">
-                Pets under your care
-            </div>
-        </div>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon patients">🐾</div>
+    <div class="stat-content">
+      <div class="stat-label">Total Patients</div>
+      <div class="stat-value">{{ total_pets }}</div>
+      <div class="stat-desc">Pets under your care</div>
     </div>
-    
-    <div class="col-md-4 mb-3">
-        <div class="dashboard-card">
-            <div class="dashboard-card-title">
-                📅 Upcoming Appointments
-            </div>
-            <div class="dashboard-stat">
-                {{ total_appointments }}
-            </div>
-            <div class="dashboard-stat-label">
-                Scheduled visits
-            </div>
-        </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon appointments">📅</div>
+    <div class="stat-content">
+      <div class="stat-label">Upcoming Appointments</div>
+      <div class="stat-value">{{ total_appointments }}</div>
+      <div class="stat-desc">Scheduled visits</div>
     </div>
-    
-    <div class="col-md-4 mb-3">
-        <div class="dashboard-card">
-            <div class="dashboard-card-title">
-                💊 Active Prescriptions
-            </div>
-            <div class="dashboard-stat">
-                {{ total_pending_prescriptions }}
-            </div>
-            <div class="dashboard-stat-label">
-                Current treatments
-            </div>
-        </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon prescriptions">💊</div>
+    <div class="stat-content">
+      <div class="stat-label">Active Prescriptions</div>
+      <div class="stat-value">{{ total_pending_prescriptions }}</div>
+      <div class="stat-desc">Current treatments</div>
     </div>
+  </div>
 </div>
 
-<div class="row">
-    <!-- Today's Appointments -->
-    <div class="col-lg-8 mb-4">
-        <div class="card">
-            <div class="card-header">
-                Today's Appointments
-                <a href="{% url 'vet_portal:appointment_list' %}" style="float: right; text-decoration: underline; color: #CB997E;">
-                    View All
-                </a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Pet</th>
-                                <th>Owner</th>
-                                <th>Reason</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for appointment in today_appointments %}
-                                <tr>
-                                    <td>{{ appointment.date_time|date:"H:i" }}</td>
-                                    <td>
-                                        <a href="{% url 'vet_portal:patient_detail' appointment.pet.id %}">
-                                            {{ appointment.pet.name }}
-                                        </a>
-                                    </td>
-                                    <td>{{ appointment.pet.owner.full_name }}</td>
-                                    <td>{{ appointment.reason }}</td>
-                                    <td>
-                                        {% if appointment.status == 'scheduled' %}
-                                            <span class="badge" style="background-color: #A5A58D;">Scheduled</span>
-                                        {% elif appointment.status == 'completed' %}
-                                            <span class="badge" style="background-color: #6B8E23;">Completed</span>
-                                        {% elif appointment.status == 'cancelled' %}
-                                            <span class="badge" style="background-color: #BC6C25;">Cancelled</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'vet_portal:appointment_detail' appointment.id %}" class="btn btn-primary">
-                                            View
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 30px;">
-                                        <div style="color: #A5A58D;">
-                                            <div style="font-size: 24px; margin-bottom: 10px;">📆</div>
-                                            No appointments scheduled for today
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div style="text-align: center; padding: 15px; background-color: #F1E3D3; border-top: 1px solid #E6CCB2;">
-                <a href="{% url 'vet_portal:appointment_create' %}" class="btn btn-primary">
-                    + New Appointment
-                </a>
-            </div>
-        </div>
+<!-- Main Dashboard Grid -->
+<div class="dashboard-grid">
+  <!-- Today's Appointments -->
+  <div class="main-card">
+    <div class="main-card-header">
+      📅 Today's Appointments
+      <a href="{% url 'vet_portal:appointment_list' %}">View All →</a>
     </div>
-    
-    <!-- Notifications -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                Recent Notifications
-                <a href="{% url 'vet_portal:mark_all_notifications_read' %}" style="float: right; text-decoration: underline; color: #CB997E;">
-                    Mark All Read
-                </a>
-            </div>
-            <div class="card-body">
-                {% for notification in notifications %}
-                    {% if not notification.is_read %}
-                    <div style="padding: 10px; margin-bottom: 10px; border-bottom: 1px solid #E6CCB2; background-color: #FFE8D6; border-left: 3px solid #CB997E;">
-                    {% else %}
-                    <div style="padding: 10px; margin-bottom: 10px; border-bottom: 1px solid #E6CCB2;">
-                    {% endif %}
-                        <div style="font-weight: bold; margin-bottom: 5px;">{{ notification.title }}</div>
-                        <div style="font-size: 14px; color: #666666;">{{ notification.message|truncatechars:80 }}</div>
-                        <div style="font-size: 12px; color: #999999; text-align: right;">
-                            {{ notification.created_at|timesince }} ago
-                        </div>
-                        <div style="text-align: right; margin-top: 5px;">
-                            <a href="{% url 'vet_portal:mark_notification_read' notification.id %}" 
-                               style="color: #CB997E; text-decoration: underline; font-size: 14px;">
-                                Mark as read
-                            </a>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div style="text-align: center; padding: 30px; color: #A5A58D;">
-                        <div style="font-size: 24px; margin-bottom: 10px;">🔔</div>
-                        No new notifications
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+    <div class="main-card-body">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Pet</th>
+            <th>Owner</th>
+            <th>Reason</th>
+            <th>Booked</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appointment in today_appointments %}
+          <tr>
+            <td>{{ appointment.date_time|date:"H:i" }}</td>
+            <td>
+              <a href="{% url 'vet_portal:patient_detail' appointment.pet.id %}" style="color: #6b705c; font-weight: 500;">
+                {{ appointment.pet.name }}
+              </a>
+            </td>
+            <td>{{ appointment.pet.owner.full_name }}</td>
+            <td>{{ appointment.reason|truncatechars:30 }}</td>
+            <td style="font-size: 11px; color: #888;">
+              {% if appointment.created_at %}
+                {{ appointment.created_at|localtime|date:"M d, g:i A" }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if appointment.status == 'scheduled' %}
+                <span class="badge" style="background: #a5a58d; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Scheduled</span>
+              {% elif appointment.status == 'completed' %}
+                <span class="badge" style="background: #16a34a; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Completed</span>
+              {% elif appointment.status == 'cancelled' %}
+                <span class="badge" style="background: #dc2626; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Cancelled</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'vet_portal:appointment_detail' appointment.id %}" class="btn btn-primary" style="padding: 6px 14px; font-size: 13px;">View</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="empty-state">
+                <div class="empty-state-icon">📆</div>
+                No appointments scheduled for today
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    <div class="main-card-footer">
+      <a href="{% url 'vet_portal:appointment_create' %}" class="btn btn-primary">+ New Appointment</a>
+    </div>
+  </div>
+
+  <!-- Notifications Sidebar -->
+  <div class="main-card">
+    <div class="main-card-header">
+      🔔 Recent Notifications
+      <a href="{% url 'vet_portal:mark_all_notifications_read' %}">Mark All Read</a>
+    </div>
+    <div class="main-card-body" style="max-height: 400px; overflow-y: auto;">
+      {% for notification in notifications %}
+      <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+        <div class="notification-title">{{ notification.title }}</div>
+        <div class="notification-message">{{ notification.message|truncatechars:80 }}</div>
+        <div class="notification-meta">
+          <span>{{ notification.created_at|timesince }} ago</span>
+          <a href="{% url 'vet_portal:mark_notification_read' notification.id %}">Mark as read</a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🔔</div>
+        No new notifications
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </div>
 
 <!-- Recent Medical Records -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                Recent Medical Records
+<div class="main-card">
+  <div class="main-card-header">
+    📋 Recent Medical Records
+  </div>
+  <div class="main-card-body">
+    <table class="dash-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Pet</th>
+          <th>Owner</th>
+          <th>Condition</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in recent_records %}
+        <tr>
+          <td>{{ record.visit_date }}</td>
+          <td>
+            <a href="{% url 'vet_portal:patient_detail' record.pet.id %}" style="color: #6b705c; font-weight: 500;">
+              {{ record.pet.name }}
+            </a>
+          </td>
+          <td>{{ record.pet.owner.full_name }}</td>
+          <td>{{ record.condition }}</td>
+          <td>
+            <a href="{% url 'vet_portal:medical_record_detail' record.id %}" class="btn btn-primary" style="padding: 6px 14px; font-size: 13px;">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              No medical records found
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Pet</th>
-                                <th>Owner</th>
-                                <th>Condition</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in recent_records %}
-                                <tr>
-                                    <td>{{ record.visit_date }}</td>
-                                    <td>
-                                        <a href="{% url 'vet_portal:patient_detail' record.pet.id %}">
-                                            {{ record.pet.name }}
-                                        </a>
-                                    </td>
-                                    <td>{{ record.pet.owner.full_name }}</td>
-                                    <td>{{ record.condition }}</td>
-                                    <td>
-                                        <a href="{% url 'vet_portal:medical_record_detail' record.id %}" class="btn btn-primary">
-                                            View
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="5" style="text-align: center; padding: 30px;">
-                                        <div style="color: #A5A58D;">
-                                            <div style="font-size: 24px; margin-bottom: 10px;">📋</div>
-                                            No medical records found
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Connection Status Indicator -->
 <div style="position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; 
-          background-color: #6B8E23; color: white; border-radius: 5px; 
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: none;" id="connection-status">
+          background-color: #16a34a; color: white; border-radius: 8px; 
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: none;" id="connection-status">
     Online
 </div>
 {% endblock %}
@@ -238,12 +376,12 @@
         function updateStatus() {
             if (navigator.onLine) {
                 statusElement.textContent = '✓ Online';
-                statusElement.style.backgroundColor = '#6B8E23';
-                statusElement.style.display = 'none'; // Hide when online
+                statusElement.style.backgroundColor = '#16a34a';
+                statusElement.style.display = 'none';
             } else {
                 statusElement.textContent = '✗ Offline';
-                statusElement.style.backgroundColor = '#BC6C25';
-                statusElement.style.display = 'block'; // Show when offline
+                statusElement.style.backgroundColor = '#dc2626';
+                statusElement.style.display = 'block';
             }
         }
         

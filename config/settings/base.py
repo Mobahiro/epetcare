@@ -56,6 +56,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'clinic.context_processors.branding',
                 'clinic.context_processors.notifications',
+                'vet_portal.context_processors.vet_notifications',
             ],
         },
     },
@@ -104,6 +105,12 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Timezone settings - Philippine Standard Time (UTC+8)
+TIME_ZONE = 'Asia/Manila'
+USE_TZ = True
+USE_I18N = True
+USE_L10N = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

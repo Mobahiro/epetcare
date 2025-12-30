@@ -1,0 +1,131 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+{% block title %}Prescriptions - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Prescriptions</h1>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Manage all active prescriptions</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="main-card">
+  <div class="card-head">
+    <h2>Active Prescriptions</h2>
+  </div>
+  
+  {% if prescriptions %}
+    <div class="table-responsive" style="overflow-x: auto;">
+      <table class="dash-table table-mobile-cards">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Pet</th>
+            <th>Owner</th>
+            <th>Medication</th>
+            <th>Dosage</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for prescription in prescriptions %}
+            <tr>
+              <td data-label="Date">{{ prescription.date_prescribed|date:"Y-m-d" }}</td>
+              <td data-label="Pet">
+                <a href="{% url 'vet_portal:patient_detail' prescription.pet.id %}">
+                  {{ prescription.pet.name }}
+                </a>
+              </td>
+              <td data-label="Owner">{{ prescription.pet.owner.full_name }}</td>
+              <td data-label="Medication"><strong>{{ prescription.medication_name }}</strong></td>
+              <td data-label="Dosage">{{ prescription.dosage }}</td>
+              <td data-label="Duration">{{ prescription.duration_days }} days</td>
+              <td data-label="Actions">
+                <a href="{% url 'vet_portal:prescription_update' prescription.id %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'vet_portal:prescription_delete' prescription.id %}" class="btn btn-sm btn-secondary">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-message" style="padding: 40px; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">💊</div>
+      <p>No active prescriptions found.</p>
+      <a href="{% url 'vet_portal:patient_list' %}" class="btn btn-primary">View Patients</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+</style>
+{% endblock %}

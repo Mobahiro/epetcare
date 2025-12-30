@@ -40,6 +40,17 @@
     margin-bottom: 20px;
     letter-spacing: -0.5px;
     color: black;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.title-underline {
+    display: block;
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, #f2c98a, #e9b56d);
+    border-radius: 2px;
+    margin-top: 16px;
 }
 
 .hero-subtitle {
@@ -434,6 +445,7 @@
     background-color: var(--accent);
     color: var(--brand);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid transparent;
 }
 
 .btn-primary:hover {
@@ -443,16 +455,16 @@
 }
 
 .btn-outline {
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: #fff;
+    color: var(--brand);
+    border: 2px solid var(--brand);
 }
 
 .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--brand);
+    color: #fff;
     transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 15px rgba(87, 61, 28, 0.25);
 }
 
 .btn-large {
@@ -516,6 +528,11 @@
         font-size: 2.2rem;
     }
 
+    .title-underline {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .hero-subtitle {
         font-size: 1.1rem;
     }
@@ -564,6 +581,13 @@
         font-size: 1.8rem;
     }
 
+    .title-underline {
+        width: 80px;
+        height: 3px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .section-title {
         font-size: 1.6rem;
     }
@@ -571,6 +595,14 @@
     .hero-actions {
         flex-direction: column;
         gap: 10px;
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
     }
 
     .btn {

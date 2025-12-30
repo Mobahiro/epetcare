@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.current_user = None
         self.current_vet = None
+        self.current_superadmin = None
 
         self.setWindowTitle("ePetCare Vet Desktop")
         self.setMinimumSize(1200, 800)
@@ -283,16 +284,24 @@ class MainWindow(QMainWindow):
         if result == QDialog.Accepted:
             self.current_user = dialog.get_user()
             self.current_vet = dialog.get_veterinarian()
-            self.setup_views()
-            self.setup_toolbar()
-            self.show_view("dashboard")
-            self.status_bar.showMessage(f"Logged in as {self.current_vet.full_name}")
+            self.current_superadmin = dialog.get_superadmin()
+            
+            # Check if user is superadmin (from vet_superadmin table)
+            if self.current_superadmin:
+                # Show superadmin dashboard
+                self.show_superadmin_dashboard()
+            else:
+                # Regular vet login
+                self.setup_views()
+                self.setup_toolbar()
+                self.show_view("dashboard")
+                self.status_bar.showMessage(f"Logged in as {self.current_vet.full_name}")
 
-            # Start monitoring for new appointments
-            self.notification_manager.start_monitoring()
+                # Start monitoring for new appointments
+                self.notification_manager.start_monitoring()
 
-            # Set window title with user name
-            self.setWindowTitle(f"ePetCare Vet Portal - {self.current_user.username}")
+                # Set window title with user name
+                self.setWindowTitle(f"ePetCare Vet Portal - {self.current_user.username}")
         else:
             # Exit if login is cancelled and no user is logged in
             if not self.current_user:
@@ -353,6 +362,7 @@ class MainWindow(QMainWindow):
             # Clear current user data
             self.current_user = None
             self.current_vet = None
+            self.current_superadmin = None
 
             # Reset UI state
             self.central_widget.setCurrentIndex(0)
@@ -422,6 +432,35 @@ class MainWindow(QMainWindow):
             self.status_bar.clearMessage()
             QMessageBox.critical(self, "Report Generation Failed", f"An error occurred: {str(e)}")
 
+
+    def show_superadmin_dashboard(self):
+        """Show superadmin dashboard for managing users"""
+        try:
+            from views.superadmin_dashboard import SuperadminDashboard
+            
+            # Clear existing views
+            while self.stacked_widget.count() > 0:
+                widget = self.stacked_widget.widget(0)
+                self.stacked_widget.removeWidget(widget)
+                widget.deleteLater()
+            
+            # Hide toolbar (superadmin doesn't need it)
+            self.toolbar.hide()
+            
+            # Create and show superadmin dashboard
+            superadmin_view = SuperadminDashboard(self.current_user, self)
+            superadmin_view.logout_requested.connect(self.logout)
+            self.stacked_widget.addWidget(superadmin_view)
+            self.stacked_widget.setCurrentWidget(superadmin_view)
+            
+            # Update window title and status
+            self.setWindowTitle(f"ePetCare - Superadmin Dashboard - {self.current_user.username}")
+            self.status_bar.showMessage(f"Logged in as Superadmin: {self.current_user.username}")
+            
+        except Exception as e:
+            logger.error(f"Error showing superadmin dashboard: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to load superadmin dashboard: {str(e)}")
+            self.close()
 
     def show_about_dialog(self):
         """Show the about dialog"""

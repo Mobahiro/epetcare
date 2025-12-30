@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patients</title>
+  <link rel="icon" type="image/png" href="/static/clinic/images/epetcare-logo.png">
+  <link rel="apple-touch-icon" href="/static/clinic/images/epetcare-logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/clinic/styles.css?v=1766385423">
+  <link rel="stylesheet" href="/static/clinic/modern.css?v=1766385423">
+  <link rel="stylesheet" href="/static/clinic/dashboard.css?v=1766385423">
+  <link rel="stylesheet" href="/static/clinic/sidebar.css?v=1766385423">
+  <link rel="stylesheet" href="/static/clinic/dark-mode.css?v=1766385423">
+  <script src="/static/clinic/dark-mode-toggle.js?v=1766385423"></script>
+  
+</head>
+<body style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+<div class="dash-layout">
+  <aside class="dash-sidebar" aria-label="Sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-user">
+        <div class="avatar-sm">K</div>
+        <div class="user-meta">
+          <div class="user-name">Dr. Kiyo</div>
+          <div class="user-role">Veterinarian</div>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="side-section">Main</div>
+      <a class="side-link " href="/vet_portal/" >
+        <span class="icon"><img src="/static/clinic/icons/home_24.svg" alt="" aria-hidden="true"></span>
+        <span class="text">Dashboard</span>
+      </a>
+      <a class="side-link active" href="/vet_portal/patients/" aria-current="page">
+        <span class="icon"><img src="/static/clinic/icons/paw_24.svg" alt="" aria-hidden="true"></span>
+        <span class="text">Patients</span>
+      </a>
+      <a class="side-link " href="/vet_portal/appointments/" >
+        <span class="icon"><img src="/static/clinic/icons/calendar_24.svg" alt="" aria-hidden="true"></span>
+        <span class="text">Appointments</span>
+      </a>
+
+      <div class="side-section">Records</div>
+      <a class="side-link " href="/vet_portal/records/" >
+        <span class="icon"><img src="/static/clinic/icons/document_24.svg" alt="" aria-hidden="true"></span>
+        <span class="text">Medical Records</span>
+      </a>
+      <a class="side-link " href="/vet_portal/prescriptions/" >
+        <span class="icon"><img src="/static/clinic/icons/pill_24.svg" alt="" aria-hidden="true"></span>
+        <span class="text">Prescriptions</span>
+      </a>
+
+      <div class="side-section">Management</div>
+      <a class="side-link " href="/vet_portal/schedule/" >
+        <span class="icon"><img src="/static/clinic/icons/calendar_24.svg" alt="" aria-hidden="true"></span>
+        <span class="text">Schedule</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" aria-label="Toggle sidebar">
+          <img src="/static/clinic/icons/menu_24.svg" alt="" width="20" height="20" aria-hidden="true">
+        </button>
+        <form class="topbar-search" role="search" action="#" onsubmit="return false;">
+          <input type="search" placeholder="Search patients..." aria-label="Search" />
+          <button class="search-btn" aria-label="Search">
+            <img src="/static/clinic/icons/search_24.svg" alt="" width="20" height="20" aria-hidden="true">
+          </button>
+        </form>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="darkModeToggle" title="Toggle dark mode" aria-label="Toggle dark mode" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px;">
+          🌙
+        </button>
+        <a class="icon-btn notif-btn" href="/vet_portal/notifications/read-all/" title="Notifications">
+          <img src="/static/clinic/icons/bell_24.svg" alt="" width="20" height="20" aria-hidden="true">
+          
+        </a>
+        <div class="profile-chip">
+          <div class="avatar-sm">K</div>
+          <div class="chip-text">
+            <div class="chip-name">Dr. Kiyo</div>
+            <div class="chip-role">Veterinarian</div>
+          </div>
+          <div class="chip-menu">
+            <a href="#">Profile</a>
+            <a href="/vet_portal/logout/">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="dash-content">
+
+      
+<div class="container">
+  <h2>Patients</h2>
+  <form method="get" class="toolbar">
+    <input type="text" class="form-control" name="search" placeholder="Search by name, owner, species, breed" value="" />
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+  <div class="grid-cards">
+    
+      <div class="card">
+        
+          <div class="pet-image-placeholder">
+            <i class="fas fa-paw"></i>
+          </div>
+        
+        <h3>Michael</h3>
+        <p class="text-muted">Owner: Kiyo</p>
+        <p class="text-muted">Species: Bird</p>
+        <a href="/vet_portal/patients/16/" class="btn btn-secondary">Open</a>
+      </div>
+    
+      <div class="card">
+        
+          <div class="pet-image-placeholder">
+            <i class="fas fa-paw"></i>
+          </div>
+        
+        <h3>Aldrin</h3>
+        <p class="text-muted">Owner: Michael Josh</p>
+        <p class="text-muted">Species: Dog</p>
+        <a href="/vet_portal/patients/17/" class="btn btn-secondary">Open</a>
+      </div>
+    
+      <div class="card">
+        
+          <div class="pet-image-placeholder">
+            <i class="fas fa-paw"></i>
+          </div>
+        
+        <h3>EJ</h3>
+        <p class="text-muted">Owner: Michael Josh</p>
+        <p class="text-muted">Species: Dog</p>
+        <a href="/vet_portal/patients/18/" class="btn btn-secondary">Open</a>
+      </div>
+    
+      <div class="card">
+        
+          <div class="pet-image-placeholder">
+            <i class="fas fa-paw"></i>
+          </div>
+        
+        <h3>Daryl</h3>
+        <p class="text-muted">Owner: Michael Josh</p>
+        <p class="text-muted">Species: Dog</p>
+        <a href="/vet_portal/patients/19/" class="btn btn-secondary">Open</a>
+      </div>
+    
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Sidebar toggle
+document.querySelector('.sidebar-toggle')?.addEventListener('click', () => {
+  document.querySelector('.dash-sidebar')?.classList.toggle('collapsed');
+});
+
+// Profile chip menu toggle
+document.querySelector('.profile-chip')?.addEventListener('click', function() {
+  this.classList.toggle('show');
+});
+
+// Close profile menu when clicking outside
+document.addEventListener('click', function(e) {
+  const chip = document.querySelector('.profile-chip');
+  if (chip && !chip.contains(e.target)) {
+    chip.classList.remove('show');
+  }
+});
+</script>
+
+
+</body>
+</html>

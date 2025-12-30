@@ -1,0 +1,128 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}New Appointment - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .form-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+    max-width: 600px;
+    margin: 24px auto;
+  }
+  .form-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 20px 24px;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .form-card-body {
+    padding: 32px 24px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #6b705c;
+    box-shadow: 0 0 0 3px rgba(107, 112, 92, 0.1);
+  }
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .required-star {
+    color: #dc2626;
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Schedule New Appointment</h1>
+      <a href="{% url 'vet_portal:appointment_list' %}" class="btn btn-secondary">← Back to Appointments</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Schedule a new appointment for a patient</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="form-card">
+  <div class="form-card-header">
+    📅 Appointment Details
+  </div>
+  <div class="form-card-body">
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="pet">Patient <span class="required-star">*</span></label>
+        <select name="pet" id="pet" required>
+          <option value="">-- Select a pet --</option>
+          {% for pet in pets %}
+            <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.get_species_display }}) - Owner: {{ pet.owner.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="date_time">Date & Time <span class="required-star">*</span></label>
+        <input type="datetime-local" name="date_time" id="date_time" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="reason">Reason for Visit</label>
+        <input type="text" name="reason" id="reason" placeholder="e.g., Annual checkup, Vaccination, Illness">
+      </div>
+      
+      <div class="form-group">
+        <label for="notes">Additional Notes</label>
+        <textarea name="notes" id="notes" placeholder="Any additional information about this appointment..."></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <a href="{% url 'vet_portal:appointment_list' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">📅 Schedule Appointment</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

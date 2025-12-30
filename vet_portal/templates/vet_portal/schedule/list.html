@@ -1,0 +1,155 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Weekly Schedule - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Weekly Schedule</h1>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="main-card">
+  <div class="card-head">
+    <h2>This Week's Appointments</h2>
+  </div>
+  
+  <div style="padding: 20px;">
+    {% if appointments %}
+      <div class="table-responsive">
+        <table class="table table-mobile-cards">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Pet</th>
+              <th>Owner</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for appointment in appointments %}
+              <tr>
+                <td data-label="Day">{{ appointment.date_time|date:"l, M d" }}</td>
+                <td data-label="Time">{{ appointment.date_time|date:"g:i A" }}</td>
+                <td data-label="Pet">
+                  <a href="{% url 'vet_portal:patient_detail' appointment.pet.id %}">
+                    {{ appointment.pet.name }}
+                  </a>
+                </td>
+                <td data-label="Owner">{{ appointment.pet.owner.full_name }}</td>
+                <td data-label="Reason">{{ appointment.reason|truncatewords:8 }}</td>
+                <td data-label="Status">
+                  {% if appointment.status == 'scheduled' %}
+                    <span class="badge badge-primary">Scheduled</span>
+                  {% elif appointment.status == 'completed' %}
+                    <span class="badge badge-success">Completed</span>
+                  {% elif appointment.status == 'cancelled' %}
+                    <span class="badge badge-danger">Cancelled</span>
+                  {% else %}
+                    <span class="badge">{{ appointment.status }}</span>
+                  {% endif %}
+                </td>
+                <td data-label="Actions">
+                  <a href="{% url 'vet_portal:appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">
+                    View
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-message" style="padding: 40px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📅</div>
+        <p>No appointments scheduled for this week.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-primary {
+  background-color: #e3f2fd;
+  color: #1976D2;
+}
+
+.badge-success {
+  background-color: #e8f5e9;
+  color: #388E3C;
+}
+
+.badge-danger {
+  background-color: #ffebee;
+  color: #D32F2F;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+</style>
+{% endblock %}

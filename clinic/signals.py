@@ -5,7 +5,7 @@ from .models import Appointment, Prescription, MedicalRecord, Notification, Owne
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.conf import settings
-from .utils.emailing import send_mail_async_safe
+from django.core.mail import send_mail
 from django.db import transaction
 
 import logging
@@ -154,7 +154,7 @@ def email_owner_on_notification(sender, instance: Notification, created: bool, *
         except Exception:
             html_body = None
         try:
-            send_mail_async_safe(subject, text_body, [to_email], html_message=html_body)
+            send_mail(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to_email], html_message=html_body, fail_silently=False)
             # Mark as emailed to avoid duplicate sends on replay
             def _mark_emailed():
                 try:
@@ -166,9 +166,9 @@ def email_owner_on_notification(sender, instance: Notification, created: bool, *
                 transaction.on_commit(_mark_emailed)
             else:
                 _mark_emailed()
-        except Exception:
+        except Exception as mail_err:
             # Don't break request flow if emailing fails
-            pass
+            logger.error(f'Failed to send notification email: {mail_err}')
     except Exception as e:
         # Catch any unexpected exception to prevent 500 errors
         import logging

@@ -393,13 +393,13 @@ class PatientsView(QWidget):
                     break
 
     def search_patients(self):
-        """Search for patients based on the search criteria"""
+        """Search for patients based on the search criteria (filtered by vet's branch)"""
         query = self.search_input.text().strip()
         species_filter = self.species_filter.currentData()
 
-        # This is a simplified implementation
-        # In a real app, you would apply the species filter in the query
-        pets = self.pet_data_access.search(query, limit=50)
+        # Filter by vet's branch to show only patients from the same branch
+        vet_branch = getattr(self.veterinarian, 'branch', None)
+        pets = self.pet_data_access.search(query, limit=50, branch=vet_branch)
 
         if species_filter:
             pets = [pet for pet in pets if pet.species == species_filter]

@@ -1,26 +1,230 @@
 {% extends 'clinic/dashboard_base.html' %}
-{% block title %}New Pet - ePetCare{% endblock %}
+{% load static %}
+{% block title %}{% if form.instance.pk %}Edit Pet{% else %}New Pet{% endif %} - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .form-card {
+    background: var(--owner-surface, #fff);
+    border-radius: 16px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .form-card-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--owner-border, #e8e4df);
+  }
+  .form-card-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin: 0 0 4px 0;
+  }
+  .form-card-header p {
+    font-size: 14px;
+    color: var(--owner-text-secondary, #8B7355);
+    margin: 0;
+  }
+  .form-card-body {
+    padding: 28px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .form-grid .full-width {
+    grid-column: span 2;
+  }
+  .form-group {
+    margin-bottom: 0;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--owner-primary, #d48b3e);
+    box-shadow: 0 0 0 3px rgba(212, 139, 62, 0.1);
+  }
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  .form-group .help-text {
+    font-size: 12px;
+    color: var(--owner-text-secondary, #8B7355);
+    margin-top: 4px;
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid var(--owner-border, #e8e4df);
+    background: var(--owner-bg, #FFF5E9);
+    border-radius: 0 0 16px 16px;
+  }
+  .btn-save {
+    background: var(--owner-primary, #d48b3e);
+    color: #fff;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover {
+    background: var(--owner-text, #573D1C);
+  }
+  .btn-cancel {
+    background: transparent;
+    color: var(--owner-text-secondary, #8B7355);
+    padding: 10px 24px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover {
+    background: var(--owner-surface, #fff);
+    border-color: var(--owner-text-secondary);
+  }
+  .file-upload {
+    border: 2px dashed var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background: var(--owner-bg, #FFF5E9);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .file-upload:hover {
+    border-color: var(--owner-primary, #d48b3e);
+  }
+  .file-upload input[type="file"] {
+    display: none;
+  }
+  .file-upload-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .file-upload-text {
+    font-size: 14px;
+    color: var(--owner-text-secondary, #8B7355);
+  }
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-grid .full-width {
+      grid-column: span 1;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block dash_content %}
-<div class="toolbar">
-  <h2>New Pet</h2>
-  <a class="btn" href="{% url 'pet_list' %}">← Back</a>
-</div>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="field">{{ form.name.label_tag }}{{ form.name }}</div>
-  <div class="field">{{ form.species.label_tag }}{{ form.species }}</div>
-  <div class="field">{{ form.breed.label_tag }}{{ form.breed }}</div>
-  <div class="field">{{ form.sex.label_tag }}{{ form.sex }}</div>
-  <div class="field">{{ form.birth_date.label_tag }}{{ form.birth_date }}</div>
-  <div class="field">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}</div>
-  <div class="field">{{ form.notes.label_tag }}{{ form.notes }}</div>
-  <div class="field">
-    <label for="{{ form.image.id_for_label }}">Pet Photo:</label>
-    {{ form.image }}
-    <span class="help-text">Upload a photo of your pet (optional)</span>
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">{% if form.instance.pk %}Edit Pet{% else %}Register New Pet{% endif %}</h1>
+      <a class="btn btn-secondary" href="{% url 'pet_list' %}">← Back to Pets</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{% if form.instance.pk %}Update your pet's information.{% else %}Add a new furry friend to your account.{% endif %}</span>
+    </div>
   </div>
-  <button class="btn" type="submit">Save</button>
-  <a class="btn" href="{% url 'pet_list' %}" style="background:#3f4857;">Cancel</a>
-</form>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="form-card">
+  <div class="form-card-header">
+    <h2>🐾 Pet Information</h2>
+    <p>Fill in the details below to {% if form.instance.pk %}update{% else %}register{% endif %} your pet.</p>
+  </div>
+  
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="{{ form.name.id_for_label }}">Pet Name *</label>
+          {{ form.name }}
+        </div>
+        
+        <div class="form-group">
+          <label for="{{ form.species.id_for_label }}">Species *</label>
+          {{ form.species }}
+        </div>
+        
+        <div class="form-group">
+          <label for="{{ form.breed.id_for_label }}">Breed</label>
+          {{ form.breed }}
+          <span class="help-text">Optional - Enter the breed if known</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="{{ form.sex.id_for_label }}">Sex *</label>
+          {{ form.sex }}
+        </div>
+        
+        <div class="form-group">
+          <label for="{{ form.birth_date.id_for_label }}">Birth Date</label>
+          {{ form.birth_date }}
+          <span class="help-text">Approximate date is fine</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="{{ form.weight_kg.id_for_label }}">Weight (kg)</label>
+          {{ form.weight_kg }}
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="{{ form.notes.id_for_label }}">Notes</label>
+          {{ form.notes }}
+          <span class="help-text">Any special conditions, allergies, or notes about your pet</span>
+        </div>
+        
+        <div class="form-group full-width">
+          <label>Pet Photo</label>
+          <label class="file-upload">
+            {{ form.image }}
+            <div class="file-upload-icon">📷</div>
+            <div class="file-upload-text">Click to upload a photo of your pet</div>
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn-save" type="submit">{% if form.instance.pk %}Save Changes{% else %}Register Pet{% endif %}</button>
+      <a class="btn-cancel" href="{% url 'pet_list' %}">Cancel</a>
+    </div>
+  </form>
+</div>
 {% endblock %}
 

@@ -72,3 +72,30 @@ def medical_record_delete(request, pk):
         messages.success(request, 'Medical record deleted.')
         return redirect('vet_portal:patient_detail', pk=pet_id)
     return render(request, 'vet_portal/records/confirm_delete.html', {'record': record})
+
+
+@login_required
+@vet_required
+def medical_record_detail(request, pk):
+    """Display detailed view of a medical record"""
+    record = get_object_or_404(MedicalRecord.objects.select_related('pet', 'pet__owner'), pk=pk)
+    
+    context = {
+        'record': record,
+        'pet': record.pet,
+    }
+    return render(request, 'vet_portal/records/detail.html', context)
+
+
+@login_required
+@vet_required
+def medical_record_list(request):
+    """List all medical records"""
+    records = MedicalRecord.objects.select_related(
+        'pet', 'pet__owner'
+    ).order_by('-visit_date')
+    
+    context = {
+        'records': records,
+    }
+    return render(request, 'vet_portal/records/list.html', context)

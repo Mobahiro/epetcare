@@ -1,0 +1,275 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+{% block title %}Dashboard - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<link rel="stylesheet" href="{% static 'clinic/dashboard-components.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Welcome, Dr. {{ vet.full_name }} <span class="wave">👋</span></h1>
+      <a class="btn btn-primary" href="{% url 'vet_portal:patient_list' %}">View Patients</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Here's your clinic overview. All patient information at your fingertips.</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- Summary tiles -->
+<section class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🐾</div>
+      <div class="tile-text">
+        <div class="tile-title">Total Patients</div>
+        <div class="tile-sub">Under care</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ total_pets }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📅</div>
+      <div class="tile-text">
+        <div class="tile-title">Appointments</div>
+        <div class="tile-sub">Upcoming</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ total_appointments }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">💊</div>
+      <div class="tile-text">
+        <div class="tile-title">Prescriptions</div>
+        <div class="tile-sub">Active</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ total_pending_prescriptions }}</div>
+  </div>
+</section>
+
+<!-- Main grid: timeline + recent -->
+<div class="dash-grid">
+  <div class="main-card">
+    <div class="card-head with-tabs">
+      <nav class="card-tabs" role="tablist">
+        <a href="#today" class="card-tab active" role="tab" aria-controls="today" aria-selected="true">Today's Appointments</a>
+        <a href="#upcoming" class="card-tab" role="tab" aria-controls="upcoming" aria-selected="false">Upcoming</a>
+        <a href="#recent-records" class="card-tab" role="tab" aria-controls="recent-records" aria-selected="false">Recent Records</a>
+      </nav>
+      <div class="head-actions">
+        <a class="btn btn-primary btn-sm new-btn" href="{% url 'vet_portal:appointment_list' %}" data-for="today">View All</a>
+      </div>
+    </div>
+
+    <!-- Today's Appointments Tab -->
+    <div id="today" class="tab-panel active" role="tabpanel" aria-labelledby="Today">
+      <ol class="timeline">
+        {% for a in today_appointments %}
+        <li class="timeline-item">
+          <div class="timeline-date">
+            <span class="day">{{ a.date_time|date:"d" }}</span>
+            <span class="mon">{{ a.date_time|date:"b" }}</span>
+          </div>
+          <div class="timeline-card">
+            <div class="time">{{ a.date_time|date:"H:i" }}</div>
+            <div class="title">{{ a.pet.name }} - {{ a.pet.owner.full_name }}</div>
+            <div class="sub">{{ a.reason }}</div>
+            <div class="status">
+              {% if a.status == 'scheduled' %}
+                <span class="badge badge-primary">Scheduled</span>
+              {% elif a.status == 'completed' %}
+                <span class="badge badge-success">Completed</span>
+              {% elif a.status == 'cancelled' %}
+                <span class="badge badge-danger">Cancelled</span>
+              {% endif %}
+            </div>
+          </div>
+        </li>
+        {% empty %}
+        <div class="empty-message">
+          No appointments for today. <a class="btn-link" href="{% url 'vet_portal:appointment_list' %}">View all appointments</a>
+        </div>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <!-- Upcoming Appointments Tab -->
+    <div id="upcoming" class="tab-panel" role="tabpanel" aria-labelledby="Upcoming">
+      <ol class="timeline">
+        {% for a in upcoming_appointments %}
+        <li class="timeline-item">
+          <div class="timeline-date">
+            <span class="day">{{ a.date_time|date:"d" }}</span>
+            <span class="mon">{{ a.date_time|date:"b" }}</span>
+          </div>
+          <div class="timeline-card">
+            <div class="time">{{ a.date_time|date:"H:i" }}</div>
+            <div class="title">{{ a.pet.name }} - {{ a.pet.owner.full_name }}</div>
+            <div class="sub">{{ a.reason }}</div>
+          </div>
+        </li>
+        {% empty %}
+        <div class="empty-message">
+          No upcoming appointments in the next 7 days.
+        </div>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <!-- Recent Medical Records Tab -->
+    <div id="recent-records" class="tab-panel" role="tabpanel" aria-labelledby="Recent Records">
+      <div class="list">
+        {% for record in recent_records %}
+        <div class="list-item">
+          <div class="notification-title">{{ record.pet.name }} - {{ record.condition }}</div>
+          <div class="notification-text">{{ record.treatment|truncatewords:15 }}</div>
+          <div class="notification-meta">
+            {{ record.visit_date|date:'Y-m-d' }} • Owner: {{ record.pet.owner.full_name }}
+            <a class="btn-link notification-action" href="{% url 'vet_portal:patient_detail' record.pet.id %}">View Patient</a>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-message">
+          No recent medical records.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <aside class="col-right">
+    <div class="rail">
+      <!-- Quick Actions Card -->
+      <div class="rail-card">
+        <div class="rail-title">Quick Actions</div>
+        <div class="rail-content">
+          <a href="{% url 'vet_portal:patient_list' %}" class="rail-action-btn">
+            <span class="action-icon">🔍</span>
+            <span>Search Patients</span>
+          </a>
+          <a href="{% url 'vet_portal:appointment_list' %}" class="rail-action-btn">
+            <span class="action-icon">📅</span>
+            <span>Manage Appointments</span>
+          </a>
+          <a href="{% url 'vet_portal:prescription_list' %}" class="rail-action-btn">
+            <span class="action-icon">💊</span>
+            <span>View Prescriptions</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Notifications Card -->
+      <div class="rail-card">
+        <div class="rail-title">Recent Notifications</div>
+        <div class="rail-content">
+          {% for notification in notifications %}
+          <div class="rail-item {% if not notification.is_read %}unread{% endif %}">
+            <div class="rail-item-title">{{ notification.title }}</div>
+            <div class="rail-item-meta">{{ notification.created_at|timesince }} ago</div>
+          </div>
+          {% empty %}
+          <div class="rail-empty">No new notifications</div>
+          {% endfor %}
+          <a href="{% url 'vet_portal:mark_all_notifications_read' %}" class="rail-link">View all notifications →</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// Tab switching functionality
+(function() {
+  const tabs = document.querySelectorAll('.card-tab');
+  const panels = document.querySelectorAll('.tab-panel');
+  const newBtns = document.querySelectorAll('.new-btn');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = tab.getAttribute('href').substring(1);
+      
+      // Update tabs
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      
+      // Update panels
+      panels.forEach(p => p.classList.remove('active'));
+      document.getElementById(target)?.classList.add('active');
+      
+      // Update new button visibility
+      newBtns.forEach(btn => {
+        const btnFor = btn.getAttribute('data-for');
+        btn.style.display = (btnFor === target) ? 'inline-block' : 'none';
+      });
+    });
+  });
+})();
+</script>
+
+<style>
+.badge {
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+.badge-primary {
+  background-color: #e3f2fd;
+  color: #1976D2;
+  border: 1px solid #bbdefb;
+}
+.badge-success {
+  background-color: #e8f5e9;
+  color: #388E3C;
+  border: 1px solid #c8e6c9;
+}
+.badge-danger {
+  background-color: #ffebee;
+  color: #D32F2F;
+  border: 1px solid #ffcdd2;
+}
+.timeline-card .status {
+  margin-top: 8px;
+}
+.rail-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+}
+.rail-action-btn:hover {
+  background: #e8ecf1;
+  transform: translateX(3px);
+}
+.action-icon {
+  font-size: 24px;
+}
+.rail-empty {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+</style>
+{% endblock %}

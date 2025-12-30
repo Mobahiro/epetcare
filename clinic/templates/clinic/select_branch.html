@@ -1,0 +1,448 @@
+{% extends 'clinic/base_auth.html' %}
+{% block title %}Select Branch - ePetCare{% endblock %}
+{% block head %}
+<style>
+  .branch-selection-container {
+    padding: 20px 0;
+  }
+  .selection-icon {
+    font-size: 56px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .selection-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--auth-text, #3d2914);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .selection-subtitle {
+    font-size: 15px;
+    color: var(--auth-text-secondary, #8B7355);
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .user-greeting {
+    font-weight: 600;
+    color: var(--auth-primary, #8B5A2B);
+  }
+  
+  /* Branch Cards */
+  .branch-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .branch-card {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--auth-border, #e5e1dc);
+    border-radius: 16px;
+    padding: 20px;
+    background: var(--auth-surface, #fff);
+    transition: all 0.25s ease;
+  }
+  .branch-card:hover {
+    border-color: var(--auth-primary, #8B5A2B);
+    background: rgba(139, 90, 43, 0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 90, 43, 0.1);
+  }
+  .branch-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .branch-card:has(input:checked) {
+    border-color: var(--auth-primary, #8B5A2B);
+    background: rgba(139, 90, 43, 0.08);
+    box-shadow: 0 0 0 4px rgba(139, 90, 43, 0.15);
+  }
+  .branch-card:has(input:checked) .branch-card-content {
+    color: var(--auth-primary, #8B5A2B);
+  }
+  .branch-card:has(input:checked) .check-indicator {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .branch-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .branch-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .branch-info {
+    flex: 1;
+  }
+  .branch-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--auth-text, #3d2914);
+    margin-bottom: 4px;
+  }
+  .branch-vet-count {
+    font-size: 14px;
+    color: var(--auth-text-secondary, #8B7355);
+  }
+  .branch-vet-count strong {
+    color: var(--auth-primary, #8B5A2B);
+  }
+  .check-indicator {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--auth-primary, #8B5A2B);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  
+  .confirm-btn {
+    margin-top: 8px;
+  }
+  
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .step {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .step.active {
+    background: var(--auth-primary, #8B5A2B);
+    color: white;
+  }
+  .step.completed {
+    background: #22c55e;
+    color: white;
+  }
+  .step.pending {
+    background: var(--auth-border, #e5e1dc);
+    color: var(--auth-text-secondary, #8B7355);
+  }
+  .step-line {
+    width: 40px;
+    height: 2px;
+    background: var(--auth-border, #e5e1dc);
+    align-self: center;
+  }
+  .step-line.completed {
+    background: #22c55e;
+  }
+  
+  .info-notice {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #93c5fd;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #1e40af;
+  }
+  .info-notice strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  /* Confirmation Modal */
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .confirm-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    animation: modalEnter 0.3s ease;
+  }
+  @keyframes modalEnter {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .confirm-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+  }
+  .confirm-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--auth-text, #3d2914);
+    margin-bottom: 12px;
+  }
+  .confirm-message {
+    font-size: 15px;
+    color: var(--auth-text-secondary, #8B7355);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .confirm-branch-name {
+    font-weight: 700;
+    color: var(--auth-primary, #8B5A2B);
+    font-size: 18px;
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .confirm-actions .btn {
+    flex: 1;
+    padding: 14px 20px;
+  }
+  .btn-secondary {
+    background: var(--auth-border, #e5e1dc);
+    color: var(--auth-text, #3d2914);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .btn-secondary:hover {
+    background: #d1ccc6;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-split">
+    <aside class="auth-hero" aria-hidden="true">
+      <div class="hero-media">
+        {% load static %}
+        <img src="{% static 'clinic/images/picture2.jpeg' %}" alt="Pets illustration" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">Choose your branch</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </aside>
+    <div class="auth-panel">
+      <div class="auth-container">
+        
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step completed">✓</div>
+          <div class="step-line completed"></div>
+          <div class="step completed">✓</div>
+          <div class="step-line completed"></div>
+          <div class="step active">3</div>
+        </div>
+        
+        <div class="branch-selection-container">
+          <div class="selection-icon">📍</div>
+          <h1 class="selection-title">Select Your Branch</h1>
+          <p class="selection-subtitle">
+            Almost done, <span class="user-greeting">{{ full_name }}</span>!<br>
+            Choose the ePetCare branch nearest to you.
+          </p>
+          
+          <div class="info-notice">
+            <strong>💡 Choose wisely!</strong>
+            Your pets and appointments will be managed by vets at your selected branch.
+          </div>
+          
+          {% if messages %}
+          {% for message in messages %}
+          <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}" style="margin-bottom: 16px;">
+            {{ message }}
+          </div>
+          {% endfor %}
+          {% endif %}
+          
+          <form method="post" action="{% url 'register' %}" id="branch-form">
+            {% csrf_token %}
+            <input type="hidden" name="select_branch" value="1">
+            <input type="hidden" name="branch" id="selected_branch" value="">
+            
+            <div class="branch-cards">
+              <label class="branch-card" data-branch="taguig" data-name="Taguig">
+                <input type="radio" name="branch_radio" value="taguig">
+                <div class="branch-card-content">
+                  <div class="branch-icon-wrapper">🏥</div>
+                  <div class="branch-info">
+                    <div class="branch-name">Taguig Branch</div>
+                    <div class="branch-vet-count">
+                      <strong>{{ branch_vet_counts.taguig }}</strong> Veterinarian{{ branch_vet_counts.taguig|pluralize }}
+                    </div>
+                  </div>
+                  <div class="check-indicator">✓</div>
+                </div>
+              </label>
+              
+              <label class="branch-card" data-branch="pasig" data-name="Pasig">
+                <input type="radio" name="branch_radio" value="pasig">
+                <div class="branch-card-content">
+                  <div class="branch-icon-wrapper">🏥</div>
+                  <div class="branch-info">
+                    <div class="branch-name">Pasig Branch</div>
+                    <div class="branch-vet-count">
+                      <strong>{{ branch_vet_counts.pasig }}</strong> Veterinarian{{ branch_vet_counts.pasig|pluralize }}
+                    </div>
+                  </div>
+                  <div class="check-indicator">✓</div>
+                </div>
+              </label>
+              
+              <label class="branch-card" data-branch="makati" data-name="Makati">
+                <input type="radio" name="branch_radio" value="makati">
+                <div class="branch-card-content">
+                  <div class="branch-icon-wrapper">🏥</div>
+                  <div class="branch-info">
+                    <div class="branch-name">Makati Branch</div>
+                    <div class="branch-vet-count">
+                      <strong>{{ branch_vet_counts.makati }}</strong> Veterinarian{{ branch_vet_counts.makati|pluralize }}
+                    </div>
+                  </div>
+                  <div class="check-indicator">✓</div>
+                </div>
+              </label>
+            </div>
+            
+            <button type="button" class="btn auth-submit confirm-btn" id="continue-btn" disabled>
+              Continue with Selected Branch
+            </button>
+          </form>
+          
+          <p style="margin-top: 20px; font-size: 13px; color: var(--auth-text-secondary, #8B7355); text-align: center;">
+            Need to start over? <a href="{% url 'register' %}" style="color: var(--auth-primary, #8B5A2B); font-weight: 600;">Register again</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Confirmation Modal -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-icon">🤔</div>
+    <h2 class="confirm-title">Confirm Your Branch</h2>
+    <p class="confirm-message">
+      Are you sure that <span class="confirm-branch-name" id="confirmBranchName">Taguig</span> is the branch nearest to you?
+      <br><br>
+      If not, please choose another branch that is closest to your location.
+    </p>
+    <p class="confirm-warning" style="margin-top: 16px; padding: 12px; background: #FEF3C7; border-radius: 8px; font-size: 13px; color: #92400E; border-left: 3px solid #F59E0B;">
+      <strong>⚠️ Important:</strong> This will be your <strong>permanent branch</strong> and cannot be changed later. 
+      If you need to change your branch in the future, please contact us at 
+      <a href="mailto:epetcarewebsystem@gmail.com" style="color: #B45309; font-weight: 600;">epetcarewebsystem@gmail.com</a>
+    </p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-secondary" id="cancelBtn">Choose Another</button>
+      <button type="button" class="btn auth-submit" id="confirmBtn">Yes, This Is My Branch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const branchCards = document.querySelectorAll('.branch-card');
+  const continueBtn = document.getElementById('continue-btn');
+  const hiddenInput = document.getElementById('selected_branch');
+  const form = document.getElementById('branch-form');
+  const confirmOverlay = document.getElementById('confirmOverlay');
+  const confirmBranchName = document.getElementById('confirmBranchName');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const confirmBtn = document.getElementById('confirmBtn');
+  
+  let selectedBranch = '';
+  let selectedBranchName = '';
+  
+  // Handle branch selection
+  branchCards.forEach(card => {
+    card.addEventListener('click', function() {
+      // Update radio button
+      const radio = this.querySelector('input[type="radio"]');
+      radio.checked = true;
+      
+      // Store selection
+      selectedBranch = this.dataset.branch;
+      selectedBranchName = this.dataset.name;
+      
+      // Enable continue button
+      continueBtn.disabled = false;
+    });
+  });
+  
+  // Show confirmation modal
+  continueBtn.addEventListener('click', function() {
+    if (!selectedBranch) return;
+    
+    confirmBranchName.textContent = selectedBranchName;
+    confirmOverlay.style.display = 'flex';
+  });
+  
+  // Cancel - close modal
+  cancelBtn.addEventListener('click', function() {
+    confirmOverlay.style.display = 'none';
+  });
+  
+  // Close modal on overlay click
+  confirmOverlay.addEventListener('click', function(e) {
+    if (e.target === confirmOverlay) {
+      confirmOverlay.style.display = 'none';
+    }
+  });
+  
+  // Confirm - submit form
+  confirmBtn.addEventListener('click', function() {
+    hiddenInput.value = selectedBranch;
+    form.submit();
+  });
+  
+  // Handle escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && confirmOverlay.style.display === 'flex') {
+      confirmOverlay.style.display = 'none';
+    }
+  });
+})();
+</script>
+{% endblock %}

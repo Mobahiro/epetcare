@@ -22,7 +22,7 @@ if getattr(sys, 'frozen', False):
 
     try:
         # Try normal imports first
-        from models.data_access import UserDataAccess, VeterinarianDataAccess
+        from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
         try:
             from utils.pg_db import get_connection
         except ImportError:
@@ -42,7 +42,7 @@ if getattr(sys, 'frozen', False):
         try:
             # Import models.data_access
             try:
-                from models.data_access import UserDataAccess, VeterinarianDataAccess
+                from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
             except ImportError:
                 data_access_path = os.path.join(base_dir, 'models', 'data_access.py')
                 if os.path.exists(data_access_path):
@@ -52,7 +52,8 @@ if getattr(sys, 'frozen', False):
                     spec.loader.exec_module(data_access_module)
                     UserDataAccess = data_access_module.UserDataAccess
                     VeterinarianDataAccess = data_access_module.VeterinarianDataAccess
-                    logger.debug(f"Imported UserDataAccess and VeterinarianDataAccess from {data_access_path}")
+                    SuperadminDataAccess = data_access_module.SuperadminDataAccess
+                    logger.debug(f"Imported UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess from {data_access_path}")
                 else:
                     logger.error(f"data_access.py not found at {data_access_path}")
 
@@ -85,7 +86,7 @@ if getattr(sys, 'frozen', False):
             raise
 else:
     # Running as a normal Python script
-    from models.data_access import UserDataAccess, VeterinarianDataAccess
+    from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
     from utils.pg_db import get_connection  # PostgreSQL is required
     from views.register_dialog import RegisterDialog
 
@@ -97,7 +98,9 @@ class LoginDialog(QDialog):
         super().__init__(parent)
         self.user_data_access = UserDataAccess()
         self.vet_data_access = VeterinarianDataAccess()
+        self.superadmin_data_access = SuperadminDataAccess()
         self.user = None
+        self.superadmin = None
         self.veterinarian = None
 
         self.setWindowTitle("ePetCare Vet Desktop - Login")
@@ -137,6 +140,19 @@ class LoginDialog(QDialog):
 
         login_group.setLayout(login_layout)
         layout.addWidget(login_group)
+
+        # Forgot password link
+        forgot_password_layout = QHBoxLayout()
+        forgot_password_layout.addStretch()
+        
+        self.forgot_password_button = QPushButton("Forgot Password?")
+        self.forgot_password_button.setFlat(True)
+        self.forgot_password_button.setCursor(Qt.PointingHandCursor)
+        self.forgot_password_button.setStyleSheet("color: #BB86FC; font-size: 11px;")
+        self.forgot_password_button.clicked.connect(self.show_password_reset_dialog)
+        forgot_password_layout.addWidget(self.forgot_password_button)
+        
+        layout.addLayout(forgot_password_layout)
 
         # Register link
         register_layout = QHBoxLayout()
@@ -203,6 +219,19 @@ class LoginDialog(QDialog):
             )
             return
 
+        # Check if user is a superadmin (from vet_superadmin table)
+        self.superadmin = self.superadmin_data_access.get_by_user_id(self.user.id)
+        if self.superadmin:
+            # Allow superadmin access
+            self.veterinarian = None
+            QMessageBox.information(
+                self,
+                "Superadmin Login",
+                f"Welcome back, {self.superadmin.full_name}!\n\nYou are logging in as Superadmin."
+            )
+            self.accept()
+            return
+
         # Check if user is a veterinarian
         self.veterinarian = self.vet_data_access.get_by_user_id(self.user.id)
 
@@ -210,7 +239,7 @@ class LoginDialog(QDialog):
             QMessageBox.warning(
                 self,
                 "Access Denied",
-                "This user is not registered as a veterinarian."
+                "This user is not registered as a veterinarian or superadmin."
             )
             self.user = None
             return
@@ -221,6 +250,10 @@ class LoginDialog(QDialog):
     def get_user(self):
         """Get the authenticated user"""
         return self.user
+
+    def get_superadmin(self):
+        """Get the authenticated superadmin"""
+        return self.superadmin
 
     def get_veterinarian(self):
         """Get the authenticated veterinarian"""
@@ -240,3 +273,30 @@ class LoginDialog(QDialog):
                     self.username_edit.setText(user.username)
                     # Focus on password field
                     self.password_edit.setFocus()
+
+    def show_password_reset_dialog(self):
+        """Show the password reset dialog"""
+        try:
+            from views.password_reset_dialog import PasswordResetDialog
+            
+            dialog = PasswordResetDialog(
+                parent=self,
+                user_data_access=self.user_data_access,
+                vet_data_access=self.vet_data_access
+            )
+            result = dialog.exec()
+            
+            if result == QDialog.Accepted:
+                # Password reset successful
+                QMessageBox.information(
+                    self,
+                    "Password Reset Complete",
+                    "Your password has been reset successfully.\nPlease login with your new password."
+                )
+        except Exception as e:
+            logger.error(f"Error showing password reset dialog: {e}")
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Failed to open password reset dialog: {str(e)}"
+            )

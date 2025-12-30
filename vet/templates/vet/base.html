@@ -5,255 +5,651 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ePetCare - Vet Portal{% endblock %}</title>
     {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
     <link rel="stylesheet" href="{% static 'clinic/modal.css' %}?v={% now "U" %}">
-    <link rel="stylesheet" href="{% static 'clinic/dark-mode.css' %}?v={% now "U" %}">
+    <link rel="stylesheet" href="{% static 'clinic/dashboard-modern.css' %}?v={% now "U" %}">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="{% static 'clinic/refresh.js' %}?v={% now "U" %}" defer></script>
-    <script src="{% static 'clinic/dark-mode-toggle.js' %}?v={% now "U" %}"></script>
     <style>
-        /* Simple Vet Portal Styles with Warm Neutrals */
-        .site-header {
-            background: #6B705C;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        /* Vet Portal Design System - Modern & Professional */
+        :root {
+            --vet-primary: #6b705c;
+            --vet-primary-light: #a5a58d;
+            --vet-primary-dark: #545845;
+            --vet-accent: #cb997e;
+            --vet-accent-light: #ddbea9;
+            --vet-bg: #faf8f5;
+            --vet-surface: #ffffff;
+            --vet-surface-hover: #f8f6f3;
+            --vet-border: #e8e4df;
+            --vet-text: #3a3632;
+            --vet-text-secondary: #6b6560;
         }
 
-        /* Simple navigation menu */
-        .nav {
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--vet-bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Modern Layout - Narrower sidebar */
+        .vet-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Modern Sidebar - Clean & Minimal */
+        .vet-sidebar {
+            background: var(--vet-surface);
+            border-right: 1px solid var(--vet-border);
             display: flex;
-            align-items: center;
-        }
-        .brand {
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-        }
-        .nav-link {
-            color: white;
-            margin-left: 15px;
-            padding: 5px 10px;
-            border-radius: 4px;
-        }
-        .nav-link:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        /* Simple sidebar */
-        .sidebar {
-            width: 200px;
-            background: #F1E3D3;
-            border-right: 2px solid #E6CCB2;
-            position: fixed;
-            top: 57px;
-            bottom: 0;
-            left: 0;
-            padding: 15px 0;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
             overflow-y: auto;
         }
-        .sidebar-link {
+
+        .sidebar-brand {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            color: #333333;
-            text-decoration: none;
-            border-bottom: 1px solid #E6CCB2;
-            font-weight: bold;
-        }
-        .sidebar-link:hover, .sidebar-link.active {
-            background: #DDBEA9;
-            color: #6B705C;
-            border-left: 5px solid #6B705C;
-            padding-left: 10px;
-        }
-        .sidebar-icon {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-            font-size: 18px;
+            gap: 10px;
+            padding: 18px 16px;
+            border-bottom: 1px solid var(--vet-border);
         }
 
-        /* Notification badge */
-        .notification-badge {
-            background: #CB997E;
-            color: white;
-            border-radius: 50%;
-            min-width: 18px;
-            height: 18px;
-            font-size: 12px;
-            display: inline-flex;
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--vet-primary), var(--vet-primary-light));
+            border-radius: 10px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 5px;
-        }
-
-        /* Dashboard stats */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: white;
-            border: 2px solid #A5A58D;
-            border-radius: 5px;
-            padding: 15px;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 30px;
-            font-weight: bold;
-            margin: 10px 0;
-            color: #CB997E;
-        }
-        .stat-label {
-            color: #666666;
-            font-size: 14px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        /* Only show sidebar on authenticated pages */
-        body.has-sidebar .container {
-            max-width: calc(100% - 200px);
-            margin-left: 200px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        /* Page background */
-        body {
-            background-color: #FFE8D6;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Simple card styles */
-        .card {
-            border: 1px solid #E6CCB2;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .card-title {
-            background: #A5A58D;
-            padding: 10px;
-            margin: 0;
-            border-bottom: 1px solid #E6CCB2;
             font-size: 18px;
-            font-weight: bold;
             color: white;
         }
-        .card-body {
-            padding: 15px;
+
+        .brand-logo-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            object-fit: cover;
         }
-            /* Modal reuse (keep concise since full styles in clinic CSS) */
-            /* Modal styles are imported from clinic/styles.css */
-            .modal-close:hover{color:#573D1C}
-            .tos-accept-bar{margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-            .btn-inline{background:#6B705C;color:#fff;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-            .btn-inline[disabled]{background:#aaa;cursor:not-allowed}
+
+        .brand-text {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--vet-primary);
+        }
+
+        /* Navigation */
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            color: var(--vet-text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+        }
+
+        .nav-link:hover {
+            background: var(--vet-surface-hover);
+            color: var(--vet-text);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: var(--vet-primary-dark);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Main Content Area */
+        .vet-main {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Bar - Like Brevo */
+        .vet-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 56px;
+            background: var(--vet-surface);
+            border-bottom: 1px solid var(--vet-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--vet-text);
+            margin: 0;
+        }
+
+        .topbar-right {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            height: auto !important;
+            padding-right: 0 !important;
+            position: static !important;
+            overflow: visible !important;
+        }
+
+        .topbar-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--vet-text-secondary);
+            transition: all 0.15s ease;
+            text-decoration: none;
+            position: relative;
+            font-size: 16px;
+        }
+
+        .topbar-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--vet-text);
+        }
+
+        .topbar-btn .notif-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 7px;
+            height: 7px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid var(--vet-surface);
+        }
+
+        /* Profile Dropdown - Brevo Style Pill Button */
+        .profile-dropdown {
+            position: relative !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            height: auto !important;
+            top: auto !important;
+            right: auto !important;
+            min-width: auto !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        .profile-trigger {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 6px 12px 6px 8px !important;
+            background: var(--vet-accent) !important;
+            border: none !important;
+            border-radius: 20px !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
+            height: auto !important;
+            color: white !important;
+            backdrop-filter: none !important;
+        }
+
+        .profile-trigger:hover {
+            background: var(--vet-primary) !important;
+        }
+
+        .profile-avatar {
+            width: 24px !important;
+            height: 24px !important;
+            background: rgba(255,255,255,0.25) !important;
+            color: white !important;
+            border-radius: 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 600 !important;
+            font-size: 10px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .profile-name {
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            color: white !important;
+            white-space: nowrap !important;
+        }
+
+        .profile-chevron {
+            font-size: 10px !important;
+            color: rgba(255,255,255,0.8) !important;
+            margin-left: 2px !important;
+        }
+
+        .profile-menu {
+            position: absolute !important;
+            top: calc(100% + 8px) !important;
+            right: 0 !important;
+            width: 280px !important;
+            background: #fff !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05) !important;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px) scale(0.96);
+            transform-origin: top right;
+            transition: all 0.2s ease;
+            z-index: 9999 !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            min-width: auto !important;
+            color: #333 !important;
+            border: none !important;
+            max-height: none !important;
+            height: auto !important;
+            display: block !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+
+        .profile-dropdown.open .profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .pm-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .pm-header:hover {
+            background: #f8f8f8;
+        }
+
+        .pm-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--vet-accent), var(--vet-accent-light));
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .pm-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pm-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .pm-email {
+            font-size: 13px;
+            color: #666;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pm-divider {
+            height: 1px !important;
+            background: #eee !important;
+            margin: 4px 0 !important;
+            display: block !important;
+        }
+
+        .pm-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 12px 16px !important;
+            text-decoration: none !important;
+            color: #333 !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            transition: background 0.15s !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .pm-item:hover {
+            background: #f8f8f8 !important;
+        }
+
+        .pm-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .pm-logout {
+            color: #dc2626 !important;
+        }
+
+        .pm-logout:hover {
+            background: #fef2f2 !important;
+        }
+
+        /* Main Content */
+        .vet-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        /* Toast Container */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--vet-surface);
+            border: 1px solid var(--vet-border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-left: 4px solid #22c55e; }
+        .toast.error { border-left: 4px solid #ef4444; }
+        .toast.warning { border-left: 4px solid #f59e0b; }
+        .toast.info { border-left: 4px solid #3b82f6; }
+
+        .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--vet-text-secondary);
+            font-size: 18px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Mobile Toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .vet-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .vet-sidebar {
+                position: fixed;
+                left: -100%;
+                width: 220px;
+                z-index: 100;
+                transition: left 0.3s ease;
+            }
+
+            .vet-sidebar.open {
+                left: 0;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.3);
+                z-index: 99;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+            .profile-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .vet-content {
+                padding: 16px;
+            }
+
+            .vet-topbar {
+                padding: 10px 16px;
+            }
+        }
     </style>
     {% block head %}{% endblock %}
 </head>
-<body class="{% if request.user.is_authenticated %}has-sidebar{% endif %}">
-    <header class="site-header">
-        <div class="header-inner">
-            <div>
-                <a class="brand" href="{% url 'vet:home' %}">ePetCare Vet Portal</a>
+<body>
+    {% if request.user.is_authenticated %}
+    <div class="vet-layout">
+        <!-- Sidebar - Clean like Brevo -->
+        <aside class="vet-sidebar" id="vetSidebar">
+            <div class="sidebar-brand">
+                <img src="{% static 'clinic/images/epetcare-logo.png' %}" alt="ePetCare" class="brand-logo-img">
+                <div class="brand-text">ePetCare</div>
             </div>
-            <nav class="nav">
-                {% if request.user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'vet:dashboard' %}">Dashboard</a>
-                    <a class="nav-link" href="{% url 'vet:notifications' %}">
-                        Notifications
-                        {% with unread_count=request.user.vet_profile.notifications.filter.is_read=False|length %}
-                            {% if unread_count > 0 %}
-                                <span class="notification-badge">{{ unread_count }}</span>
-                            {% endif %}
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="{% url 'vet:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">🏠</span>
+                        <span>Home</span>
+                    </a>
+                    <a href="{% url 'vet:patients' %}" class="nav-link {% if request.resolver_match.url_name == 'patients' %}active{% endif %}">
+                        <span class="nav-icon">🐾</span>
+                        <span>Patients</span>
+                    </a>
+                    <a href="{% url 'vet:appointments' %}" class="nav-link {% if request.resolver_match.url_name == 'appointments' %}active{% endif %}">
+                        <span class="nav-icon">📅</span>
+                        <span>Appointments</span>
+                    </a>
+                    <a href="{% url 'vet:notifications' %}" class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                        <span class="nav-icon">🔔</span>
+                        <span>Notifications</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="vet-main">
+            <header class="vet-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+                    <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                <div class="topbar-right">
+                    <!-- Notification Button -->
+                    <a href="{% url 'vet:notifications' %}" class="topbar-btn" title="Notifications">
+                        🔔
+                        {% with unread=request.user.vet_profile.notifications.all %}
+                        {% if unread|length > 0 %}
+                        <span class="notif-dot"></span>
+                        {% endif %}
                         {% endwith %}
                     </a>
-                    <button class="nav-link" id="darkModeToggle" style="background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-size: 20px; min-width: auto;" title="Toggle dark mode" aria-label="Toggle dark mode">
-                        🌙
-                    </button>
-                    <a class="nav-link" href="{% url 'vet:logout' %}">Logout</a>
-                {% else %}
-                    <a class="nav-link" href="{% url 'vet:home' %}">Home</a>
-                    <a class="nav-link" href="{% url 'vet:login' %}">Login</a>
-                    <a class="nav-link" href="{% url 'vet:register' %}">Register</a>
-                    <button class="nav-link" id="darkModeToggle" style="background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-size: 20px; min-width: auto;" title="Toggle dark mode" aria-label="Toggle dark mode">
-                        🌙
-                    </button>
-                {% endif %}
+                    
+                    <!-- Profile Dropdown - Brevo Style -->
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <button class="profile-trigger" onclick="toggleProfileMenu(event)">
+                            <div class="profile-avatar">
+                                {{ request.user.username|slice:":2"|upper }}
+                            </div>
+                            <span class="profile-name">{{ request.user.username }}</span>
+                            <span class="profile-chevron">▾</span>
+                        </button>
+                        <div class="profile-menu" style="position: absolute !important; display: block !important; flex-direction: column !important;">
+                            <a href="{% url 'vet:dashboard' %}" class="pm-header">
+                                <div class="pm-avatar">{{ request.user.username|slice:":2"|upper }}</div>
+                                <div class="pm-info">
+                                    <div class="pm-name">My profile</div>
+                                    <div class="pm-email">{{ request.user.email }}</div>
+                                </div>
+                            </a>
+                            <div class="pm-divider"></div>
+                            <a href="{% url 'vet:dashboard' %}" class="pm-item">
+                                <span class="pm-icon">👤</span>
+                                <span>Settings</span>
+                            </a>
+                            <a href="{% url 'vet:notifications' %}" class="pm-item">
+                                <span class="pm-icon">🔔</span>
+                                <span>Notifications</span>
+                            </a>
+                            <div class="pm-divider"></div>
+                            <a href="{% url 'vet:logout' %}" class="pm-item pm-logout">
+                                <span class="pm-icon">↪</span>
+                                <span>Log out</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="vet-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+    {% else %}
+    <!-- Non-authenticated layout -->
+    <header class="site-header" style="background: var(--vet-primary); padding: 16px 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <a href="{% url 'vet:home' %}" style="color: white; font-weight: 700; font-size: 20px; text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">🏥</span> ePetCare Vet Portal
+            </a>
+            <nav style="display: flex; gap: 8px;">
+                <a href="{% url 'vet:home' %}" style="color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none;">Home</a>
+                <a href="{% url 'unified_login' %}" style="color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; background: rgba(255,255,255,0.15);">Login</a>
+                <a href="{% url 'register' %}" style="color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; background: rgba(255,255,255,0.15);">Register</a>
             </nav>
         </div>
     </header>
+    <main style="max-width: 1200px; margin: 0 auto; padding: 32px 24px;">
+        {% block content %}{% endblock %}
+    </main>
+    <footer style="background: #f5f3f0; padding: 24px; text-align: center; border-top: 1px solid var(--vet-border);">
+        <strong style="color: var(--vet-primary);">ePetCare Vet Portal</strong>
+        <br>
+        <small style="color: var(--vet-text-secondary);">© 2025 - Made with ❤️ for animals</small>
+    </footer>
+    {% endif %}
 
+    <!-- Toast Container -->
     <div id="toast-container">
         {% if messages %}
             {% for message in messages %}
                 <div class="toast {{ message.tags }}">
                     {{ message }}
-                    <button class="toast-close">X</button>
+                    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
                 </div>
             {% endfor %}
         {% endif %}
     </div>
 
-    {% if request.user.is_authenticated %}
-        <div class="sidebar">
-            <a href="{% url 'vet:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <span class="sidebar-icon">📊</span> Dashboard
-            </a>
-            <a href="{% url 'vet:patients' %}" class="sidebar-link {% if request.resolver_match.url_name == 'patients' %}active{% endif %}">
-                <span class="sidebar-icon">🐾</span> Patients
-            </a>
-            <a href="{% url 'vet:appointments' %}" class="sidebar-link {% if request.resolver_match.url_name == 'appointments' %}active{% endif %}">
-                <span class="sidebar-icon">📅</span> Appointments
-            </a>
-            <a href="{% url 'vet:notifications' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
-                <span class="sidebar-icon">🔔</span> Notifications
-                {% with unread_count=request.user.vet_profile.notifications.filter.is_read=False|length %}
-                    {% if unread_count > 0 %}
-                        <span class="notification-badge">{{ unread_count }}</span>
-                    {% endif %}
-                {% endwith %}
-            </a>
-        </div>
-    {% endif %}
-
-    <main class="container">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer style="background: #F1E3D3; padding: 15px; margin-top: 30px; border-top: 2px solid #E6CCB2;">
-        <div style="text-align: center;">
-            <strong style="color: #6B705C;">ePetCare Vet Portal</strong> - Created by a Student Programmer
-            <br>
-            <small style="color: #A5A58D;">© 2025 - Made with ❤️ for animals</small>
-        </div>
-    </footer>
-
     <script>
-        // Simple toast notifications
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            document.getElementById('vetSidebar').classList.toggle('open');
+            document.getElementById('sidebarBackdrop').classList.toggle('show');
+        }
+
+        // Profile dropdown toggle
+        function toggleProfileMenu() {
+            document.getElementById('profileDropdown').classList.toggle('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Auto-dismiss toasts
         document.addEventListener('DOMContentLoaded', function() {
-            const toasts = document.querySelectorAll('.toast');
-
-            // Add click handler to close buttons
-            document.querySelectorAll('.toast-close').forEach(button => {
-                button.addEventListener('click', function() {
-                    const toast = this.parentElement;
-                    toast.style.display = 'none';
-                });
-            });
-
-            // Auto-dismiss after 5 seconds
-            toasts.forEach(toast => {
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 5000);
+            document.querySelectorAll('.toast').forEach(toast => {
+                setTimeout(() => toast.remove(), 5000);
             });
         });
     </script>

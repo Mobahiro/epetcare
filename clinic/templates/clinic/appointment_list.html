@@ -1,5 +1,5 @@
 {% extends 'clinic/dashboard_base.html' %}
-{% load static %}
+{% load static tz %}
 {% block title %}Appointments - ePetCare{% endblock %}
 
 {% block head_extra %}
@@ -115,6 +115,11 @@
                 <div class="reason-label">Reason for visit:</div>
                 <div class="reason-text">{{ a.reason }}</div>
               </div>
+              {% if a.created_at %}
+              <div class="appointment-booked-info" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e5e1dc; font-size: 12px; color: #888;">
+                <span>📝 Booked on {{ a.created_at|localtime|date:"M d, Y" }} at {{ a.created_at|localtime|date:"g:i A" }}</span>
+              </div>
+              {% endif %}
             </div>
             <div class="appointment-card-footer">
               <a href="#" class="card-action">Change Status</a>
@@ -164,6 +169,7 @@
         <th>Date & Time</th>
         <th>Pet</th>
         <th>Reason</th>
+        <th>Booked</th>
         <th>Status</th>
       </tr>
     </thead>
@@ -177,6 +183,14 @@
           <td>{{ a.pet.name }}</td>
           <td>{{ a.reason }}</td>
           <td>
+            {% if a.created_at %}
+              <div class="table-date" style="font-size: 11px; color: #888;">{{ a.created_at|localtime|date:"M d, Y" }}</div>
+              <div class="table-time" style="font-size: 11px; color: #888;">{{ a.created_at|localtime|date:"g:i A" }}</div>
+            {% else %}
+              <span style="color: #ccc;">-</span>
+            {% endif %}
+          </td>
+          <td>
             {% if a.status == 'scheduled' %}
               <span class="badge scheduled">Scheduled</span>
             {% elif a.status == 'completed' %}
@@ -189,7 +203,7 @@
           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="4" class="empty-cell">No appointments scheduled.</td></tr>
+        <tr><td colspan="5" class="empty-cell">No appointments scheduled.</td></tr>
       {% endfor %}
     </tbody>
   </table>

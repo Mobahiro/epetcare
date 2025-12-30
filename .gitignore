@@ -23,6 +23,8 @@ vet_desktop_app/config.json
 vet_desktop_app/logs/
 vet_desktop_app/backups/
 vet_desktop_app/data/
+vet_desktop_app/dist/
+vet_desktop_app/build/
 
 # OS junk
 .DS_Store

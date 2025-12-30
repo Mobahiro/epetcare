@@ -12,87 +12,567 @@
   <link rel="stylesheet" href="{% static 'clinic/modern.css' %}?v={% now "U" %}">
   <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
   <link rel="stylesheet" href="{% static 'clinic/sidebar.css' %}?v={% now "U" %}">
-  <link rel="stylesheet" href="{% static 'clinic/dark-mode.css' %}?v={% now "U" %}">
-  <script src="{% static 'clinic/dark-mode-toggle.js' %}?v={% now "U" %}"></script>
+  <style>
+    /* Brevo-inspired Layout */
+    :root {
+      --owner-primary: #d48b3e;
+      --owner-primary-light: #FFBD59;
+      --owner-bg: #FFF5E9;
+      --owner-surface: #ffffff;
+      --owner-surface-hover: #faf8f5;
+      --owner-border: #e8e4df;
+      --owner-text: #573D1C;
+      --owner-text-secondary: #8B7355;
+    }
+
+    /* Reset conflicting styles */
+    .dash-topbar,
+    .dash-topbar *,
+    .profile-dropdown,
+    .profile-dropdown *,
+    .profile-menu,
+    .profile-menu * {
+      box-sizing: border-box !important;
+    }
+
+    .topbar-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      height: auto !important;
+      padding-right: 0 !important;
+      position: static !important;
+      overflow: visible !important;
+    }
+
+    .profile-menu a,
+    .profile-menu-item {
+      display: flex !important;
+      float: none !important;
+      position: static !important;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--owner-bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Clean Layout - Narrower Sidebar */
+    .dash-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Clean Sidebar - Like Brevo */
+    .dash-sidebar {
+      background: var(--owner-surface);
+      border-right: 1px solid var(--owner-border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--owner-border);
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--owner-primary), var(--owner-primary-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: white;
+    }
+
+    .brand-logo-img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--owner-primary);
+    }
+
+    /* Navigation */
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+    }
+
+    .nav-section {
+      margin-bottom: 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: var(--owner-text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      margin-bottom: 2px;
+    }
+
+    .nav-link:hover {
+      background: var(--owner-surface-hover);
+      color: var(--owner-text);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, #FFF5E9, #FFE8D6);
+      color: var(--owner-text);
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      width: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    /* Main Content Area */
+    .dash-main {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Bar - Like Brevo */
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      background: var(--owner-surface);
+      border-bottom: 1px solid var(--owner-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--owner-text);
+      margin: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .topbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--owner-text-secondary);
+      transition: all 0.15s ease;
+      text-decoration: none;
+      position: relative;
+      font-size: 16px;
+    }
+
+    .topbar-btn:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--owner-text);
+    }
+
+    .topbar-btn .notif-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 7px;
+      height: 7px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 2px solid var(--owner-surface);
+    }
+
+    /* Profile Dropdown - Brevo Style Pill Button */
+    .profile-dropdown {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      height: auto !important;
+      top: auto !important;
+      right: auto !important;
+      min-width: auto !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+    }
+
+    .profile-trigger {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 6px 12px 6px 8px !important;
+      background: var(--owner-primary) !important;
+      border: none !important;
+      border-radius: 20px !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+      height: auto !important;
+      color: white !important;
+      backdrop-filter: none !important;
+    }
+
+    .profile-trigger:hover {
+      background: var(--owner-text) !important;
+    }
+
+    .profile-avatar {
+      width: 24px !important;
+      height: 24px !important;
+      background: rgba(255,255,255,0.25) !important;
+      color: white !important;
+      border-radius: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-weight: 600 !important;
+      font-size: 10px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .profile-name {
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      color: white !important;
+      white-space: nowrap !important;
+    }
+
+    .profile-chevron {
+      font-size: 10px !important;
+      color: rgba(255,255,255,0.8) !important;
+      margin-left: 2px !important;
+    }
+
+    .profile-menu {
+      position: absolute !important;
+      top: calc(100% + 8px) !important;
+      right: 0 !important;
+      width: 280px !important;
+      background: #fff !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05) !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.96);
+      transform-origin: top right;
+      transition: all 0.2s ease;
+      z-index: 9999 !important;
+      overflow: visible !important;
+      padding: 0 !important;
+      min-width: auto !important;
+      color: #333 !important;
+      border: none !important;
+      max-height: none !important;
+      height: auto !important;
+      display: block !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    .profile-dropdown.open .profile-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .pm-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .pm-header:hover {
+      background: #f8f8f8;
+    }
+
+    .pm-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--owner-primary), var(--owner-primary-light));
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .pm-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pm-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+
+    .pm-email {
+      font-size: 13px;
+      color: #666;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pm-divider {
+      height: 1px !important;
+      background: #eee !important;
+      margin: 4px 0 !important;
+      display: block !important;
+    }
+
+    .pm-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 12px 16px !important;
+      text-decoration: none !important;
+      color: #333 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      transition: background 0.15s !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .pm-item:hover {
+      background: #f8f8f8 !important;
+    }
+
+    .pm-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .pm-logout {
+      color: #dc2626 !important;
+    }
+
+    .pm-logout:hover {
+      background: #fef2f2 !important;
+    }
+
+    /* Main Content */
+    .dash-content {
+      flex: 1;
+      padding: 24px;
+    }
+
+    /* Mobile Toggle */
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .dash-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .dash-sidebar {
+        position: fixed;
+        left: -100%;
+        width: 220px;
+        z-index: 100;
+        transition: left 0.3s ease;
+      }
+
+      .dash-sidebar.open {
+        left: 0;
+      }
+
+      .mobile-toggle {
+        display: block;
+      }
+
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 99;
+      }
+
+      .sidebar-backdrop.show {
+        display: block;
+      }
+
+      .profile-name {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .dash-content {
+        padding: 16px;
+      }
+
+      .dash-topbar {
+        padding: 10px 16px;
+      }
+    }
+  </style>
   {% block head_extra %}{% endblock %}
 </head>
-<body style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+<body>
 <div class="dash-layout">
-  <aside class="dash-sidebar" aria-label="Sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-user">
-        <div class="avatar-sm">{% if request.user.first_name %}{{ request.user.first_name|slice:':1'|upper }}{% else %}{{ request.user.username|slice:':1'|upper }}{% endif %}</div>
-        <div class="user-meta">
-          <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-          <div class="user-role">Owner</div>
-        </div>
+  <!-- Sidebar - Clean like Brevo -->
+  <aside class="dash-sidebar" id="dashSidebar" aria-label="Sidebar">
+    <div class="sidebar-brand">
+      <img src="{% static 'clinic/images/epetcare-logo.png' %}" alt="ePetCare" class="brand-logo-img">
+      <div class="brand-text">ePetCare</div>
+    </div>
+    
+    <!-- Branch Indicator -->
+    {% if request.user.owner_profile.branch %}
+    <div class="branch-indicator" style="margin: 12px 10px; padding: 10px 14px; background: linear-gradient(135deg, #FFF5E9, #FFE8D6); border-radius: 10px; text-align: center; border: 1px solid var(--owner-border);">
+      <div style="font-size: 11px; color: var(--owner-text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;">Your Branch</div>
+      <div style="font-size: 14px; font-weight: 600; color: var(--owner-primary);">
+        📍 {{ request.user.owner_profile.get_branch_display }}
       </div>
     </div>
+    {% endif %}
+
     <nav class="sidebar-nav">
-      <div class="side-section">Main</div>
-  <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
-  <span class="icon"><img src="{% static 'clinic/icons/home_24.svg' %}" alt="" aria-hidden="true"></span>
-        <span class="text">Dashboard</span>
-      </a>
-  <a class="side-link {% if 'pet_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pet_list' %}" {% if 'pet_' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-  <span class="icon"><img src="{% static 'clinic/icons/paw_24.svg' %}" alt="" aria-hidden="true"></span>
-        <span class="text">Pets</span>
-      </a>
-  <a class="side-link {% if 'appointment_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'appointment_list' %}" {% if 'appointment_' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-  <span class="icon"><img src="{% static 'clinic/icons/calendar_24.svg' %}" alt="" aria-hidden="true"></span>
-        <span class="text">Appointments</span>
-      </a>
-
-      <div class="side-section">Account</div>
-  <a class="side-link {% if request.resolver_match.url_name in 'profile password_change' %}active{% endif %}" href="{% url 'profile' %}" {% if request.resolver_match.url_name in 'profile password_change' %}aria-current="page"{% endif %}>
-  <span class="icon"><img src="{% static 'clinic/icons/profile_24.svg' %}" alt="" aria-hidden="true"></span>
-        <span class="text">Profile</span>
-      </a>
-  <a class="side-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}" {% if request.resolver_match.url_name == 'notifications' %}aria-current="page"{% endif %}>
-  <span class="icon"><img src="{% static 'clinic/icons/bell_24.svg' %}" alt="" aria-hidden="true"></span>
-        <span class="text">Notifications{% if GLOBAL_HAS_NOTIFICATIONS %}<span class="badge">{{ GLOBAL_NOTIFICATIONS_UNREAD_COUNT }}</span>{% endif %}</span>
-      </a>
-
-      {% if request.user.is_staff %}
-      <div class="side-section">Admin</div>
-      <a class="side-link {% if request.resolver_match.url_name in 'owner_list owner_detail owner_form' %}active{% endif %}" href="{% url 'owner_list' %}" {% if request.resolver_match.url_name in 'owner_list owner_detail owner_form' %}aria-current="page"{% endif %}>
-        <span class="icon"><img src="{% static 'clinic/icons/people_24.svg' %}" alt="" aria-hidden="true"></span>
-        <span class="text">Owners</span>
-      </a>
-      {% endif %}
+      <div class="nav-section">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+          <span class="nav-icon">🏠</span>
+          <span>Home</span>
+        </a>
+        <a class="nav-link {% if 'pet_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pet_list' %}">
+          <span class="nav-icon">🐾</span>
+          <span>My Pets</span>
+        </a>
+        <a class="nav-link {% if 'appointment_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'appointment_list' %}">
+          <span class="nav-icon">📅</span>
+          <span>Appointments</span>
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}">
+          <span class="nav-icon">🔔</span>
+          <span>Notifications</span>
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name in 'profile password_change' %}active{% endif %}" href="{% url 'profile' %}">
+          <span class="nav-icon">👤</span>
+          <span>Profile</span>
+        </a>
+        {% if request.user.is_staff %}
+        <a class="nav-link {% if request.resolver_match.url_name in 'owner_list owner_detail owner_form' %}active{% endif %}" href="{% url 'owner_list' %}">
+          <span class="nav-icon">👥</span>
+          <span>Owners</span>
+        </a>
+        {% endif %}
+      </div>
     </nav>
   </aside>
 
+  <!-- Main Content -->
   <div class="dash-main">
     <header class="dash-topbar">
       <div class="topbar-left">
-        <button class="sidebar-toggle" aria-label="Toggle sidebar">
-          <img src="{% static 'clinic/icons/menu_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
-        </button>
-        <form class="topbar-search" role="search" action="#" onsubmit="return false;">
-          <input type="search" placeholder="Search ..." aria-label="Search" />
-          <button class="search-btn" aria-label="Search">
-            <img src="{% static 'clinic/icons/search_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
-          </button>
-        </form>
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+        <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
       </div>
       <div class="topbar-right">
-        <button class="icon-btn" id="darkModeToggle" title="Toggle dark mode" aria-label="Toggle dark mode" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px;">
-          🌙
-        </button>
-        <a class="icon-btn notif-btn" href="{% url 'notifications' %}" title="Notifications">
-          <img src="{% static 'clinic/icons/bell_24.svg' %}" alt="" width="20" height="20" aria-hidden="true">
-          {% if GLOBAL_HAS_NOTIFICATIONS %}<span class="badge">{{ GLOBAL_NOTIFICATIONS_UNREAD_COUNT }}</span>{% endif %}
+        <!-- Notification Button -->
+        <a href="{% url 'notifications' %}" class="topbar-btn" title="Notifications">
+          🔔
+          {% if GLOBAL_HAS_NOTIFICATIONS %}
+          <span class="notif-dot"></span>
+          {% endif %}
         </a>
-        <div class="profile-chip">
-          <div class="avatar-sm">{% if request.user.first_name %}{{ request.user.first_name|slice:':1'|upper }}{% else %}{{ request.user.username|slice:':1'|upper }}{% endif %}</div>
-          <div class="chip-text">
-            <div class="chip-name">{{ request.user.get_full_name|default:request.user.username }}</div>
-            <div class="chip-role">Owner</div>
-          </div>
-          <div class="chip-menu">
-            <a href="{% url 'profile' %}">Profile</a>
-            <a href="{% url 'logout' %}">Logout</a>
+        
+        <!-- Profile Dropdown - Brevo Style -->
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-trigger" onclick="toggleProfileMenu(event)">
+            <div class="profile-avatar">
+              {{ request.user.username|slice:':2'|upper }}
+            </div>
+            <span class="profile-name">{{ request.user.username }}</span>
+            <span class="profile-chevron">▾</span>
+          </button>
+          <div class="profile-menu" style="position: absolute !important; display: block !important; flex-direction: column !important;">
+            <a href="{% url 'profile' %}" class="pm-header">
+              <div class="pm-avatar">{{ request.user.username|slice:':2'|upper }}</div>
+              <div class="pm-info">
+                <div class="pm-name">My profile</div>
+                <div class="pm-email">{{ request.user.email }}</div>
+              </div>
+            </a>
+            <div class="pm-divider"></div>
+            <a href="{% url 'profile' %}" class="pm-item">
+              <span class="pm-icon">👤</span>
+              <span>Settings</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="pm-item">
+              <span class="pm-icon">🔔</span>
+              <span>Notifications</span>
+            </a>
+            <div class="pm-divider"></div>
+            <a href="{% url 'logout' %}" class="pm-item pm-logout">
+              <span class="pm-icon">↪</span>
+              <span>Log out</span>
+            </a>
           </div>
         </div>
       </div>
@@ -104,9 +584,30 @@
     </div>
   </div>
 </div>
-<div class="sidebar-backdrop" aria-hidden="true"></div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()" aria-hidden="true"></div>
+
+<script>
+  // Sidebar toggle for mobile
+  function toggleSidebar() {
+    document.getElementById('dashSidebar').classList.toggle('open');
+    document.getElementById('sidebarBackdrop').classList.toggle('show');
+  }
+
+  // Profile dropdown toggle
+  function toggleProfileMenu(e) {
+    e.stopPropagation();
+    document.getElementById('profileDropdown').classList.toggle('open');
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+</script>
 {% load static %}
 <script src="{% static 'clinic/dashboard.js' %}?v={% now "U" %}" defer></script>
-<!-- No footer on dashboard shell -->
 </body>
 </html>

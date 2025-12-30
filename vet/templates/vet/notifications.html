@@ -1,66 +1,259 @@
 {% extends 'vet/base.html' %}
+{% load static %}
 {% block title %}Notifications - Veterinarian Portal{% endblock %}
-{% block content %}
-<div class="toolbar">
-  <h2>Notifications</h2>
-  <div>
-    <form method="post">
-      {% csrf_token %}
-      <button type="submit" name="mark_all_read" class="btn">Mark All as Read</button>
-    </form>
-  </div>
-</div>
 
+{% block head_extra %}
 <style>
-  .notification-item {
-    background: var(--card);
-    border: 1px solid var(--border);
+  .page-hero {
+    background: linear-gradient(135deg, rgba(203, 153, 126, 0.15), rgba(107, 112, 92, 0.08));
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    border: 1px solid var(--vet-border, #e8e4df);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .page-hero-text h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--vet-text, #3a3632);
+    margin: 0 0 8px 0;
+  }
+  .page-hero-text p {
+    font-size: 14px;
+    color: var(--vet-text-secondary, #6b6560);
+    margin: 0;
+  }
+  .btn-mark-all {
+    background: var(--vet-accent, #cb997e);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-mark-all:hover {
+    background: var(--vet-primary, #6b705c);
+  }
+  .summary-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .tile {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--vet-border, #e8e4df);
+  }
+  .tile-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .tile-icon {
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(203, 153, 126, 0.2), rgba(107, 112, 92, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .tile-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--vet-text, #3a3632);
+  }
+  .tile-sub {
+    font-size: 12px;
+    color: var(--vet-text-secondary, #6b6560);
+  }
+  .tile-metric {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--vet-text, #3a3632);
+  }
+  .main-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--vet-border, #e8e4df);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--vet-border, #e8e4df);
+  }
+  .card-head h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vet-text, #3a3632);
+    margin: 0;
+  }
+  .notifications-list {
+    padding: 0;
+  }
+  .notification-item {
+    display: flex;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--vet-border, #e8e4df);
+    transition: background 0.2s;
+  }
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  .notification-item:hover {
+    background: var(--vet-surface-hover, #f8f6f3);
   }
   .notification-item.unread {
-    border-left: 3px solid #38bdf8;
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+    background: linear-gradient(90deg, rgba(203, 153, 126, 0.08) 0%, transparent 100%);
+    border-left: 3px solid var(--vet-accent, #cb997e);
   }
-  .notification-item h4 {
-    margin-top: 0;
+  .notification-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(203, 153, 126, 0.2), rgba(107, 112, 92, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .notification-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .notification-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--vet-text, #3a3632);
+    margin-bottom: 4px;
+  }
+  .notification-message {
+    font-size: 14px;
+    color: var(--vet-text-secondary, #6b6560);
     margin-bottom: 8px;
+    line-height: 1.5;
   }
   .notification-meta {
     display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: 0.85rem;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--vet-text-secondary, #6b6560);
   }
-  .notification-actions a {
-    color: var(--muted);
-    margin-left: 10px;
+  .notification-action {
+    color: var(--vet-accent, #cb997e);
     text-decoration: none;
+    font-weight: 500;
   }
-  .notification-actions a:hover {
-    color: #38bdf8;
+  .notification-action:hover {
+    text-decoration: underline;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--vet-text-secondary, #6b6560);
+  }
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
   }
 </style>
+{% endblock %}
 
-<div class="notifications-list">
-  {% for notification in notifications %}
-    <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
-      <h4>{{ notification.title }}</h4>
-      <p>{{ notification.message }}</p>
-      <div class="notification-meta">
-        <span class="notification-time">{{ notification.created_at }}</span>
-        <div class="notification-actions">
-          {% if not notification.is_read %}
-            <a href="{% url 'vet:mark_notification_read' notification.id %}">Mark as Read</a>
-          {% endif %}
-        </div>
+{% block content %}
+<!-- Hero Section -->
+<div class="page-hero">
+  <div class="page-hero-text">
+    <h1>Notifications</h1>
+    <p>Stay updated with appointment requests and system alerts.</p>
+  </div>
+  <form method="post" style="margin: 0;">
+    {% csrf_token %}
+    <button type="submit" name="mark_all_read" class="btn-mark-all">Mark All as Read</button>
+  </form>
+</div>
+
+<!-- Summary Tiles -->
+<div class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">🔔</div>
+      <div class="tile-text">
+        <div class="tile-title">Total</div>
+        <div class="tile-sub">Notifications</div>
       </div>
     </div>
-  {% empty %}
-    <p class="muted">No notifications found.</p>
-  {% endfor %}
+    <div class="tile-metric">{{ notifications|length }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📩</div>
+      <div class="tile-text">
+        <div class="tile-title">Unread</div>
+        <div class="tile-sub">New alerts</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ unread_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📅</div>
+      <div class="tile-text">
+        <div class="tile-title">Today</div>
+        <div class="tile-sub">Received</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ today_count|default:"0" }}</div>
+  </div>
+</div>
+
+<!-- Notifications List -->
+<div class="main-card">
+  <div class="card-head">
+    <h2>All Notifications</h2>
+  </div>
+  
+  <div class="notifications-list">
+    {% for notification in notifications %}
+      <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+        <div class="notification-icon">
+          {% if 'appointment' in notification.title|lower %}📅{% elif 'patient' in notification.title|lower %}🐾{% else %}🔔{% endif %}
+        </div>
+        <div class="notification-content">
+          <div class="notification-title">{{ notification.title }}</div>
+          <div class="notification-message">{{ notification.message }}</div>
+          <div class="notification-meta">
+            <span>{{ notification.created_at|date:"M d, Y H:i" }}</span>
+            {% if not notification.is_read %}
+              <a href="{% url 'vet:mark_notification_read' notification.id %}" class="notification-action">Mark as Read</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🔔</div>
+        <div>No notifications yet.</div>
+        <p style="margin-top: 8px;">You'll be notified about new appointments and updates here.</p>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
 
@@ -68,11 +261,8 @@
 <script>
   // Check for new notifications every 30 seconds
   function checkForNewNotifications() {
-    // In a real implementation, this would make an AJAX call to an API endpoint
     console.log('Checking for new notifications...');
   }
-  
-  // Start the update check loop
   setInterval(checkForNewNotifications, 30000);
 </script>
 {% endblock %}

@@ -1,18 +1,556 @@
 {% extends 'clinic/dashboard_base.html' %}
-{% block title %}New Appointment - ePetCare{% endblock %}
+{% load static %}
+{% block title %}{% if form.instance.pk %}Edit Appointment{% else %}New Appointment{% endif %} - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<!-- Flatpickr for cross-browser date/time picker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+<style>
+  .form-card {
+    background: var(--owner-surface, #fff);
+    border-radius: 16px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .form-card-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--owner-border, #e8e4df);
+  }
+  .form-card-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin: 0 0 4px 0;
+  }
+  .form-card-header p {
+    font-size: 14px;
+    color: var(--owner-text-secondary, #8B7355);
+    margin: 0;
+  }
+  .form-card-body {
+    padding: 28px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .form-grid .full-width {
+    grid-column: span 2;
+  }
+  .form-group {
+    margin-bottom: 0;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--owner-primary, #d48b3e);
+    box-shadow: 0 0 0 3px rgba(212, 139, 62, 0.1);
+  }
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  .form-group .help-text {
+    font-size: 12px;
+    color: var(--owner-text-secondary, #8B7355);
+    margin-top: 4px;
+  }
+  .form-group .error-text {
+    font-size: 12px;
+    color: #dc2626;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .form-group.has-error input,
+  .form-group.has-error select,
+  .form-group.has-error textarea {
+    border-color: #dc2626;
+  }
+  .form-errors {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #991b1b;
+    font-size: 14px;
+  }
+  .form-errors ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid var(--owner-border, #e8e4df);
+    background: var(--owner-bg, #FFF5E9);
+    border-radius: 0 0 16px 16px;
+  }
+  .btn-save {
+    background: var(--owner-primary, #d48b3e);
+    color: #fff;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover {
+    background: var(--owner-text, #573D1C);
+  }
+  .btn-save:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  .btn-cancel {
+    background: transparent;
+    color: var(--owner-text-secondary, #8B7355);
+    padding: 10px 24px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover {
+    background: var(--owner-surface, #fff);
+    border-color: var(--owner-text-secondary);
+  }
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-grid .full-width {
+      grid-column: span 1;
+    }
+  }
+  
+  /* Custom Date/Time Picker Styles */
+  .datetime-picker-wrapper {
+    display: flex;
+    gap: 12px;
+  }
+  .datetime-picker-wrapper .date-picker-group,
+  .datetime-picker-wrapper .time-picker-group {
+    flex: 1;
+  }
+  .datetime-picker-wrapper .date-picker-group {
+    flex: 1.5;
+  }
+  .datetime-picker-wrapper input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .datetime-picker-wrapper input:focus {
+    outline: none;
+    border-color: var(--owner-primary, #d48b3e);
+    box-shadow: 0 0 0 3px rgba(212, 139, 62, 0.1);
+  }
+  .datetime-picker-wrapper .picker-label {
+    font-size: 12px;
+    color: var(--owner-text-secondary, #8B7355);
+    margin-bottom: 4px;
+    display: block;
+  }
+  
+  /* Flatpickr custom theme */
+  .flatpickr-calendar {
+    font-family: inherit !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+    border: 1px solid var(--owner-border, #e8e4df) !important;
+  }
+  .flatpickr-calendar.arrowTop:before,
+  .flatpickr-calendar.arrowTop:after {
+    display: none;
+  }
+  .flatpickr-months {
+    background: var(--owner-primary, #d48b3e) !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 8px 0 !important;
+  }
+  .flatpickr-months .flatpickr-month {
+    color: #fff !important;
+  }
+  .flatpickr-current-month .flatpickr-monthDropdown-months,
+  .flatpickr-current-month input.cur-year {
+    color: #fff !important;
+    font-weight: 600 !important;
+  }
+  .flatpickr-months .flatpickr-prev-month,
+  .flatpickr-months .flatpickr-next-month {
+    fill: #fff !important;
+    color: #fff !important;
+  }
+  .flatpickr-months .flatpickr-prev-month:hover,
+  .flatpickr-months .flatpickr-next-month:hover {
+    background: rgba(255,255,255,0.2) !important;
+    border-radius: 50%;
+  }
+  .flatpickr-weekdays {
+    background: transparent !important;
+  }
+  span.flatpickr-weekday {
+    color: var(--owner-text-secondary, #8B7355) !important;
+    font-weight: 600 !important;
+  }
+  .flatpickr-day {
+    border-radius: 8px !important;
+    color: var(--owner-text, #573D1C) !important;
+  }
+  .flatpickr-day:hover {
+    background: var(--owner-bg, #FFF5E9) !important;
+    border-color: var(--owner-primary, #d48b3e) !important;
+  }
+  .flatpickr-day.selected {
+    background: var(--owner-primary, #d48b3e) !important;
+    border-color: var(--owner-primary, #d48b3e) !important;
+    color: #fff !important;
+  }
+  .flatpickr-day.today {
+    border-color: var(--owner-primary, #d48b3e) !important;
+  }
+  .flatpickr-day.disabled {
+    color: #ccc !important;
+  }
+  .flatpickr-time {
+    border-top: 1px solid var(--owner-border, #e8e4df) !important;
+  }
+  .flatpickr-time input {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+  }
+  .flatpickr-time .flatpickr-am-pm {
+    font-weight: 600 !important;
+  }
+  
+  @media (max-width: 500px) {
+    .datetime-picker-wrapper {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block dash_content %}
-<div class="toolbar">
-  <h2>New Appointment</h2>
-  <a class="btn" href="{% url 'appointment_list' %}">← Back</a>
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">{% if form.instance.pk %}Edit Appointment{% else %}Schedule Appointment{% endif %}</h1>
+      <a class="btn btn-secondary" href="{% url 'appointment_list' %}">← Back to Appointments</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{% if form.instance.pk %}Update appointment details.{% else %}Book a visit for your pet.{% endif %}</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="form-card">
+  <div class="form-card-header">
+    <h2>📅 Appointment Details</h2>
+    <p>Fill in the details below to {% if form.instance.pk %}update{% else %}schedule{% endif %} your appointment.</p>
+  </div>
+  
+  <form method="post" id="appointmentForm">
+    {% csrf_token %}
+    <div class="form-card-body">
+      {% if form.non_field_errors %}
+      <div class="form-errors">
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      <div class="form-grid">
+        <div class="form-group full-width {% if form.pet.errors %}has-error{% endif %}">
+          <label for="{{ form.pet.id_for_label }}">Select Pet *</label>
+          {{ form.pet }}
+          {% if form.pet.errors %}
+          <span class="error-text">{{ form.pet.errors.0 }}</span>
+          {% else %}
+          <span class="help-text">Choose which pet this appointment is for</span>
+          {% endif %}
+        </div>
+        
+        <div class="form-group full-width {% if form.date_time.errors %}has-error{% endif %}">
+          <label>Date & Time *</label>
+          <!-- Hidden field for actual form submission -->
+          <input type="hidden" name="date_time" id="id_date_time" value="{{ form.date_time.value|date:'Y-m-d H:i'|default:'' }}">
+          
+          <div class="datetime-picker-wrapper">
+            <div class="date-picker-group">
+              <span class="picker-label">📅 Select Date</span>
+              <input type="text" id="date_picker" placeholder="Click to select date" readonly>
+            </div>
+            <div class="time-picker-group">
+              <span class="picker-label">🕐 Select Time</span>
+              <input type="text" id="time_picker" placeholder="e.g. 9:30 AM">
+            </div>
+          </div>
+          
+          {% if form.date_time.errors %}
+          <span class="error-text">{{ form.date_time.errors.0 }}</span>
+          {% else %}
+          <span class="help-text" id="dateTimeHelp">Select a date and time (at least 2 hours from now, business hours: 8 AM - 6 PM)</span>
+          {% endif %}
+        </div>
+        
+        <div class="form-group full-width {% if form.reason.errors %}has-error{% endif %}">
+          <label for="{{ form.reason.id_for_label }}">Reason for Visit *</label>
+          {{ form.reason }}
+          {% if form.reason.errors %}
+          <span class="error-text">{{ form.reason.errors.0 }}</span>
+          {% else %}
+          <span class="help-text">Briefly describe why you're scheduling this visit</span>
+          {% endif %}
+        </div>
+        
+        <div class="form-group full-width {% if form.notes.errors %}has-error{% endif %}">
+          <label for="{{ form.notes.id_for_label }}">Additional Notes</label>
+          {{ form.notes }}
+          {% if form.notes.errors %}
+          <span class="error-text">{{ form.notes.errors.0 }}</span>
+          {% else %}
+          <span class="help-text">Any other information the vet should know</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn-save" type="submit" id="submitBtn">{% if form.instance.pk %}Save Changes{% else %}Schedule Appointment{% endif %}</button>
+      <a class="btn-cancel" href="{% url 'appointment_list' %}">Cancel</a>
+    </div>
+  </form>
 </div>
-<form method="post">
-  {% csrf_token %}
-  <div class="field">{{ form.pet.label_tag }}{{ form.pet }}</div>
-  <div class="field">{{ form.date_time.label_tag }}{{ form.date_time }}</div>
-  <div class="field">{{ form.reason.label_tag }}{{ form.reason }}</div>
-  <div class="field">{{ form.notes.label_tag }}{{ form.notes }}</div>
-  <button class="btn" type="submit">Save</button>
-  <a class="btn" href="{% url 'appointment_list' %}" style="background:#3f4857;">Cancel</a>
-</form>
+
+<!-- Flatpickr library -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+(function() {
+  const hiddenInput = document.getElementById('id_date_time');
+  const dateInput = document.getElementById('date_picker');
+  const timeInput = document.getElementById('time_picker');
+  const form = document.getElementById('appointmentForm');
+  
+  if (!dateInput || !timeInput) return;
+  
+  // Business hours
+  const BUSINESS_START = 8;  // 8 AM
+  const BUSINESS_END = 18;   // 6 PM
+  
+  // Calculate minimum date/time
+  function getMinDateTime() {
+    const now = new Date();
+    let minTime = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // 2 hours from now
+    
+    if (minTime.getHours() < BUSINESS_START) {
+      minTime.setHours(BUSINESS_START, 0, 0, 0);
+    }
+    if (minTime.getHours() >= BUSINESS_END) {
+      minTime.setDate(minTime.getDate() + 1);
+      minTime.setHours(BUSINESS_START, 0, 0, 0);
+    }
+    return minTime;
+  }
+  
+  // Max date: 6 months from now
+  function getMaxDate() {
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 6);
+    return maxDate;
+  }
+  
+  // Selected values
+  let selectedDate = null;
+  let selectedTime = null;
+  
+  // Initialize date picker with Flatpickr
+  const datePicker = flatpickr(dateInput, {
+    dateFormat: "F j, Y",
+    minDate: getMinDateTime(),
+    maxDate: getMaxDate(),
+    disableMobile: false,
+    monthSelectorType: "dropdown",
+    locale: {
+      firstDayOfWeek: 0
+    },
+    onChange: function(dates, dateStr) {
+      selectedDate = dates[0] || null;
+      updateHiddenInput();
+    }
+  });
+  
+  // Initialize time picker with Flatpickr
+  const timePicker = flatpickr(timeInput, {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "h:i K",  // 12-hour format with AM/PM
+    time_24hr: false,
+    minTime: "08:00",
+    maxTime: "17:59",
+    minuteIncrement: 5,
+    disableMobile: false,
+    onChange: function(dates, dateStr) {
+      if (dates[0]) {
+        selectedTime = dates[0].getHours().toString().padStart(2, '0') + ':' + 
+                       dates[0].getMinutes().toString().padStart(2, '0');
+      } else {
+        selectedTime = null;
+      }
+      updateHiddenInput();
+    }
+  });
+  
+  // Update hidden input with combined date/time
+  function updateHiddenInput() {
+    if (selectedDate && selectedTime) {
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      hiddenInput.value = `${year}-${month}-${day} ${selectedTime}`;
+    } else {
+      hiddenInput.value = '';
+    }
+    validateDateTime();
+  }
+  
+  // Validation
+  function validateDateTime() {
+    const formGroup = hiddenInput.closest('.form-group');
+    let errorSpan = formGroup.querySelector('.error-text:not([data-server])');
+    const helpSpan = formGroup.querySelector('.help-text');
+    
+    // Clear previous errors
+    formGroup.classList.remove('has-error');
+    if (errorSpan) {
+      errorSpan.remove();
+    }
+    if (helpSpan) helpSpan.style.display = '';
+    
+    if (!hiddenInput.value) return true;
+    
+    const [datePart, timePart] = hiddenInput.value.split(' ');
+    if (!datePart || !timePart) return true;
+    
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    
+    const selected = new Date(year, month - 1, day, hour, minute);
+    const minDateTime = getMinDateTime();
+    const maxDateTime = getMaxDate();
+    
+    // Check business hours
+    if (hour < BUSINESS_START || hour >= BUSINESS_END) {
+      showError(formGroup, 'Please select a time between 8:00 AM and 6:00 PM.');
+      return false;
+    }
+    
+    // Check minimum time
+    if (selected < minDateTime) {
+      showError(formGroup, 'Appointments must be scheduled at least 2 hours in advance.');
+      return false;
+    }
+    
+    // Check maximum date
+    if (selected > maxDateTime) {
+      showError(formGroup, 'Appointments can only be scheduled up to 6 months in advance.');
+      return false;
+    }
+    
+    return true;
+  }
+  
+  function showError(formGroup, message) {
+    formGroup.classList.add('has-error');
+    const helpSpan = formGroup.querySelector('.help-text');
+    if (helpSpan) helpSpan.style.display = 'none';
+    
+    let errorSpan = formGroup.querySelector('.error-text:not([data-server])');
+    if (!errorSpan) {
+      errorSpan = document.createElement('span');
+      errorSpan.className = 'error-text';
+      formGroup.appendChild(errorSpan);
+    }
+    errorSpan.textContent = message;
+  }
+  
+  // Form submit validation
+  form.addEventListener('submit', function(e) {
+    if (!hiddenInput.value) {
+      e.preventDefault();
+      showError(hiddenInput.closest('.form-group'), 'Please select a date and time.');
+      dateInput.focus();
+      return false;
+    }
+    if (!validateDateTime()) {
+      e.preventDefault();
+      return false;
+    }
+  });
+  
+  // Pre-populate if editing existing appointment
+  const existingValue = hiddenInput.value;
+  if (existingValue) {
+    const parts = existingValue.split(' ');
+    if (parts.length >= 2) {
+      const datePart = parts[0];
+      const timePart = parts[1].substring(0, 5); // Get HH:MM
+      
+      const [year, month, day] = datePart.split('-').map(Number);
+      const existingDate = new Date(year, month - 1, day);
+      
+      datePicker.setDate(existingDate);
+      selectedDate = existingDate;
+      
+      // Set time
+      const [hour, min] = timePart.split(':').map(Number);
+      const timeDate = new Date();
+      timeDate.setHours(hour, min, 0, 0);
+      timePicker.setDate(timeDate);
+      selectedTime = timePart;
+    }
+  }
+})();
+</script>
 {% endblock %}
 

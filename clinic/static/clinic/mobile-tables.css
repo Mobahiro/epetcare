@@ -1,0 +1,198 @@
+/* Mobile-friendly table styles */
+
+/* Make tables responsive on mobile */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -8px;
+    padding: 0 8px;
+  }
+  
+  .table {
+    min-width: 600px;
+    font-size: 13px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 8px 6px;
+    white-space: nowrap;
+  }
+  
+  .table th {
+    font-size: 12px;
+  }
+  
+  /* Make action buttons stack vertically */
+  .table .btn-sm {
+    display: block;
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .table .btn-sm:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Badge styles for mobile */
+  .badge {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+
+/* Very small screens - card layout for tables */
+@media (max-width: 480px) {
+  .table-responsive {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Convert table to card layout on very small screens */
+  .table-mobile-cards {
+    display: block;
+  }
+  
+  .table-mobile-cards thead {
+    display: none;
+  }
+  
+  .table-mobile-cards tbody,
+  .table-mobile-cards tr,
+  .table-mobile-cards td {
+    display: block;
+    width: 100%;
+  }
+  
+  .table-mobile-cards tr {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+  
+  .table-mobile-cards td {
+    padding: 8px 0;
+    border: none;
+    text-align: left;
+    position: relative;
+    padding-left: 45%;
+    white-space: normal;
+  }
+  
+  .table-mobile-cards td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 40%;
+    padding-right: 10px;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .table-mobile-cards .btn-sm {
+    display: inline-block;
+    width: auto;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+}
+
+/* Timeline mobile styles */
+@media (max-width: 768px) {
+  .timeline::before {
+    left: 12px;
+  }
+  
+  .timeline-date {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+  }
+  
+  .timeline-date .day {
+    font-size: 14px;
+  }
+  
+  .timeline-date .mon {
+    font-size: 10px;
+  }
+  
+  .timeline-card {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+  
+  .timeline-card .time {
+    font-size: 12px;
+  }
+  
+  .timeline-card .title {
+    font-size: 14px;
+  }
+  
+  .timeline-card .sub {
+    font-size: 11px;
+  }
+  
+  .timeline-card .status {
+    margin-top: 6px;
+  }
+}
+
+/* Pet grid mobile */
+@media (max-width: 768px) {
+  .pet-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .pet-card {
+    padding: 12px;
+  }
+}
+
+/* Empty message mobile */
+@media (max-width: 768px) {
+  .empty-message {
+    padding: 24px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Rail action buttons mobile */
+@media (max-width: 768px) {
+  .rail-action-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .rail-action-btn .action-icon {
+    font-size: 20px;
+  }
+}
+
+/* Scrollbar styling for mobile tables */
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}

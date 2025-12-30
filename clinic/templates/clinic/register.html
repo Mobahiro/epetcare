@@ -1,5 +1,71 @@
 {% extends 'clinic/base_auth.html' %}
 {% block title %}Register - ePetCare{% endblock %}
+{% block extra_css %}
+<style>
+  /* Branch selection cards */
+  .branch-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .branch-card {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--auth-border, #e5e1dc);
+    border-radius: 12px;
+    padding: 16px 12px;
+    background: var(--auth-surface, #fff);
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+  .branch-card:hover {
+    border-color: var(--auth-primary, #8B5A2B);
+    background: rgba(139, 90, 43, 0.05);
+  }
+  .branch-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .branch-card input[type="radio"]:checked + .branch-card-content {
+    color: var(--auth-primary, #8B5A2B);
+  }
+  .branch-card:has(input:checked) {
+    border-color: var(--auth-primary, #8B5A2B);
+    background: rgba(139, 90, 43, 0.08);
+    box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.15);
+  }
+  .branch-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .branch-icon {
+    font-size: 28px;
+  }
+  .branch-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--auth-text, #3d2914);
+  }
+  .branch-vet-count {
+    font-size: 12px;
+    color: var(--auth-text-secondary, #8B7355);
+    background: rgba(139, 90, 43, 0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  @media (max-width: 500px) {
+    .branch-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
 {% block content %}
 <section class="auth-page">
   <div class="auth-split">
@@ -16,7 +82,7 @@
   <div class="auth-container">
         <div class="auth-header">
           <h1 class="auth-title">Create your account</h1>
-          <div class="auth-alt-action">Have an account? <a href="{% url 'login' %}" class="auth-link">Log in</a></div>
+          <p class="auth-subtitle">Have an account? <a href="{% url 'login' %}" class="auth-link">Log in</a></p>
         </div>
 
 {% if form.non_field_errors %}
@@ -37,12 +103,25 @@
   <div class="auth-field">
     <label for="id_email">Email</label>
     {{ form.email }}
+    <div id="vet-branch-indicator" style="display: none; margin-top: 8px; padding: 10px 14px; border-radius: 8px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; font-size: 14px; color: #166534;">
+      <span style="font-weight: 600;">🏥 Registering as Veterinarian</span>
+      <span id="vet-branch-name" style="display: block; margin-top: 4px; font-size: 13px; color: #15803d;"></span>
+    </div>
     {% if form.email.errors %}<div class="auth-error">{{ form.email.errors.0 }}</div>{% endif %}
   </div>
+  
+  <!-- Vet-specific field: Personal Email -->
+  <div class="auth-field" id="personal-email-field" style="display: none;">
+    <label for="id_personal_email">Personal Email <span style="color: red;">*</span></label>
+    {{ form.personal_email }}
+    {% if form.personal_email.errors %}<div class="auth-error">{{ form.personal_email.errors.0 }}</div>{% endif %}
+  </div>
+  
   <div class="auth-field two-col">
     <div>
       <label for="id_password1">Password</label>
       {{ form.password1 }}
+      <div id="password-strength" style="margin-top:6px; font-size:0.95rem; color:#6b7280;">&nbsp;</div>
       {% if form.password1.errors %}<div class="auth-error">{{ form.password1.errors.0 }}</div>{% endif %}
     </div>
     <div>
@@ -56,7 +135,23 @@
     {{ form.full_name }}
     {% if form.full_name.errors %}<div class="auth-error">{{ form.full_name.errors.0 }}</div>{% endif %}
   </div>
-  <div class="auth-field two-col">
+  
+  <!-- Vet-specific fields: Specialization and License -->
+  <div class="auth-field two-col" id="vet-credentials-field" style="display: none;">
+    <div>
+      <label for="id_specialization">Specialization</label>
+      {{ form.specialization }}
+      {% if form.specialization.errors %}<div class="auth-error">{{ form.specialization.errors.0 }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="id_license_number">License Number</label>
+      {{ form.license_number }}
+      {% if form.license_number.errors %}<div class="auth-error">{{ form.license_number.errors.0 }}</div>{% endif %}
+    </div>
+  </div>
+  
+  <!-- Pet owner-specific fields -->
+  <div class="auth-field two-col" id="owner-info-field">
     <div>
       <label for="id_phone">Phone</label>
       {{ form.phone }}
@@ -68,6 +163,40 @@
       {% if form.address.errors %}<div class="auth-error">{{ form.address.errors.0 }}</div>{% endif %}
     </div>
   </div>
+  
+  <!-- Branch selection - HIDDEN for pet owners (they select after OTP verification) -->
+  <!-- This field is only shown for vets who use branch@vet email format -->
+  <div class="auth-field" id="branch-selection-field" style="display: none;">
+    <label for="id_branch">Preferred Branch Location <span style="color: red;">*</span></label>
+    <div class="branch-cards" id="branch-cards">
+      <label class="branch-card" data-branch="taguig">
+        <input type="radio" name="branch" value="taguig" id="branch_taguig" checked>
+        <div class="branch-card-content">
+          <span class="branch-icon">🏥</span>
+          <span class="branch-name">Taguig</span>
+          <span class="branch-vet-count" id="vet-count-taguig">Loading...</span>
+        </div>
+      </label>
+      <label class="branch-card" data-branch="pasig">
+        <input type="radio" name="branch" value="pasig" id="branch_pasig">
+        <div class="branch-card-content">
+          <span class="branch-icon">🏥</span>
+          <span class="branch-name">Pasig</span>
+          <span class="branch-vet-count" id="vet-count-pasig">Loading...</span>
+        </div>
+      </label>
+      <label class="branch-card" data-branch="makati">
+        <input type="radio" name="branch" value="makati" id="branch_makati">
+        <div class="branch-card-content">
+          <span class="branch-icon">🏥</span>
+          <span class="branch-name">Makati</span>
+          <span class="branch-vet-count" id="vet-count-makati">Loading...</span>
+        </div>
+      </label>
+    </div>
+    {% if form.branch.errors %}<div class="auth-error">{{ form.branch.errors.0 }}</div>{% endif %}
+  </div>
+  
   <div class="auth-field terms-field visually-hidden">
     <label class="terms-label">
       {{ form.accept_terms }} <span>I agree to the Terms &amp; Privacy Notice</span>
@@ -174,6 +303,196 @@
 
     // Click outside modal to close (no submit)
     termsOverlay.addEventListener('click', function(e){ if (e.target === termsOverlay) cancelAndClose(); });
+  })();
+
+  // Password strength meter + client-side blocking for too-short passwords
+  (function(){
+    const pwdInput = document.querySelector('input[name="password1"]');
+    const pwdConfirm = document.querySelector('input[name="password2"]');
+    const submitBtn = document.getElementById('register-submit');
+    const strengthDiv = document.getElementById('password-strength');
+
+    if (!pwdInput || !strengthDiv) return;
+
+    function scorePassword(pwd){
+      if (!pwd) return 0;
+      let score = 0;
+      if (pwd.length >= 8) score += 1;
+      if (/[a-z]/.test(pwd)) score += 1;
+      if (/[A-Z]/.test(pwd)) score += 1;
+      if (/\d/.test(pwd)) score += 1;
+      if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+      return score; // 0-5
+    }
+
+    function strengthText(score, len){
+      if (len === 0) return '&nbsp;';
+      if (len < 8) return '<span style="color:#b91c1c">Too short (min 8 chars)</span>';
+      if (score <= 2) return '<span style="color:#f97316">Weak</span>';
+      if (score <= 4) return '<span style="color:#d97706">Fair</span>';
+      return '<span style="color:#16a34a">Good</span>';
+    }
+
+    function update(){
+      const val = pwdInput.value || '';
+      const sc = scorePassword(val);
+      strengthDiv.innerHTML = strengthText(sc, val.length);
+
+      // Disable submit if password too short
+      if (val.length > 0 && val.length < 8){
+        submitBtn.disabled = true;
+        submitBtn.classList.add('disabled');
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('disabled');
+      }
+    }
+
+    pwdInput.addEventListener('input', update);
+    // also check on page load (when re-displaying form with errors)
+    update();
+  })();
+
+  // Show/hide vet fields based on email pattern (branch keywords)
+  (function(){
+    const emailInput = document.querySelector('input[name="email"]');
+    const personalEmailField = document.getElementById('personal-email-field');
+    const vetCredentialsField = document.getElementById('vet-credentials-field');
+    const ownerInfoField = document.getElementById('owner-info-field');
+    const branchSelectionField = document.getElementById('branch-selection-field');
+    const vetBranchIndicator = document.getElementById('vet-branch-indicator');
+    const vetBranchName = document.getElementById('vet-branch-name');
+    
+    // Branch keywords for vet registration with display names
+    const vetBranches = {
+      'taguig@vet': 'Taguig',
+      'pasig@vet': 'Pasig',
+      'makati@vet': 'Makati'
+    };
+
+    function checkVetEmail() {
+      const emailValue = (emailInput.value || '').toLowerCase();
+      let detectedBranch = null;
+      
+      // Check which branch keyword is in the email
+      for (const [keyword, branchName] of Object.entries(vetBranches)) {
+        if (emailValue.includes(keyword)) {
+          detectedBranch = branchName;
+          break;
+        }
+      }
+      
+      if (detectedBranch) {
+        // Show vet fields
+        personalEmailField.style.display = 'block';
+        vetCredentialsField.style.display = 'block';
+        // Hide owner fields and branch selection (vets get branch from email)
+        ownerInfoField.style.display = 'none';
+        branchSelectionField.style.display = 'none';
+        // Show branch indicator
+        vetBranchIndicator.style.display = 'block';
+        vetBranchName.textContent = '📍 You are registering at ' + detectedBranch + ' Branch';
+      } else {
+        // Hide vet fields
+        personalEmailField.style.display = 'none';
+        vetCredentialsField.style.display = 'none';
+        // Show owner fields only (branch selection is done AFTER OTP verification)
+        ownerInfoField.style.display = 'block';
+        // branchSelectionField stays hidden - pet owners select branch after OTP
+        branchSelectionField.style.display = 'none';
+        // Hide branch indicator
+        vetBranchIndicator.style.display = 'none';
+        vetBranchName.textContent = '';
+      }
+    }
+
+    if (emailInput) {
+      // Check on page load (in case of validation errors)
+      checkVetEmail();
+      
+      // Check on email input change
+      emailInput.addEventListener('input', checkVetEmail);
+      emailInput.addEventListener('change', checkVetEmail);
+    }
+  })();
+  
+  // Fetch and display vet counts per branch
+  (function(){
+    fetch('{% url "branch_vet_counts" %}')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('vet-count-taguig').textContent = (data.taguig || 0) + ' Vet' + ((data.taguig || 0) !== 1 ? 's' : '');
+        document.getElementById('vet-count-pasig').textContent = (data.pasig || 0) + ' Vet' + ((data.pasig || 0) !== 1 ? 's' : '');
+        document.getElementById('vet-count-makati').textContent = (data.makati || 0) + ' Vet' + ((data.makati || 0) !== 1 ? 's' : '');
+      })
+      .catch(err => {
+        console.error('Failed to fetch vet counts:', err);
+        document.getElementById('vet-count-taguig').textContent = '0 Vets';
+        document.getElementById('vet-count-pasig').textContent = '0 Vets';
+        document.getElementById('vet-count-makati').textContent = '0 Vets';
+      });
+  })();
+
+  // Phone number - only allow digits and validate format
+  (function(){
+    const phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput) {
+      phoneInput.setAttribute('type', 'tel');
+      
+      // Create error element
+      let phoneError = phoneInput.parentElement.querySelector('.phone-format-error');
+      if (!phoneError) {
+        phoneError = document.createElement('div');
+        phoneError.className = 'phone-format-error auth-error';
+        phoneInput.parentElement.appendChild(phoneError);
+      }
+      
+      function validatePhoneFormat() {
+        const value = phoneInput.value;
+        if (value.length === 0) {
+          phoneError.textContent = '';
+          phoneError.style.display = 'none';
+          return;
+        }
+        
+        // Check if starts with 09 or 63
+        if (value.startsWith('09') || value.startsWith('63')) {
+          // Valid prefix
+          if (value.startsWith('09') && value.length === 11) {
+            phoneError.textContent = '';
+            phoneError.style.display = 'none';
+          } else if (value.startsWith('63') && value.length === 12) {
+            phoneError.textContent = '';
+            phoneError.style.display = 'none';
+          } else if (value.startsWith('09')) {
+            phoneError.textContent = 'Phone number must be 11 digits (09xxxxxxxxx)';
+            phoneError.style.display = 'block';
+          } else if (value.startsWith('63')) {
+            phoneError.textContent = 'Phone number must be 12 digits (63xxxxxxxxxx)';
+            phoneError.style.display = 'block';
+          }
+        } else {
+          phoneError.textContent = 'Phone number must start with 09 or 63';
+          phoneError.style.display = 'block';
+        }
+      }
+      
+      phoneInput.addEventListener('input', function(e) {
+        // Remove any non-digit characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+        validatePhoneFormat();
+      });
+      
+      phoneInput.addEventListener('keypress', function(e) {
+        // Only allow digits
+        if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+          e.preventDefault();
+        }
+      });
+      
+      // Validate on page load
+      validatePhoneFormat();
+    }
   })();
 </script>
 {% endblock %}

@@ -1,0 +1,245 @@
+{% extends 'clinic/base_auth.html' %}
+{% block title %}Verify Email - ePetCare{% endblock %}
+{% block head %}
+<style>
+  .otp-container {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .otp-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  .otp-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--auth-text, #3d2914);
+    margin-bottom: 8px;
+  }
+  .otp-subtitle {
+    font-size: 15px;
+    color: var(--auth-text-secondary, #8B7355);
+    margin-bottom: 24px;
+  }
+  .otp-email {
+    font-weight: 600;
+    color: var(--auth-primary, #8B5A2B);
+  }
+  .otp-input-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 24px 0;
+  }
+  .otp-digit {
+    width: 50px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    border: 2px solid var(--auth-border, #e5e1dc);
+    border-radius: 12px;
+    background: var(--auth-surface, #fff);
+    transition: all 0.2s ease;
+  }
+  .otp-digit:focus {
+    border-color: var(--auth-primary, #8B5A2B);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.15);
+  }
+  .otp-digit.filled {
+    border-color: var(--auth-primary, #8B5A2B);
+    background: rgba(139, 90, 43, 0.05);
+  }
+  .resend-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--auth-text-secondary, #8B7355);
+  }
+  .resend-link a {
+    color: var(--auth-primary, #8B5A2B);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .resend-link a:hover {
+    text-decoration: underline;
+  }
+  .step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .step {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .step.active {
+    background: var(--auth-primary, #8B5A2B);
+    color: white;
+  }
+  .step.completed {
+    background: #22c55e;
+    color: white;
+  }
+  .step.pending {
+    background: var(--auth-border, #e5e1dc);
+    color: var(--auth-text-secondary, #8B7355);
+  }
+  .step-line {
+    width: 40px;
+    height: 2px;
+    background: var(--auth-border, #e5e1dc);
+    align-self: center;
+  }
+  .step-line.completed {
+    background: #22c55e;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-split">
+    <aside class="auth-hero" aria-hidden="true">
+      <div class="hero-media">
+        {% load static %}
+        <img src="{% static 'clinic/images/picture2.jpeg' %}" alt="Pets illustration" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">Verify your email address</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </aside>
+    <div class="auth-panel">
+      <div class="auth-container">
+        
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step completed">✓</div>
+          <div class="step-line completed"></div>
+          <div class="step active">2</div>
+          <div class="step-line"></div>
+          <div class="step pending">3</div>
+        </div>
+        
+        <div class="otp-container">
+          <div class="otp-icon">📧</div>
+          <h1 class="otp-title">Verify Your Email</h1>
+          <p class="otp-subtitle">
+            We've sent a 6-digit verification code to<br>
+            <span class="otp-email">{{ email }}</span>
+          </p>
+          
+          {% if messages %}
+          {% for message in messages %}
+          <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}" style="margin-bottom: 16px;">
+            {{ message }}
+          </div>
+          {% endfor %}
+          {% endif %}
+          
+          <form method="post" action="{% url 'register' %}" id="otp-form">
+            {% csrf_token %}
+            <input type="hidden" name="verify_owner_otp" value="1">
+            <input type="hidden" name="otp_code" id="otp_code_hidden">
+            
+            <div class="otp-input-group">
+              <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric" autofocus>
+              <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            </div>
+            
+            <button type="submit" class="btn auth-submit" id="verify-btn" disabled>
+              Verify & Continue
+            </button>
+          </form>
+          
+          <p class="resend-link">
+            Didn't receive the code? <a href="{% url 'register' %}">Start over</a>
+          </p>
+          
+          <p style="margin-top: 16px; font-size: 13px; color: var(--auth-text-secondary, #8B7355);">
+            <strong>Next step:</strong> Select your preferred branch location
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const digits = document.querySelectorAll('.otp-digit');
+  const hiddenInput = document.getElementById('otp_code_hidden');
+  const verifyBtn = document.getElementById('verify-btn');
+  const form = document.getElementById('otp-form');
+  
+  function updateHiddenInput() {
+    let code = '';
+    digits.forEach(d => code += d.value);
+    hiddenInput.value = code;
+    
+    // Enable/disable button based on code length
+    verifyBtn.disabled = code.length !== 6;
+    
+    // Update visual state
+    digits.forEach(d => {
+      d.classList.toggle('filled', d.value !== '');
+    });
+  }
+  
+  digits.forEach((digit, index) => {
+    digit.addEventListener('input', function(e) {
+      // Only allow numbers
+      this.value = this.value.replace(/[^0-9]/g, '');
+      
+      if (this.value && index < digits.length - 1) {
+        digits[index + 1].focus();
+      }
+      updateHiddenInput();
+    });
+    
+    digit.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace' && !this.value && index > 0) {
+        digits[index - 1].focus();
+      }
+    });
+    
+    digit.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+      const numbers = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+      
+      numbers.split('').forEach((num, i) => {
+        if (digits[i]) {
+          digits[i].value = num;
+        }
+      });
+      
+      updateHiddenInput();
+      
+      // Focus last filled or first empty
+      const lastFilledIndex = Math.min(numbers.length, digits.length) - 1;
+      if (lastFilledIndex >= 0 && lastFilledIndex < digits.length - 1) {
+        digits[lastFilledIndex + 1].focus();
+      }
+    });
+  });
+  
+  // Auto-submit when all digits filled
+  form.addEventListener('submit', function(e) {
+    if (hiddenInput.value.length !== 6) {
+      e.preventDefault();
+    }
+  });
+})();
+</script>
+{% endblock %}

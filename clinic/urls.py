@@ -1,7 +1,9 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .auth_views import unified_login
 from .forms import PasswordResetRequestForm
+from .api_views import check_user_type, branch_vet_counts
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -9,12 +11,18 @@ urlpatterns = [
 
     path('register/', views.register, name='register'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    
+    # API endpoints
+    path('check-user-type/', check_user_type, name='check_user_type'),
+    path('api/branch-vet-counts/', branch_vet_counts, name='branch_vet_counts'),
     path('profile/', views.edit_profile, name='profile'),
     path('profile/password/request-otp/', views.change_password_request_otp, name='profile_request_password_otp'),
     path('profile/password/verify-otp/', views.change_password_verify_otp, name='profile_verify_password_otp'),
     path('profile/password/set-new/', views.change_password_set_new, name='profile_set_new_password'),
 
-    path('login/', auth_views.LoginView.as_view(template_name='clinic/login.html'), name='login'),
+    # Unified login for both pet owners and vets
+    path('login/', unified_login, name='unified_login'),
+    path('auth/login/', unified_login, name='login'),  # Keep 'login' name for compatibility
     path('logout/', views.logout_view, name='logout'),
 
     # OTP first password reset flow

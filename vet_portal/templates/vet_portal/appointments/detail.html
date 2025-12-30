@@ -1,0 +1,294 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static tz %}
+
+{% block title %}Appointment Details - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .detail-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+  }
+  .detail-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .detail-card-body {
+    padding: 20px;
+  }
+  .detail-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  .detail-label {
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    width: 140px;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .detail-value {
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 14px;
+    flex: 1;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    gap: 6px;
+  }
+  .status-scheduled {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  .status-completed {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .pet-link {
+    color: var(--vet-primary, #6b705c);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .pet-link:hover {
+    text-decoration: underline;
+  }
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--vet-border, #e5e1dc);
+    flex-wrap: wrap;
+  }
+  .btn-action {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-complete {
+    background: #16a34a;
+    color: #fff;
+    border: none;
+  }
+  .btn-complete:hover {
+    background: #15803d;
+  }
+  .btn-cancel-appt {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+  }
+  .btn-cancel-appt:hover {
+    background: #b91c1c;
+  }
+  .sidebar-card {
+    margin-bottom: 16px;
+  }
+  .quick-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .quick-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .quick-info-label {
+    font-size: 12px;
+    color: var(--vet-text-secondary, #6b6b6b);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .quick-info-value {
+    font-size: 14px;
+    color: var(--vet-text, #3d3d3d);
+    font-weight: 500;
+  }
+  @media (max-width: 900px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Appointment Details</h1>
+      <a href="{% url 'vet_portal:appointment_list' %}" class="btn btn-secondary">← Back to Appointments</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{{ appointment.date_time|date:"F d, Y" }} at {{ appointment.date_time|date:"g:i A" }}</span>
+      <span class="meta-dot">•</span>
+      <span class="meta-item">{{ appointment.pet.name }}</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="detail-grid">
+  <!-- Main Content -->
+  <div class="detail-main">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        📅 Appointment Information
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-row">
+          <div class="detail-label">Date & Time</div>
+          <div class="detail-value">{{ appointment.date_time|date:"F d, Y" }} at {{ appointment.date_time|date:"g:i A" }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Booked On</div>
+          <div class="detail-value">
+            {% if appointment.created_at %}
+              {{ appointment.created_at|localtime|date:"F d, Y" }} at {{ appointment.created_at|localtime|date:"g:i A" }}
+            {% else %}
+              <span style="color: #999;">Not recorded</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Status</div>
+          <div class="detail-value">
+            <span class="status-badge status-{{ appointment.status }}">
+              {% if appointment.status == 'scheduled' %}📅{% elif appointment.status == 'completed' %}✓{% else %}✗{% endif %}
+              {{ appointment.status }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Reason</div>
+          <div class="detail-value">{{ appointment.reason }}</div>
+        </div>
+        {% if appointment.notes %}
+        <div class="detail-row">
+          <div class="detail-label">Notes</div>
+          <div class="detail-value">{{ appointment.notes|linebreaks }}</div>
+        </div>
+        {% endif %}
+        
+        {% if appointment.status == 'scheduled' %}
+        <div class="action-buttons">
+          <form method="post" action="{% url 'vet_portal:appointment_complete' appointment.id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-action btn-complete">✓ Mark Completed</button>
+          </form>
+          <form method="post" action="{% url 'vet_portal:appointment_cancel' appointment.id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-action btn-cancel-appt">✗ Cancel Appointment</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="detail-sidebar">
+    <div class="detail-card sidebar-card">
+      <div class="detail-card-header">
+        🐾 Pet Information
+      </div>
+      <div class="detail-card-body">
+        <div class="quick-info">
+          <div class="quick-info-item">
+            <span class="quick-info-label">Name</span>
+            <a href="{% url 'vet_portal:patient_detail' appointment.pet.id %}" class="pet-link">
+              {{ appointment.pet.name }}
+            </a>
+          </div>
+          <div class="quick-info-item">
+            <span class="quick-info-label">Species</span>
+            <span class="quick-info-value">{{ appointment.pet.get_species_display }}</span>
+          </div>
+          <div class="quick-info-item">
+            <span class="quick-info-label">Breed</span>
+            <span class="quick-info-value">{{ appointment.pet.breed|default:"Not specified" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card sidebar-card">
+      <div class="detail-card-header">
+        👤 Owner Information
+      </div>
+      <div class="detail-card-body">
+        <div class="quick-info">
+          <div class="quick-info-item">
+            <span class="quick-info-label">Name</span>
+            <span class="quick-info-value">{{ appointment.pet.owner.full_name }}</span>
+          </div>
+          <div class="quick-info-item">
+            <span class="quick-info-label">Email</span>
+            <span class="quick-info-value">{{ appointment.pet.owner.email }}</span>
+          </div>
+          {% if appointment.pet.owner.phone_number %}
+          <div class="quick-info-item">
+            <span class="quick-info-label">Phone</span>
+            <span class="quick-info-value">{{ appointment.pet.owner.phone_number }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        ⚡ Quick Actions
+      </div>
+      <div class="detail-card-body">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="{% url 'vet_portal:medical_record_create' appointment.pet.id %}" class="btn btn-primary" style="text-align: center;">
+            + Add Medical Record
+          </a>
+          <a href="{% url 'vet_portal:prescription_create' appointment.pet.id %}" class="btn btn-secondary" style="text-align: center;">
+            + Add Prescription
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

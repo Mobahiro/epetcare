@@ -1,4 +1,4 @@
-"""Excel report generator for ePetCare desktop application.
+﻿"""Excel report generator for ePetCare desktop application.
 
 This module provides utilities for generating Excel reports of patients and owners.
 """

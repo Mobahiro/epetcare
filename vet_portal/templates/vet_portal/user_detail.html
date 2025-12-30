@@ -1,43 +1,169 @@
-{% extends 'vet_portal/base.html' %}
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}User Details - ePetCare Vet Portal{% endblock %}
 
-{% block content %}
-<div class="toolbar">
-  <h2>User: {{ user.username }}</h2>
-  <div>
-    <a class="btn btn-secondary" href="{% url 'vet_portal:user_list' %}">← Back</a>
-    {% if request.user != user %}
-      <a class="btn" style="background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);" href="{% url 'vet_portal:user_delete' user.pk %}">Delete User</a>
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .detail-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+  }
+  .detail-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .detail-card-body {
+    padding: 20px;
+  }
+  .detail-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  .detail-label {
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    width: 140px;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .detail-value {
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 14px;
+    flex: 1;
+  }
+  .sidebar-card {
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">User Details</h1>
+      <div style="display: flex; gap: 12px;">
+        <a href="{% url 'vet_portal:user_list' %}" class="btn btn-secondary">← Back to Users</a>
+        {% if request.user != user %}
+          <a href="{% url 'vet_portal:user_delete' user.pk %}" class="btn" style="background: #dc2626; color: #fff;">🗑️ Delete User</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{{ user.username }}</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="detail-grid">
+  <!-- Main Content -->
+  <div class="detail-main">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        👤 User Information
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-row">
+          <div class="detail-label">Username</div>
+          <div class="detail-value">{{ user.username }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Full Name</div>
+          <div class="detail-value">{{ user.get_full_name|default:'-' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Email</div>
+          <div class="detail-value">{{ user.email|default:'-' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Last Login</div>
+          <div class="detail-value">{{ user.last_login|default:'Never' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Date Joined</div>
+          <div class="detail-value">{{ user.date_joined }}</div>
+        </div>
+      </div>
+    </div>
+    
+    {% if vet %}
+    <div class="detail-card" style="margin-top: 24px;">
+      <div class="detail-card-header">
+        🩺 Veterinarian Information
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-row">
+          <div class="detail-label">Full Name</div>
+          <div class="detail-value">{{ vet.full_name }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Specialization</div>
+          <div class="detail-value">{{ vet.specialization|default:'-' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">License Number</div>
+          <div class="detail-value">{{ vet.license_number }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Phone</div>
+          <div class="detail-value">{{ vet.phone|default:'-' }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Created At</div>
+          <div class="detail-value">{{ vet.created_at }}</div>
+        </div>
+        {% if vet.bio %}
+        <div class="detail-row">
+          <div class="detail-label">Bio</div>
+          <div class="detail-value">{{ vet.bio|linebreaksbr }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
     {% endif %}
   </div>
-</div>
 
-<div class="card">
-  <h3>User Information</h3>
-  <p>
-    <strong>Username:</strong> {{ user.username }}<br>
-    <strong>Full Name:</strong> {{ user.get_full_name|default:'-' }}<br>
-    <strong>Email:</strong> {{ user.email|default:'-' }}<br>
-    <strong>Last Login:</strong> {{ user.last_login|default:'-' }}<br>
-    <strong>Date Joined:</strong> {{ user.date_joined }}<br>
-  </p>
+  <!-- Sidebar -->
+  <div class="detail-sidebar">
+    <div class="detail-card sidebar-card">
+      <div class="detail-card-header">
+        ℹ️ Status
+      </div>
+      <div class="detail-card-body">
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 48px; margin-bottom: 12px;">
+            {% if user.is_active %}✅{% else %}⛔{% endif %}
+          </div>
+          <div style="font-weight: 600; color: {% if user.is_active %}#16a34a{% else %}#dc2626{% endif %};">
+            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-{% if vet %}
-<div class="card" style="margin-top: 20px;">
-  <h3>Veterinarian Information</h3>
-  <p>
-    <strong>Full Name:</strong> {{ vet.full_name }}<br>
-    <strong>Specialization:</strong> {{ vet.specialization }}<br>
-    <strong>License Number:</strong> {{ vet.license_number }}<br>
-    <strong>Phone:</strong> {{ vet.phone|default:'-' }}<br>
-    <strong>Created At:</strong> {{ vet.created_at }}<br>
-  </p>
-  {% if vet.bio %}
-    <h4>Bio</h4>
-    <p>{{ vet.bio|linebreaksbr }}</p>
-  {% endif %}
-</div>
-{% endif %}
 {% endblock %}

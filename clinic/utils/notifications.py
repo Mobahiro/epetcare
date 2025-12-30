@@ -4,9 +4,12 @@ from typing import Optional
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.db import transaction
+from django.core.mail import send_mail
 
 from clinic.models import Notification, Owner
-from clinic.utils.emailing import send_mail_async_safe
+
+import logging
+logger = logging.getLogger('clinic')
 
 
 def process_unsent_notifications(owner: Optional[Owner] = None, limit: int = 25) -> int:
@@ -51,10 +54,12 @@ def process_unsent_notifications(owner: Optional[Owner] = None, limit: int = 25)
             html_body = None
 
         try:
-            send_mail_async_safe(subject, text_body, [to_email], html_message=html_body)
+            send_mail(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to_email], html_message=html_body, fail_silently=False)
             Notification.objects.filter(pk=notif.pk, emailed=False).update(emailed=True)
             count += 1
-        except Exception:
+            logger.info(f'Notification email sent to {to_email}')
+        except Exception as e:
             # Skip marking emailed so it can be retried later
+            logger.error(f'Failed to send notification email to {to_email}: {e}')
             continue
     return count

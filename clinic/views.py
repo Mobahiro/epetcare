@@ -30,18 +30,30 @@ def about_us(request):
 
 def register(request):
     if request.method == 'POST':
+        # Check if this is OTP verification step (for vets)
+        if 'verify_otp' in request.POST:
+            return verify_vet_registration_otp(request)
+        
+        # Check if this is owner OTP verification step
+        if 'verify_owner_otp' in request.POST:
+            return verify_owner_registration_otp(request)
+        
+        # Check if this is branch selection step (final step for owners)
+        if 'select_branch' in request.POST:
+            return complete_owner_registration(request)
+        
         form = RegisterForm(request.POST)
         print(f"Form valid: {form.is_valid()}")
         if form.is_valid():
             try:
-                from django.db import transaction
-                with transaction.atomic():
-                    user, owner = form.create_user_and_owner()
-                    # Set backend attribute for login to work properly
-                    user.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, user)
-                    messages.success(request, "Registration successful! Welcome to ePetCare.")
-                return redirect('dashboard')
+                # Check if this is a vet registration
+                if form.is_vet_registration():
+                    # Generate and send OTP instead of creating account immediately
+                    return send_vet_registration_otp(request, form)
+                else:
+                    # Pet owner registration - send OTP first, don't create account yet
+                    return send_owner_registration_otp(request, form)
+                    
             except Exception as e:
                 print(f"Error creating user: {str(e)}")
                 messages.error(request, f"Error creating account: {str(e)}")
@@ -50,6 +62,398 @@ def register(request):
     else:
         form = RegisterForm()
     return render(request, 'clinic/register.html', {"form": form})
+
+
+def send_vet_registration_otp(request, form):
+    """Send OTP to vet's personal email for verification"""
+    from vet.models import VetRegistrationOTP
+    import random
+    import json
+    
+    # Generate 6-digit OTP
+    otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Store registration data and OTP
+    registration_data = {
+        'username': form.cleaned_data['username'].lower(),
+        'email': form.cleaned_data['email'].lower(),
+        'personal_email': form.cleaned_data['personal_email'],
+        'password': form.cleaned_data['password1'],
+        'full_name': form.cleaned_data['full_name'],
+        'specialization': form.cleaned_data.get('specialization', ''),
+        'license_number': form.cleaned_data.get('license_number', ''),
+        'phone': form.cleaned_data.get('phone', ''),
+    }
+    
+    # Delete any existing OTP for this email
+    VetRegistrationOTP.objects.filter(personal_email=registration_data['personal_email']).delete()
+    
+    # Create new OTP record
+    otp_record = VetRegistrationOTP.objects.create(
+        email=registration_data['email'],
+        personal_email=registration_data['personal_email'],
+        otp_code=otp_code,
+        registration_data=registration_data
+    )
+    
+    # Send OTP via email
+    try:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Attempting to send OTP to {registration_data['personal_email']}")
+
+        from django.core.mail import send_mail
+
+        subject = 'ePetCare Vet Registration - Verification Code'
+        body = f'''Dear {registration_data['full_name']},
+
+Thank you for registering as a veterinarian on ePetCare!
+
+Your verification code is: {otp_code}
+
+This code will expire in 10 minutes. Please enter it on the registration page to complete your registration.
+
+Best regards,
+ePetCare Team'''
+
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [registration_data['personal_email']],
+            fail_silently=False,
+        )
+
+        logger.info(f"OTP email sent to {registration_data['personal_email']}")
+
+        # Store OTP ID in session for verification
+        request.session['vet_otp_id'] = otp_record.id
+        request.session['vet_personal_email'] = registration_data['personal_email']
+
+        return render(request, 'clinic/verify_vet_otp.html', {
+            'personal_email': registration_data['personal_email'],
+            'otp_sent': True
+        })
+    except Exception as e:
+        import logging
+        import traceback
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error sending OTP email: {e}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        print(f"Error sending OTP email: {e}")
+        print(f"Email config - Host: {settings.EMAIL_HOST}, Port: {settings.EMAIL_PORT}, From: {settings.DEFAULT_FROM_EMAIL}")
+        messages.error(request, f"Failed to send verification code: {str(e)}. Please contact support.")
+        # Clean up the OTP record since email failed
+        otp_record.delete()
+        return render(request, 'clinic/register.html', {'form': form})
+
+
+def verify_vet_registration_otp(request):
+    """Verify OTP and create vet account"""
+    from vet.models import VetRegistrationOTP, Veterinarian
+    from django.contrib.auth.models import User
+    from django.db import transaction
+    
+    otp_entered = request.POST.get('otp_code', '').strip()
+    otp_id = request.session.get('vet_otp_id')
+    
+    if not otp_id:
+        messages.error(request, "Session expired. Please register again.")
+        return redirect('register')
+    
+    try:
+        otp_record = VetRegistrationOTP.objects.get(id=otp_id, is_used=False)
+        
+        # Check if OTP is expired
+        if otp_record.is_expired():
+            messages.error(request, "Verification code expired. Please register again.")
+            return redirect('register')
+        
+        # Verify OTP
+        if otp_record.otp_code != otp_entered:
+            messages.error(request, "Invalid verification code. Please try again.")
+            return render(request, 'clinic/verify_vet_otp.html', {
+                'personal_email': otp_record.personal_email,
+                'otp_sent': True
+            })
+        
+        # OTP is correct - create vet account
+        data = otp_record.registration_data
+        
+        with transaction.atomic():
+            # Create user
+            user = User.objects.create_user(
+                username=data['username'],
+                email=data['email'],
+                password=data['password']
+            )
+            
+            # Generate access code
+            import secrets
+            import string
+            while True:
+                letters = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(3))
+                digits = ''.join(secrets.choice(string.digits) for _ in range(5))
+                access_code = f"{letters}{digits}"
+                
+                if not Veterinarian.objects.filter(access_code=access_code).exists():
+                    break
+            
+            # Create veterinarian profile
+            vet = Veterinarian.objects.create(
+                user=user,
+                full_name=data['full_name'],
+                specialization=data.get('specialization', ''),
+                license_number=data.get('license_number', ''),
+                phone=data.get('phone', ''),
+                access_code=access_code,
+                personal_email=data['personal_email']
+            )
+            
+            # Mark OTP as used
+            otp_record.is_used = True
+            otp_record.save()
+        
+        # Send access code via email
+        try:
+            send_mail(
+                'ePetCare - Your Veterinarian Access Code',
+                f'''Dear Dr. {vet.full_name},
+
+Your ePetCare veterinarian account has been created successfully!
+
+Login Credentials:
+Username: {user.username}
+Access Code: {access_code}
+
+⚠️ IMPORTANT: Keep this access code secure! You'll need it every time you login along with your password.
+
+Your account is pending admin approval. Once approved, you'll be able to access the vet portal.
+
+Best regards,
+ePetCare Team''',
+                settings.DEFAULT_FROM_EMAIL,
+                [vet.personal_email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print(f"Error sending access code email: {str(e)}")
+        
+        # Clear session
+        del request.session['vet_otp_id']
+        del request.session['vet_personal_email']
+        
+        messages.success(
+            request,
+            f"✅ Registration successful! Your access code has been sent to {vet.personal_email}. "
+            "Please check your email for login credentials. Your account is pending admin approval."
+        )
+        return redirect('unified_login')
+        
+    except VetRegistrationOTP.DoesNotExist:
+        messages.error(request, "Invalid verification session. Please register again.")
+        return redirect('register')
+
+
+def send_owner_registration_otp(request, form):
+    """Send OTP to pet owner's email for verification before branch selection"""
+    from .models import OwnerRegistrationOTP
+    import random
+    
+    # Generate 6-digit OTP
+    otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Store registration data (without branch - that comes later)
+    registration_data = {
+        'username': form.cleaned_data['username'].lower(),
+        'email': form.cleaned_data['email'].lower(),
+        'password': form.cleaned_data['password1'],
+        'full_name': form.cleaned_data['full_name'],
+        'phone': form.cleaned_data.get('phone', ''),
+        'address': form.cleaned_data.get('address', ''),
+    }
+    
+    # Delete any existing OTP for this email
+    OwnerRegistrationOTP.objects.filter(email=registration_data['email']).delete()
+    
+    # Create new OTP record
+    otp_record = OwnerRegistrationOTP.objects.create(
+        email=registration_data['email'],
+        otp_code=otp_code,
+        registration_data=registration_data
+    )
+    
+    # Send OTP via email
+    try:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Attempting to send OTP to {registration_data['email']}")
+
+        from django.core.mail import send_mail
+
+        subject = 'ePetCare Registration - Verification Code'
+        body = f'''Dear {registration_data['full_name']},
+
+Thank you for registering on ePetCare!
+
+Your verification code is: {otp_code}
+
+This code will expire in 30 minutes. Please enter it on the registration page to continue with your registration.
+
+After verification, you will select your preferred branch location.
+
+Best regards,
+ePetCare Team'''
+
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [registration_data['email']],
+            fail_silently=False,
+        )
+
+        logger.info(f"OTP email sent to {registration_data['email']}")
+
+        # Store OTP ID in session for verification
+        request.session['owner_otp_id'] = otp_record.id
+        request.session['owner_email'] = registration_data['email']
+
+        return render(request, 'clinic/verify_owner_otp.html', {
+            'email': registration_data['email'],
+            'otp_sent': True
+        })
+    except Exception as e:
+        import logging
+        import traceback
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error sending OTP email: {e}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        print(f"Error sending OTP email: {e}")
+        messages.error(request, f"Failed to send verification code: {str(e)}. Please try again.")
+        # Clean up the OTP record since email failed
+        otp_record.delete()
+        return render(request, 'clinic/register.html', {'form': form})
+
+
+def verify_owner_registration_otp(request):
+    """Verify OTP and show branch selection"""
+    from .models import OwnerRegistrationOTP
+    from vet.models import Veterinarian
+    
+    otp_entered = request.POST.get('otp_code', '').strip()
+    otp_id = request.session.get('owner_otp_id')
+    
+    if not otp_id:
+        messages.error(request, "Session expired. Please register again.")
+        return redirect('register')
+    
+    try:
+        otp_record = OwnerRegistrationOTP.objects.get(id=otp_id, is_used=False)
+        
+        # Check if OTP is expired
+        if otp_record.is_expired():
+            messages.error(request, "Verification code expired. Please register again.")
+            return redirect('register')
+        
+        # Verify OTP
+        if otp_record.otp_code != otp_entered:
+            messages.error(request, "Invalid verification code. Please try again.")
+            return render(request, 'clinic/verify_owner_otp.html', {
+                'email': otp_record.email,
+                'otp_sent': True
+            })
+        
+        # OTP is correct - mark as verified and show branch selection
+        otp_record.otp_verified = True
+        otp_record.save()
+        
+        # Get vet counts per branch for display
+        branch_vet_counts = {
+            'taguig': Veterinarian.objects.filter(branch='taguig', approval_status='approved').count(),
+            'pasig': Veterinarian.objects.filter(branch='pasig', approval_status='approved').count(),
+            'makati': Veterinarian.objects.filter(branch='makati', approval_status='approved').count(),
+        }
+        
+        return render(request, 'clinic/select_branch.html', {
+            'email': otp_record.email,
+            'full_name': otp_record.registration_data.get('full_name', ''),
+            'branch_vet_counts': branch_vet_counts,
+        })
+        
+    except OwnerRegistrationOTP.DoesNotExist:
+        messages.error(request, "Invalid verification session. Please register again.")
+        return redirect('register')
+
+
+def complete_owner_registration(request):
+    """Complete owner registration after branch selection"""
+    from .models import OwnerRegistrationOTP, Owner
+    from django.contrib.auth.models import User
+    from django.db import transaction
+    
+    otp_id = request.session.get('owner_otp_id')
+    selected_branch = request.POST.get('branch', '').strip()
+    
+    if not otp_id:
+        messages.error(request, "Session expired. Please register again.")
+        return redirect('register')
+    
+    if not selected_branch or selected_branch not in ['taguig', 'pasig', 'makati']:
+        messages.error(request, "Please select a valid branch.")
+        return redirect('register')
+    
+    try:
+        otp_record = OwnerRegistrationOTP.objects.get(id=otp_id, is_used=False, otp_verified=True)
+        
+        # Check if OTP is expired
+        if otp_record.is_expired():
+            messages.error(request, "Session expired. Please register again.")
+            return redirect('register')
+        
+        data = otp_record.registration_data
+        
+        with transaction.atomic():
+            # Create user
+            user = User.objects.create_user(
+                username=data['username'],
+                email=data['email'],
+                password=data['password']
+            )
+            
+            # Create owner profile with selected branch
+            owner = Owner.objects.create(
+                user=user,
+                full_name=data['full_name'],
+                email=data['email'],
+                phone=data.get('phone', ''),
+                address=data.get('address', ''),
+                branch=selected_branch
+            )
+            
+            # Mark OTP as used
+            otp_record.is_used = True
+            otp_record.save()
+        
+        # Clear session
+        del request.session['owner_otp_id']
+        del request.session['owner_email']
+        
+        # Auto-login
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user)
+        
+        branch_display = {'taguig': 'Taguig', 'pasig': 'Pasig', 'makati': 'Makati'}.get(selected_branch, selected_branch)
+        messages.success(
+            request,
+            f"🎉 Registration successful! Welcome to ePetCare, {owner.full_name}! "
+            f"You are registered with the {branch_display} branch."
+        )
+        return redirect('dashboard')
+        
+    except OwnerRegistrationOTP.DoesNotExist:
+        messages.error(request, "Invalid verification session. Please register again.")
+        return redirect('register')
 
 
 def logout_view(request):
@@ -154,7 +558,7 @@ def password_reset_request_otp(request):
 
                 PasswordResetOTP.objects.create(user=user, code=code, expires_at=expires)
 
-                # Send email using template (non-blocking and safe)
+                # Send email using template
                 subject = f"Your {getattr(settings, 'BRAND_NAME', 'ePetCare')} password reset code"
                 ctx = {
                     "code": code,
@@ -166,13 +570,12 @@ def password_reset_request_otp(request):
                 message = render_to_string('clinic/auth/otp_email.txt', ctx)
                 html_message = render_to_string('clinic/auth/otp_email.html', ctx)
                 try:
-                    # Import here to avoid circular imports
-                    from .utils.emailing import send_mail_async_safe
-                    send_mail_async_safe(subject, message, [user.email], html_message=html_message)
-                except Exception as e:
-                    # Log the error and continue; we still route the user to verify step
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=html_message, fail_silently=False)
                     import logging
-                    logging.getLogger('clinic').error('Password reset email enqueue failed: %s', e)
+                    logging.getLogger('clinic').info(f'Password reset OTP email sent to {user.email}')
+                except Exception as e:
+                    import logging
+                    logging.getLogger('clinic').error(f'Password reset email failed: {e}')
 
             # Always show success page to avoid enumeration
             messages.info(request, "If an account exists, we've sent a 6-digit code to the email on file.")
@@ -245,17 +648,53 @@ def edit_profile(request):
         user_form = UserProfileForm(request.POST, instance=request.user)
         owner_form = OwnerForm(request.POST, instance=owner)
 
+        # Ensure protected fields render as readonly in the form widgets
+        try:
+            user_form.fields['username'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
+            user_form.fields['email'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
+        except Exception:
+            pass
+        try:
+            owner_form.fields['phone'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
+        except Exception:
+            pass
+
         if user_form.is_valid() and owner_form.is_valid():
-            user_form.save()
+            # Enforce immutable fields server-side: username and email should not be changed
+            # regardless of what is submitted in the POST. Likewise, owner's phone
+            # is considered a protected contact field and must remain unchanged here.
+            orig_username = request.user.username
+            orig_email = request.user.email
+            orig_phone = owner.phone
+
+            # Save user while preserving immutable fields
+            user_instance = user_form.save(commit=False)
+            user_instance.username = orig_username
+            user_instance.email = orig_email
+            user_instance.save()
+
+            # Save owner while preserving protected phone and syncing email from user
             owner_instance = owner_form.save(commit=False)
-            # Sync email to owner profile
-            owner_instance.email = request.user.email
+            owner_instance.email = orig_email
+            owner_instance.phone = orig_phone
             owner_instance.save()
+
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('profile')
     else:
         user_form = UserProfileForm(instance=request.user)
         owner_form = OwnerForm(instance=owner)
+
+        # Mark protected fields readonly for display
+        try:
+            user_form.fields['username'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
+            user_form.fields['email'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
+        except Exception:
+            pass
+        try:
+            owner_form.fields['phone'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
+        except Exception:
+            pass
 
     # Get last updated date
     last_updated = request.user.date_joined
@@ -273,8 +712,14 @@ def edit_profile(request):
 @login_required
 def change_password_request_otp(request):
     """Request OTP for password change from profile page"""
+    import logging
+    logger = logging.getLogger('clinic')
+    logger.info(f"change_password_request_otp called - method: {request.method}, user: {request.user}")
+    
     if request.method == 'POST':
         user = request.user
+        logger.info(f"Processing OTP request for user: {user.email}")
+        
         # Generate 6-digit OTP
         code = f"{random.randint(0, 999999):06d}"
         from .models import PasswordResetOTP
@@ -283,29 +728,33 @@ def change_password_request_otp(request):
 
         # Remove ALL previous unused OTPs for this user (including expired ones)
         deleted_count = PasswordResetOTP.objects.filter(user=user, is_used=False).delete()[0]
-        import logging
-        logging.getLogger('clinic').info(f"Deleted {deleted_count} old OTPs for user {user.id}")
+        logger.info(f"Deleted {deleted_count} old OTPs for user {user.id}")
 
         otp_obj = PasswordResetOTP.objects.create(user=user, code=code, expires_at=expires)
-        logging.getLogger('clinic').info(f"Created new OTP for user {user.id}: {code} (expires: {expires})")
+        logger.info(f"Created new OTP for user {user.id}: {code} (expires: {expires})")
 
         # Send email
         subject = f"Your {getattr(settings, 'BRAND_NAME', 'ePetCare')} password change verification code"
         ctx = {
             "code": code,
-            "name": getattr(user, 'first_name', '') or None,
+            "name": getattr(user, 'first_name', '') or user.username,
             "year": timezone.now().year,
             "BRAND_NAME": getattr(settings, 'BRAND_NAME', 'ePetCare'),
             "EMAIL_BRAND_LOGO_URL": getattr(settings, 'EMAIL_BRAND_LOGO_URL', ''),
         }
         message = render_to_string('clinic/auth/otp_email.txt', ctx)
         html_message = render_to_string('clinic/auth/otp_email.html', ctx)
+        
+        logger.info(f"Attempting to send email to {user.email}")
         try:
-            from .utils.emailing import send_mail_async_safe
-            send_mail_async_safe(subject, message, [user.email], html_message=html_message)
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=html_message, fail_silently=False)
+            logger.info(f'Password change OTP email sent successfully to {user.email}')
         except Exception as e:
-            import logging
-            logging.getLogger('clinic').error('Password change OTP email failed: %s', e)
+            logger.error(f'Password change OTP email failed: {e}')
+            import traceback
+            logger.error(f'Traceback: {traceback.format_exc()}')
+            messages.error(request, 'Failed to send verification code. Please try again.')
+            return redirect('profile')
 
         # Store user ID in session
         request.session['pw_change_user_id'] = user.id

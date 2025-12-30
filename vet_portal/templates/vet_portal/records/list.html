@@ -1,0 +1,136 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Medical Records - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Medical Records</h1>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">View and manage patient medical records</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="main-card">
+  <div class="card-head">
+    <h2>All Medical Records</h2>
+  </div>
+  
+  <div style="padding: 20px;">
+    {% if records %}
+      <div class="table-responsive">
+        <table class="table table-mobile-cards">
+          <thead>
+            <tr>
+              <th>Visit Date</th>
+              <th>Pet</th>
+              <th>Owner</th>
+              <th>Condition</th>
+              <th>Treatment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in records %}
+              <tr>
+                <td data-label="Visit Date">{{ record.visit_date|date:"M d, Y" }}</td>
+                <td data-label="Pet">
+                  <a href="{% url 'vet_portal:patient_detail' record.pet.id %}">
+                    {{ record.pet.name }}
+                  </a>
+                </td>
+                <td data-label="Owner">{{ record.pet.owner.full_name }}</td>
+                <td data-label="Condition">{{ record.condition|truncatewords:8 }}</td>
+                <td data-label="Treatment">{{ record.treatment|truncatewords:10 }}</td>
+                <td data-label="Actions">
+                  <a href="{% url 'vet_portal:medical_record_detail' record.id %}" class="btn btn-sm btn-primary">
+                    View
+                  </a>
+                  <a href="{% url 'vet_portal:medical_record_update' record.id %}" class="btn btn-sm btn-secondary">
+                    Edit
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-message" style="padding: 40px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+        <p>No medical records found.</p>
+        <a href="{% url 'vet_portal:patient_list' %}" class="btn btn-primary">View Patients</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+</style>
+{% endblock %}

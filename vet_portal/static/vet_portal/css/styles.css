@@ -132,17 +132,62 @@ body {
 /* Form elements */
 .form-control {
   width: 100%;
+  max-width: 600px;
   padding: 8px 10px;
   border: 2px solid var(--light-gray);
   border-radius: 4px;
   margin-bottom: 15px;
   font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-control[type="text"],
+.form-control[type="email"],
+.form-control[type="password"],
+.form-control[type="tel"],
+.form-control[type="url"],
+.form-control[type="number"],
+.form-control[type="date"],
+.form-control[type="datetime-local"],
+.form-control[type="time"] {
+  max-width: 600px;
+}
+
+textarea.form-control {
+  max-width: 100%;
+  min-height: 100px;
+  resize: vertical;
 }
 
 .form-label {
   font-weight: bold;
   margin-bottom: 5px;
   display: block;
+}
+
+/* Form container max-width */
+form {
+  max-width: 900px;
+}
+
+/* Mobile form adjustments */
+@media (max-width: 768px) {
+  .form-control,
+  .form-control[type="text"],
+  .form-control[type="email"],
+  .form-control[type="password"],
+  .form-control[type="tel"],
+  .form-control[type="url"],
+  .form-control[type="number"],
+  .form-control[type="date"],
+  .form-control[type="datetime-local"],
+  .form-control[type="time"] {
+    max-width: 100%;
+  }
+  
+  form {
+    max-width: 100%;
+  }
 }
 
 /* Tables */

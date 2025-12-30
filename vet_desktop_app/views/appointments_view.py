@@ -296,8 +296,9 @@ class AppointmentsView(QWidget):
             self.current_date.day()
         )
         
-        # Get all appointments
-        all_appointments = self.appointment_data_access.get_all_appointments()
+        # Get all appointments filtered by vet's branch
+        vet_branch = getattr(self.veterinarian, 'branch', None)
+        all_appointments = self.appointment_data_access.get_all_appointments(branch=vet_branch)
         
         # Filter by date
         appointments = []
@@ -347,9 +348,10 @@ class AppointmentsView(QWidget):
             self.calendar_appointments_table.setItem(row_position, 4, status_item)
     
     def load_all_appointments(self):
-        """Load all appointments"""
-        # Get all appointments
-        all_appointments = self.appointment_data_access.get_all_appointments()
+        """Load all appointments (filtered by vet's branch)"""
+        # Get all appointments filtered by vet's branch
+        vet_branch = getattr(self.veterinarian, 'branch', None)
+        all_appointments = self.appointment_data_access.get_all_appointments(branch=vet_branch)
         
         # Filter by status if needed
         status_filter = self.all_status_filter.currentData()

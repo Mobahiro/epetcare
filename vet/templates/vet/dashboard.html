@@ -1,145 +1,519 @@
 {% extends 'vet/base.html' %}
 {% block title %}Dashboard - Veterinarian Portal{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
 {% block content %}
-<div style="text-align: center; margin-bottom: 20px;">
-  <h1 style="color: #4169E1; margin-bottom: 10px;">Welcome, Dr. {{ vet.full_name }}!</h1>
-  <p style="color: #666666; font-size: 16px;">This is your ePetCare dashboard</p>
-  <hr style="border: 1px dashed #B0C4DE; margin: 20px 0;">
+<style>
+    /* Vet Dashboard Specific Styles */
+    .vet-page-header {
+        margin-bottom: 28px;
+    }
+    
+    .vet-page-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--vet-text);
+        margin: 0 0 8px 0;
+    }
+    
+    .vet-page-header p {
+        color: var(--vet-text-secondary);
+        margin: 0;
+        font-size: 15px;
+    }
+    
+    .vet-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+    
+    .vet-stat-card {
+        background: var(--vet-surface);
+        border: 1px solid var(--vet-border);
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: all 0.2s ease;
+        animation: fadeInUp 0.4s ease both;
+    }
+    
+    .vet-stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .vet-stat-card:nth-child(2) { animation-delay: 0.15s; }
+    .vet-stat-card:nth-child(3) { animation-delay: 0.2s; }
+    
+    .vet-stat-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+    
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+    
+    .stat-icon.owners { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .stat-icon.pets { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .stat-icon.appointments { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    
+    .stat-content {
+        flex: 1;
+    }
+    
+    .stat-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vet-text-secondary);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--vet-text);
+        line-height: 1.1;
+    }
+    
+    .stat-description {
+        font-size: 13px;
+        color: var(--vet-text-secondary);
+        margin-top: 4px;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Main Content Grid */
+    .vet-dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+    
+    .vet-card {
+        background: var(--vet-surface);
+        border: 1px solid var(--vet-border);
+        border-radius: 16px;
+        overflow: hidden;
+        animation: fadeInUp 0.4s ease both;
+    }
+    
+    .vet-card:nth-child(1) { animation-delay: 0.25s; }
+    .vet-card:nth-child(2) { animation-delay: 0.3s; }
+    
+    .vet-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--vet-border);
+        background: linear-gradient(to right, #f8f7f5, transparent);
+    }
+    
+    .vet-card-title {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--vet-text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .vet-card-title-icon {
+        font-size: 18px;
+    }
+    
+    .vet-card-link {
+        font-size: 13px;
+        color: var(--vet-primary);
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.2s;
+    }
+    
+    .vet-card-link:hover {
+        color: var(--vet-primary-dark);
+    }
+    
+    .vet-card-body {
+        padding: 0;
+    }
+    
+    /* Table Styles */
+    .vet-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .vet-table thead {
+        background: #faf9f7;
+    }
+    
+    .vet-table th {
+        padding: 12px 18px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--vet-text-secondary);
+        border-bottom: 1px solid var(--vet-border);
+    }
+    
+    .vet-table td {
+        padding: 14px 18px;
+        border-bottom: 1px solid #f5f3f0;
+        font-size: 14px;
+        color: var(--vet-text);
+    }
+    
+    .vet-table tbody tr {
+        transition: background 0.15s;
+    }
+    
+    .vet-table tbody tr:hover {
+        background: #faf9f7;
+    }
+    
+    .vet-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Pet Info Cell */
+    .pet-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .pet-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+    
+    .pet-name {
+        font-weight: 600;
+        color: var(--vet-text);
+    }
+    
+    .pet-species {
+        font-size: 12px;
+        color: var(--vet-text-secondary);
+    }
+    
+    /* Status Pills */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-pill.scheduled {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+    
+    .status-pill.completed {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .status-pill.cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .status-pill.pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    /* Empty State */
+    .vet-empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: var(--vet-text-secondary);
+    }
+    
+    .vet-empty-icon {
+        font-size: 42px;
+        margin-bottom: 12px;
+        opacity: 0.7;
+    }
+    
+    .vet-empty-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--vet-text);
+    }
+    
+    /* Notifications List */
+    .notification-list {
+        padding: 0;
+    }
+    
+    .notification-item {
+        display: flex;
+        gap: 14px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #f5f3f0;
+        transition: background 0.15s;
+    }
+    
+    .notification-item:hover {
+        background: #faf9f7;
+    }
+    
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+    
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .notification-title {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--vet-text);
+        margin-bottom: 4px;
+    }
+    
+    .notification-message {
+        font-size: 13px;
+        color: var(--vet-text-secondary);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .notification-time {
+        font-size: 12px;
+        color: var(--vet-text-secondary);
+        margin-top: 6px;
+        opacity: 0.8;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .vet-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .vet-dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .vet-stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .vet-page-header h1 {
+            font-size: 22px;
+        }
+        
+        .stat-value {
+            font-size: 26px;
+        }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="vet-page-header">
+    <h1>Welcome back, Dr. {{ vet.full_name }}! 👋</h1>
+    <p>Here's what's happening at your practice today</p>
 </div>
 
-<!-- Stats Cards -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-  <div style="border: 2px solid #B0C4DE; border-radius: 5px; padding: 15px; text-align: center; background: white;">
-    <div style="font-weight: bold; margin-bottom: 10px; color: #4169E1; border-bottom: 2px solid #B0C4DE; padding-bottom: 5px;">
-      👨‍👩‍👧‍👦 Total Owners
-    </div>
-    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px; color: #4169E1;">
-      {{ total_owners }}
-    </div>
-    <div style="color: #666666; font-size: 14px;">
-      Registered pet owners
-    </div>
-  </div>
-  
-  <div style="border: 2px solid #B0C4DE; border-radius: 5px; padding: 15px; text-align: center; background: white;">
-    <div style="font-weight: bold; margin-bottom: 10px; color: #4169E1; border-bottom: 2px solid #B0C4DE; padding-bottom: 5px;">
-      🐾 Total Pets
-    </div>
-    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px; color: #4169E1;">
-      {{ total_pets }}
-    </div>
-    <div style="color: #666666; font-size: 14px;">
-      Registered animals
-    </div>
-  </div>
-  
-  <div style="border: 2px solid #B0C4DE; border-radius: 5px; padding: 15px; text-align: center; background: white;">
-    <div style="font-weight: bold; margin-bottom: 10px; color: #4169E1; border-bottom: 2px solid #B0C4DE; padding-bottom: 5px;">
-      📅 Upcoming Appointments
-    </div>
-    <div style="font-size: 30px; font-weight: bold; margin-bottom: 5px; color: #4169E1;">
-      {{ upcoming_appointments|length }}
-    </div>
-    <div style="color: #666666; font-size: 14px;">
-      Scheduled visits
-    </div>
-  </div>
-</div>
-
-<!-- Upcoming Appointments -->
-<div style="background: white; border: 1px solid #cccccc; border-radius: 5px; margin-bottom: 30px;">
-  <div style="background: #B0C4DE; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #cccccc; display: flex; justify-content: space-between; align-items: center;">
-    <div>📅 Upcoming Appointments</div>
-    <a href="{% url 'vet:appointments' %}" style="color: #4169E1; text-decoration: underline;">View All</a>
-  </div>
-
-  <div style="overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background-color: #f5f5f5;">
-          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Date & Time</th>
-          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Pet</th>
-          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Owner</th>
-          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Reason</th>
-          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #cccccc;">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for appointment in upcoming_appointments %}
-          {% cycle '<tr style="background-color: #ffffff;">' '<tr style="background-color: #f9f9f9;">' %}
-            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.date_time }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.pet.name }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.pet.owner.full_name }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">{{ appointment.reason }}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eeeeee;">
-              {% if appointment.status == 'scheduled' %}
-                <span style="background-color: #e3f2fd; color: #1976D2; border: 1px solid #bbdefb; padding: 3px 8px; border-radius: 3px; font-size: 12px;">Scheduled</span>
-              {% elif appointment.status == 'completed' %}
-                <span style="background-color: #e8f5e9; color: #388E3C; border: 1px solid #c8e6c9; padding: 3px 8px; border-radius: 3px; font-size: 12px;">Completed</span>
-              {% elif appointment.status == 'cancelled' %}
-                <span style="background-color: #ffebee; color: #D32F2F; border: 1px solid #ffcdd2; padding: 3px 8px; border-radius: 3px; font-size: 12px;">Cancelled</span>
-              {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="5" style="padding: 30px; text-align: center; color: #666666;">
-              <div style="font-size: 24px; margin-bottom: 10px;">📆</div>
-              No upcoming appointments found
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  
-  <div style="text-align: center; padding: 15px; background-color: #f5f5f5; border-top: 1px solid #cccccc;">
-    <a href="#" style="display: inline-block; padding: 8px 15px; background-color: #4169E1; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-      + Add New Appointment
-    </a>
-  </div>
-</div>
-
-<!-- Recent Notifications -->
-<div style="background: white; border: 1px solid #cccccc; border-radius: 5px; margin-bottom: 20px;">
-  <div style="background: #B0C4DE; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #cccccc; display: flex; justify-content: space-between; align-items: center;">
-    <div>🔔 Recent Notifications</div>
-    <a href="{% url 'vet:notifications' %}" style="color: #4169E1; text-decoration: underline;">View All</a>
-  </div>
-
-  <div style="padding: 15px;">
-    {% for notification in notifications %}
-      <div style="padding: 10px; margin-bottom: 15px; border: 1px solid #eeeeee; border-left: 3px solid #4169E1; border-radius: 3px;">
-        <div style="font-weight: bold; color: #333333; margin-bottom: 5px;">{{ notification.title }}</div>
-        <div style="color: #666666; margin-bottom: 5px;">{{ notification.message }}</div>
-        <div style="color: #999999; font-size: 12px; text-align: right;">
-          {{ notification.created_at }}
+<!-- Stats Grid -->
+<div class="vet-stats-grid">
+    <div class="vet-stat-card">
+        <div class="stat-icon owners">👥</div>
+        <div class="stat-content">
+            <div class="stat-label">Total Owners</div>
+            <div class="stat-value">{{ total_owners }}</div>
+            <div class="stat-description">Registered pet owners</div>
         </div>
-      </div>
-    {% empty %}
-      <div style="text-align: center; padding: 30px; color: #666666;">
-        <div style="font-size: 24px; margin-bottom: 10px;">🔕</div>
-        No new notifications
-      </div>
-    {% endfor %}
-  </div>
+    </div>
+    
+    <div class="vet-stat-card">
+        <div class="stat-icon pets">🐾</div>
+        <div class="stat-content">
+            <div class="stat-label">Total Pets</div>
+            <div class="stat-value">{{ total_pets }}</div>
+            <div class="stat-description">Animals in your care</div>
+        </div>
+    </div>
+    
+    <div class="vet-stat-card">
+        <div class="stat-icon appointments">📅</div>
+        <div class="stat-content">
+            <div class="stat-label">Upcoming</div>
+            <div class="stat-value">{{ upcoming_appointments|length }}</div>
+            <div class="stat-description">Scheduled appointments</div>
+        </div>
+    </div>
 </div>
 
-<!-- Footer Message -->
-<div style="text-align: center; margin-top: 30px; color: #666666; font-style: italic;">
-  <p>ePetCare - Student Project Version - Last updated: September 2025</p>
+<!-- Main Content Grid -->
+<div class="vet-dashboard-grid">
+    <!-- Appointments Card -->
+    <div class="vet-card">
+        <div class="vet-card-header">
+            <div class="vet-card-title">
+                <span class="vet-card-title-icon">📅</span>
+                Upcoming Appointments
+            </div>
+            <a href="{% url 'vet:appointments' %}" class="vet-card-link">
+                View all <span>→</span>
+            </a>
+        </div>
+        <div class="vet-card-body">
+            {% if upcoming_appointments %}
+            <table class="vet-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Pet</th>
+                        <th>Owner</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in upcoming_appointments %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">{{ appointment.date_time|date:"M d, Y" }}</div>
+                            <div style="font-size: 12px; color: var(--vet-text-secondary);">{{ appointment.date_time|time:"g:i A" }}</div>
+                        </td>
+                        <td>
+                            <div class="pet-info">
+                                <div class="pet-avatar">
+                                    {% if appointment.pet.species == 'dog' %}🐕{% elif appointment.pet.species == 'cat' %}🐈{% else %}🐾{% endif %}
+                                </div>
+                                <div>
+                                    <div class="pet-name">{{ appointment.pet.name }}</div>
+                                    <div class="pet-species">{{ appointment.pet.species|title }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ appointment.pet.owner.full_name }}</td>
+                        <td>{{ appointment.reason|truncatewords:5 }}</td>
+                        <td>
+                            <span class="status-pill {{ appointment.status }}">
+                                {% if appointment.status == 'scheduled' %}
+                                    ⏰ Scheduled
+                                {% elif appointment.status == 'completed' %}
+                                    ✓ Completed
+                                {% elif appointment.status == 'cancelled' %}
+                                    ✕ Cancelled
+                                {% elif appointment.status == 'pending' %}
+                                    ⏳ Pending
+                                {% else %}
+                                    {{ appointment.status|title }}
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="vet-empty-state">
+                <div class="vet-empty-icon">📭</div>
+                <div class="vet-empty-title">No upcoming appointments</div>
+                <p>All caught up! New appointments will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Notifications Card -->
+    <div class="vet-card">
+        <div class="vet-card-header">
+            <div class="vet-card-title">
+                <span class="vet-card-title-icon">🔔</span>
+                Recent Notifications
+            </div>
+            <a href="{% url 'vet:notifications' %}" class="vet-card-link">
+                View all <span>→</span>
+            </a>
+        </div>
+        <div class="vet-card-body notification-list">
+            {% if notifications %}
+                {% for notification in notifications %}
+                <div class="notification-item">
+                    <div class="notification-icon">
+                        {% if 'appointment' in notification.title|lower %}📅{% elif 'new' in notification.title|lower %}🆕{% else %}📬{% endif %}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">{{ notification.title }}</div>
+                        <div class="notification-message">{{ notification.message|truncatewords:15 }}</div>
+                        <div class="notification-time">{{ notification.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="vet-empty-state">
+                <div class="vet-empty-icon">🔕</div>
+                <div class="vet-empty-title">No notifications</div>
+                <p>You're all caught up!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Simple update checker - just prints to console
-  function checkForUpdates() {
-    console.log('Checking for new notifications...');
-    // This is just for demonstration purposes
-  }
-  
-  // Check every 30 seconds
-  setInterval(checkForUpdates, 30000);
+    // Auto-refresh notifications periodically
+    function checkForUpdates() {
+        console.log('Checking for new notifications...');
+    }
+    setInterval(checkForUpdates, 30000);
 </script>
 {% endblock %}

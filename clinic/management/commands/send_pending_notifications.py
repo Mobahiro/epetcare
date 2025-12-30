@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.core.mail import send_mail
 from clinic.models import Notification
-from clinic.utils.emailing import send_mail_async_safe
 
 class Command(BaseCommand):
     help = "Send email for notifications that haven't been emailed yet"
@@ -37,9 +37,10 @@ class Command(BaseCommand):
             except Exception:
                 html_body = None
             try:
-                send_mail_async_safe(subject, text_body, [to_email], html_message=html_body)
+                send_mail(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to_email], html_message=html_body, fail_silently=False)
                 Notification.objects.filter(pk=notif.pk, emailed=False).update(emailed=True)
                 count += 1
-            except Exception:
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Failed to send to {to_email}: {e}"))
                 continue
         self.stdout.write(self.style.SUCCESS(f"Processed {count} notifications"))

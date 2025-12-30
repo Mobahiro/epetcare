@@ -1,32 +1,182 @@
 {% extends 'clinic/dashboard_base.html' %}
-{% block title %}Owner Details - ePetCare{% endblock %}
-{% block dash_content %}
-<div class="toolbar">
-  <h2>{{ owner.full_name }}</h2>
-  <a class="btn" href="{% url 'owner_list' %}">← Back</a>
-</div>
-<p class="muted"><strong>Email:</strong> {{ owner.email|default:'-' }} &nbsp; <strong>Phone:</strong> {{ owner.phone|default:'-' }}</p>
-<p><strong>Address:</strong><br>{{ owner.address|linebreaksbr }}</p>
+{% load static %}
+{% block title %}{{ owner.full_name }} - ePetCare{% endblock %}
 
-<div class="toolbar" style="margin-top:16px;">
-  <h3>Pets</h3>
-  <a class="btn" href="{% url 'pet_create' %}?owner={{ owner.id }}">+ Add Pet</a>
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .info-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .info-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--owner-text-secondary, #8B7355);
+  }
+  .info-value {
+    font-size: 15px;
+    color: var(--owner-text, #573D1C);
+    font-weight: 500;
+  }
+  .info-address {
+    grid-column: span 2;
+  }
+  .main-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--owner-border, #e8e4df);
+  }
+  .card-head h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin: 0;
+  }
+  .pets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    padding: 20px;
+  }
+  .pet-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 12px;
+    padding: 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .pet-card:hover {
+    border-color: var(--owner-primary, #d48b3e);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .pet-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--owner-primary, #d48b3e), var(--owner-primary-light, #FFBD59));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .pet-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--owner-text, #573D1C);
+    margin-bottom: 2px;
+  }
+  .pet-species {
+    font-size: 13px;
+    color: var(--owner-text-secondary, #8B7355);
+  }
+  .btn-add {
+    background: var(--owner-primary, #d48b3e);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+  .btn-add:hover {
+    background: var(--owner-text, #573D1C);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--owner-text-secondary, #8B7355);
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">{{ owner.full_name }}</h1>
+      <a class="btn btn-secondary" href="{% url 'owner_list' %}">← Back to Owners</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Pet owner details and registered pets.</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- Owner Info Card -->
+<div class="info-card">
+  <div class="info-grid">
+    <div class="info-item">
+      <span class="info-label">Email</span>
+      <span class="info-value">{{ owner.email|default:'—' }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Phone</span>
+      <span class="info-value">{{ owner.phone|default:'—' }}</span>
+    </div>
+    <div class="info-item info-address">
+      <span class="info-label">Address</span>
+      <span class="info-value">{{ owner.address|default:'—'|linebreaksbr }}</span>
+    </div>
+  </div>
 </div>
-<table>
-  <thead>
-    <tr><th>Name</th><th>Species</th><th>Breed</th></tr>
-  </thead>
-  <tbody>
+
+<!-- Pets Card -->
+<div class="main-card">
+  <div class="card-head">
+    <h2>🐾 Pets</h2>
+    <a class="btn-add" href="{% url 'pet_create' %}?owner={{ owner.id }}">+ Add Pet</a>
+  </div>
+  
+  <div class="pets-grid">
     {% for pet in pets %}
-      <tr>
-        <td><a href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a></td>
-        <td>{{ pet.get_species_display }}</td>
-        <td>{{ pet.breed|default:'-' }}</td>
-      </tr>
+      <a class="pet-card" href="{% url 'pet_detail' pet.pk %}">
+        <div class="pet-avatar">{{ pet.name|slice:":1"|upper }}</div>
+        <div>
+          <div class="pet-name">{{ pet.name }}</div>
+          <div class="pet-species">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+        </div>
+      </a>
     {% empty %}
-      <tr><td colspan="3">No pets yet.</td></tr>
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        No pets registered yet.
+      </div>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
+</div>
 {% endblock %}
 

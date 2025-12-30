@@ -162,8 +162,10 @@ class DashboardView(QWidget):
         self.load_recent_patients()
 
     def load_appointments(self):
-        """Load today's appointments"""
-        appointments = self.appointment_data_access.get_upcoming(days=1)
+        """Load today's appointments (filtered by vet's branch)"""
+        # Get appointments only for the vet's branch
+        vet_branch = getattr(self.veterinarian, 'branch', None)
+        appointments = self.appointment_data_access.get_upcoming(days=1, branch=vet_branch)
 
         self.appointments_table.setRowCount(0)
 
@@ -215,10 +217,12 @@ class DashboardView(QWidget):
             self.appointments_table.setItem(0, 0, no_appt_item)
 
     def load_recent_patients(self):
-        """Load recent patients"""
+        """Load recent patients (filtered by vet's branch)"""
         # This is a simplified implementation
         # In a real app, you would query for recent visits
-        pets = self.pet_data_access.search("", limit=10)
+        # Get patients only for the vet's branch
+        vet_branch = getattr(self.veterinarian, 'branch', None)
+        pets = self.pet_data_access.search("", limit=10, branch=vet_branch)
 
         self.patients_table.setRowCount(0)
 

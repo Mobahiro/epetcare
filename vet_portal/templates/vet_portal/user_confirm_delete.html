@@ -1,26 +1,108 @@
-{% extends 'vet_portal/base.html' %}
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Delete User - ePetCare Vet Portal{% endblock %}
 
-{% block content %}
-<div class="toolbar">
-  <h2>Delete User</h2>
-  <a class="btn btn-secondary" href="{% url 'vet_portal:user_detail' user.pk %}">← Cancel</a>
-</div>
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .confirm-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 48px 0;
+  }
+  .confirm-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+    max-width: 480px;
+    width: 100%;
+  }
+  .confirm-header {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #fff;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .confirm-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .confirm-body {
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .confirm-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+  }
+  .confirm-message {
+    font-size: 15px;
+    color: var(--vet-text-secondary, #6b6b6b);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .confirm-message strong {
+    color: var(--vet-text, #3d3d3d);
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+</style>
+{% endblock %}
 
-<div class="card" style="max-width: 500px; margin: 20px auto;">
-  <h3 style="color: var(--bad);">Are you sure you want to delete?</h3>
-  <p>You are about to delete the user: <strong>{{ user.username }}</strong></p>
-  <p>This action cannot be undone. All data associated with this user will be permanently removed.</p>
-  
-  <form method="post" style="margin-top: 20px;">
-    {% csrf_token %}
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <a href="{% url 'vet_portal:user_detail' user.pk %}" class="btn btn-secondary">Cancel</a>
-      <button type="submit" class="btn" style="background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">
-        Delete User
-      </button>
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Delete User</h1>
+      <a href="{% url 'vet_portal:user_detail' user.pk %}" class="btn btn-secondary">← Cancel</a>
     </div>
-  </form>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="confirm-wrapper">
+  <div class="confirm-card">
+    <div class="confirm-header">
+      <h2>⚠️ Confirm Deletion</h2>
+    </div>
+    <div class="confirm-body">
+      <div class="confirm-icon">🗑️</div>
+      <div class="confirm-message">
+        <p>You are about to delete the user:</p>
+        <p style="font-size: 18px; font-weight: 600; color: #dc2626; margin: 12px 0;">{{ user.username }}</p>
+        <p>This action <strong>cannot be undone</strong>. All data associated with this user will be permanently removed.</p>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="confirm-actions">
+          <a href="{% url 'vet_portal:user_detail' user.pk %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn-danger">🗑️ Delete User</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

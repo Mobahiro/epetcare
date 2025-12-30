@@ -26,4 +26,6 @@ urlpatterns = [
     # Media check
     path('media/check/', views.media_check, name='media-check'),
     path('media/upload/', views.media_upload, name='media-upload'),
+    # Email sending (for desktop app OTP)
+    path('send-otp-email/', views.send_otp_email, name='send-otp-email'),
 ]

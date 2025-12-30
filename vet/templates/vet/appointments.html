@@ -1,57 +1,305 @@
 {% extends 'vet/base.html' %}
+{% load static %}
 {% block title %}Appointments - Veterinarian Portal{% endblock %}
+
+{% block head_extra %}
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, rgba(203, 153, 126, 0.15), rgba(107, 112, 92, 0.08));
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    border: 1px solid var(--vet-border, #e8e4df);
+  }
+  .page-hero h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--vet-text, #3a3632);
+    margin: 0 0 8px 0;
+  }
+  .page-hero p {
+    font-size: 14px;
+    color: var(--vet-text-secondary, #6b6560);
+    margin: 0;
+  }
+  .summary-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .tile {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--vet-border, #e8e4df);
+  }
+  .tile-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .tile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(203, 153, 126, 0.2), rgba(107, 112, 92, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .tile-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--vet-text, #3a3632);
+  }
+  .tile-sub {
+    font-size: 12px;
+    color: var(--vet-text-secondary, #6b6560);
+  }
+  .tile-metric {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--vet-text, #3a3632);
+  }
+  .filter-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-bar label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vet-text-secondary, #6b6560);
+  }
+  .filter-bar select {
+    padding: 8px 12px;
+    border: 1px solid var(--vet-border, #e8e4df);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+  }
+  .main-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--vet-border, #e8e4df);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--vet-border, #e8e4df);
+  }
+  .card-head h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vet-text, #3a3632);
+    margin: 0;
+  }
+  .modern-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .modern-table th {
+    text-align: left;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--vet-text-secondary, #6b6560);
+    background: var(--vet-bg, #faf8f5);
+    border-bottom: 1px solid var(--vet-border, #e8e4df);
+  }
+  .modern-table td {
+    padding: 16px 20px;
+    font-size: 14px;
+    color: var(--vet-text, #3a3632);
+    border-bottom: 1px solid var(--vet-border, #e8e4df);
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:hover {
+    background: var(--vet-surface-hover, #f8f6f3);
+  }
+  .modern-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge.scheduled {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+  .badge.completed {
+    background: #dcfce7;
+    color: #15803d;
+  }
+  .badge.cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  .pet-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pet-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--vet-accent, #cb997e), var(--vet-accent-light, #ddbea9));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .pet-name {
+    font-weight: 600;
+    color: var(--vet-text, #3a3632);
+  }
+  .pet-species {
+    font-size: 12px;
+    color: var(--vet-text-secondary, #6b6560);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--vet-text-secondary, #6b6560);
+  }
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="toolbar">
-  <h2>Appointments</h2>
-  <div>
-    <select id="statusFilter" style="width:auto; display:inline-block;">
-      <option value="all">All Statuses</option>
-      <option value="scheduled">Scheduled</option>
-      <option value="completed">Completed</option>
-      <option value="cancelled">Cancelled</option>
-    </select>
+<!-- Hero Section -->
+<div class="page-hero">
+  <h1>Appointments</h1>
+  <p>View and manage all scheduled appointments with pet owners.</p>
+</div>
+
+<!-- Summary Tiles -->
+<div class="summary-tiles">
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">📅</div>
+      <div class="tile-text">
+        <div class="tile-title">Today</div>
+        <div class="tile-sub">Appointments</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ today_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">⏳</div>
+      <div class="tile-text">
+        <div class="tile-title">Scheduled</div>
+        <div class="tile-sub">Upcoming</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ scheduled_count|default:"0" }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-head">
+      <div class="tile-icon">✓</div>
+      <div class="tile-text">
+        <div class="tile-title">Completed</div>
+        <div class="tile-sub">This month</div>
+      </div>
+    </div>
+    <div class="tile-metric">{{ completed_count|default:"0" }}</div>
   </div>
 </div>
 
-<table id="appointmentsTable">
-  <thead>
-    <tr>
-      <th>Date & Time</th>
-      <th>Pet</th>
-      <th>Owner</th>
-      <th>Reason</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for appointment in appointments %}
-      <tr class="appointment-row" data-status="{{ appointment.status }}">
-        <td>{{ appointment.date_time }}</td>
-        <td>{{ appointment.pet.name }}</td>
-        <td>{{ appointment.pet.owner.full_name }}</td>
-        <td>{{ appointment.reason }}</td>
-        <td>
-          {% if appointment.status == 'scheduled' %}
-            <span class="badge scheduled">Scheduled</span>
-          {% elif appointment.status == 'completed' %}
-            <span class="badge completed">Completed</span>
-          {% elif appointment.status == 'cancelled' %}
-            <span class="badge cancelled">Cancelled</span>
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <label>Filter by Status:</label>
+  <select id="statusFilter">
+    <option value="all">All Statuses</option>
+    <option value="scheduled">Scheduled</option>
+    <option value="completed">Completed</option>
+    <option value="cancelled">Cancelled</option>
+  </select>
+</div>
+
+<!-- Appointments Table -->
+<div class="main-card">
+  <div class="card-head">
+    <h2>All Appointments</h2>
+  </div>
+  
+  <table class="modern-table" id="appointmentsTable">
+    <thead>
       <tr>
-        <td colspan="5">No appointments found.</td>
+        <th>Date & Time</th>
+        <th>Pet</th>
+        <th>Owner</th>
+        <th>Reason</th>
+        <th>Status</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for appointment in appointments %}
+        <tr class="appointment-row" data-status="{{ appointment.status }}">
+          <td>
+            <div style="font-weight: 600;">{{ appointment.date_time|date:"M d, Y" }}</div>
+            <div style="font-size: 12px; color: var(--vet-text-secondary);">{{ appointment.date_time|date:"H:i" }}</div>
+          </td>
+          <td>
+            <div class="pet-info">
+              <div class="pet-avatar">{{ appointment.pet.name|slice:":1"|upper }}</div>
+              <div>
+                <div class="pet-name">{{ appointment.pet.name }}</div>
+                <div class="pet-species">{{ appointment.pet.get_species_display }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ appointment.pet.owner.full_name }}</td>
+          <td>{{ appointment.reason }}</td>
+          <td>
+            {% if appointment.status == 'scheduled' %}
+              <span class="badge scheduled">Scheduled</span>
+            {% elif appointment.status == 'completed' %}
+              <span class="badge completed">Completed</span>
+            {% elif appointment.status == 'cancelled' %}
+              <span class="badge cancelled">Cancelled</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              <div class="empty-state-icon">📅</div>
+              <div>No appointments found.</div>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Simple filter functionality
   document.addEventListener('DOMContentLoaded', function() {
     const statusFilter = document.getElementById('statusFilter');
     const appointmentRows = document.querySelectorAll('.appointment-row');
@@ -69,15 +317,6 @@
         }
       });
     });
-    
-    // Check for new appointments every 30 seconds
-    function checkForNewAppointments() {
-      // In a real implementation, this would make an AJAX call to an API endpoint
-      console.log('Checking for new appointments...');
-    }
-    
-    // Start the update check loop
-    setInterval(checkForNewAppointments, 30000);
   });
 </script>
 {% endblock %}

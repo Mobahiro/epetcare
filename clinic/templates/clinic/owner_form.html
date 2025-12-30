@@ -1,18 +1,158 @@
 {% extends 'clinic/dashboard_base.html' %}
-{% block title %}New Owner - ePetCare{% endblock %}
+{% load static %}
+{% block title %}{% if form.instance.pk %}Edit Owner{% else %}New Owner{% endif %} - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .form-card {
+    background: var(--owner-surface, #fff);
+    border-radius: 16px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    max-width: 580px;
+    margin: 0 auto;
+  }
+  .form-card-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--owner-border, #e8e4df);
+  }
+  .form-card-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin: 0 0 4px 0;
+  }
+  .form-card-header p {
+    font-size: 14px;
+    color: var(--owner-text-secondary, #8B7355);
+    margin: 0;
+  }
+  .form-card-body {
+    padding: 28px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--owner-text, #573D1C);
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--owner-primary, #d48b3e);
+    box-shadow: 0 0 0 3px rgba(212, 139, 62, 0.1);
+  }
+  .form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid var(--owner-border, #e8e4df);
+    background: var(--owner-bg, #FFF5E9);
+    border-radius: 0 0 16px 16px;
+  }
+  .btn-save {
+    background: var(--owner-primary, #d48b3e);
+    color: #fff;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover {
+    background: var(--owner-text, #573D1C);
+  }
+  .btn-cancel {
+    background: transparent;
+    color: var(--owner-text-secondary, #8B7355);
+    padding: 10px 24px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover {
+    background: var(--owner-surface, #fff);
+    border-color: var(--owner-text-secondary);
+  }
+</style>
+{% endblock %}
+
 {% block dash_content %}
-<div class="toolbar">
-  <h2>New Owner</h2>
-  <a class="btn" href="{% url 'owner_list' %}">← Back</a>
-</div>
-<form method="post">
-  {% csrf_token %}
-  <div class="field">{{ form.full_name.label_tag }}{{ form.full_name }}</div>
-  <div class="field">{{ form.email.label_tag }}{{ form.email }}</div>
-  <div class="field">{{ form.phone.label_tag }}{{ form.phone }}</div>
-  <div class="field">{{ form.address.label_tag }}{{ form.address }}</div>
-  <button class="btn" type="submit">Save</button>
-  <a class="btn" href="{% url 'owner_list' %}" style="background:#3f4857;">Cancel</a>
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">{% if form.instance.pk %}Edit Owner{% else %}Register New Owner{% endif %}</h1>
+      <a class="btn btn-secondary" href="{% url 'owner_list' %}">← Back to Owners</a>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{% if form.instance.pk %}Update owner information.{% else %}Add a new pet owner to the system.{% endif %}</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="form-card">
+  <div class="form-card-header">
+    <h2>👤 Owner Information</h2>
+    <p>Fill in the contact details below.</p>
+  </div>
+  
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-card-body">
+      <div class="form-group">
+        <label for="{{ form.full_name.id_for_label }}">Full Name *</label>
+        {{ form.full_name }}
+      </div>
+      
+      <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email Address</label>
+        {{ form.email }}
+      </div>
+      
+      <div class="form-group">
+        <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+        {{ form.phone }}
+      </div>
+      
+      <div class="form-group">
+        <label for="{{ form.address.id_for_label }}">Address</label>
+        {{ form.address }}
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn-save" type="submit">{% if form.instance.pk %}Save Changes{% else %}Register Owner{% endif %}</button>
+      <a class="btn-cancel" href="{% url 'owner_list' %}">Cancel</a>
+    </div>
   </form>
+</div>
 {% endblock %}
 

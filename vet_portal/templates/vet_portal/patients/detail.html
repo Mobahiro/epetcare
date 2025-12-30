@@ -1,90 +1,299 @@
-{% extends 'vet_portal/base.html' %}
-{% block title %}{{ patient.name }}{% endblock %}
-{% block content %}
-<div class="container">
-  <div class="row mb-3">
-    <div class="col-md-3">
-      {% if patient.image_url or patient.image %}
-        <div class="pet-detail-image-container mb-3">
-          <img src="{{ patient.image_url|default:patient.image.url }}" alt="{{ patient.name }}" class="img-fluid rounded">
-        </div>
-      {% else %}
-        <div class="pet-detail-image-placeholder mb-3 d-flex justify-content-center align-items-center bg-light rounded" style="height: 200px;">
-          <i class="fas fa-paw fa-3x text-secondary"></i>
-        </div>
-      {% endif %}
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+{% block title %}{{ patient.name }} - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .patient-header {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .patient-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--vet-bg, #f8f7f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--vet-border, #e5e1dc);
+  }
+  .patient-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .patient-photo-placeholder {
+    font-size: 48px;
+    color: var(--vet-primary, #6b705c);
+  }
+  .patient-info {
+    flex: 1;
+  }
+  .patient-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--vet-text, #3d3d3d);
+    margin: 0 0 8px 0;
+  }
+  .patient-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .patient-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .patient-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .detail-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .detail-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 14px 20px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .detail-card-body {
+    padding: 0;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .data-table th {
+    background: var(--vet-bg, #f8f7f5);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vet-text-secondary, #6b6b6b);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+    font-size: 14px;
+    color: var(--vet-text, #3d3d3d);
+  }
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+  .data-table tr:hover {
+    background: var(--vet-bg, #f8f7f5);
+  }
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--vet-text-secondary, #6b6b6b);
+  }
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+  .grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 900px) {
+    .grid-2col {
+      grid-template-columns: 1fr;
+    }
+    .patient-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .patient-meta {
+      justify-content: center;
+    }
+    .patient-actions {
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Patient Details</h1>
+      <a href="{% url 'vet_portal:patient_list' %}" class="btn btn-secondary">← Back to Patients</a>
     </div>
-    <div class="col-md-9">
-      <h2 class="mb-1">{{ patient.name }}</h2>
-      <p class="text-muted">Owner: {{ patient.owner.full_name }}</p>
-      <p>Species: {{ patient.get_species_display }}</p>
-      <p>Breed: {{ patient.breed }}</p>
-      <p>Sex: {{ patient.get_sex_display }}</p>
-      {% if patient.birth_date %}
-        <p>Birth Date: {{ patient.birth_date }}</p>
-      {% endif %}
-      {% if patient.weight_kg %}
-        <p>Weight: {{ patient.weight_kg }} kg</p>
-      {% endif %}
-      <div class="d-flex gap-2 mb-3">
-        <a class="btn btn-primary" href="{% url 'vet_portal:medical_record_create' patient.id %}">Add Medical Record</a>
-        <a class="btn btn-secondary" href="{% url 'vet_portal:prescription_create' patient.id %}">Add Prescription</a>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="patient-header">
+  <div class="patient-photo">
+    {% if patient.image_url or patient.image %}
+      <img src="{{ patient.image_url|default:patient.image.url }}" alt="{{ patient.name }}">
+    {% else %}
+      <span class="patient-photo-placeholder">🐾</span>
+    {% endif %}
+  </div>
+  <div class="patient-info">
+    <h2 class="patient-name">{{ patient.name }}</h2>
+    <div class="patient-meta">
+      <span class="patient-meta-item">👤 {{ patient.owner.full_name }}</span>
+      <span class="patient-meta-item">🐾 {{ patient.get_species_display }}</span>
+      {% if patient.breed %}<span class="patient-meta-item">{{ patient.breed }}</span>{% endif %}
+      <span class="patient-meta-item">{{ patient.get_sex_display }}</span>
+      {% if patient.weight_kg %}<span class="patient-meta-item">⚖️ {{ patient.weight_kg }} kg</span>{% endif %}
+      {% if patient.birth_date %}<span class="patient-meta-item">🎂 {{ patient.birth_date }}</span>{% endif %}
+    </div>
+    <div class="patient-actions">
+      <a href="{% url 'vet_portal:medical_record_create' patient.id %}" class="btn btn-primary">+ Medical Record</a>
+      <a href="{% url 'vet_portal:prescription_create' patient.id %}" class="btn btn-secondary">+ Prescription</a>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2col">
+  <!-- Medical Records -->
+  <div class="detail-card">
+    <div class="detail-card-header">
+      📋 Medical Records
+      <a href="{% url 'vet_portal:medical_record_create' patient.id %}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: #fff; padding: 6px 12px; border-radius: 6px;">+ Add</a>
+    </div>
+    <div class="detail-card-body">
+      {% if medical_records %}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Condition</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in medical_records %}
+          <tr>
+            <td>{{ r.visit_date|date:"M d, Y" }}</td>
+            <td>{{ r.condition|truncatewords:8 }}</td>
+            <td>
+              <a href="{% url 'vet_portal:medical_record_detail' r.id %}" class="btn btn-sm btn-primary">View</a>
+              <a href="{% url 'vet_portal:medical_record_update' r.id %}" class="btn btn-sm btn-secondary">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>No medical records yet</p>
       </div>
+      {% endif %}
     </div>
   </div>
 
-  <div class="row g-3">
-    <div class="col-12 col-lg-6">
-      <div class="card p-3">
-        <h3 class="h5 mb-3">Medical Records</h3>
-        <table class="table table-striped">
-          <thead>
-            <tr><th>Date</th><th>Condition</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-          {% for r in medical_records %}
-            <tr>
-              <td>{{ r.visit_date }}</td>
-              <td>{{ r.condition }}</td>
-              <td>
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:medical_record_update' r.id %}">Edit</a>
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:medical_record_delete' r.id %}">Delete</a>
-              </td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="3" class="text-muted">No records yet.</td></tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  <!-- Prescriptions -->
+  <div class="detail-card">
+    <div class="detail-card-header">
+      💊 Prescriptions
+      <a href="{% url 'vet_portal:prescription_create' patient.id %}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: #fff; padding: 6px 12px; border-radius: 6px;">+ Add</a>
     </div>
-
-    <div class="col-12 col-lg-6">
-      <div class="card p-3">
-        <h3 class="h5 mb-3">Prescriptions</h3>
-        <table class="table table-striped">
-          <thead>
-            <tr><th>Date</th><th>Medication</th><th>Dosage</th><th>Active</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
+    <div class="detail-card-body">
+      {% if prescriptions %}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Medication</th>
+            <th>Dosage</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
           {% for rx in prescriptions %}
-            <tr>
-              <td>{{ rx.date_prescribed }}</td>
-              <td>{{ rx.medication_name }}</td>
-              <td>{{ rx.dosage }}</td>
-              <td>{{ rx.is_active|yesno:"Yes,No" }}</td>
-              <td>
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:prescription_update' rx.id %}">Edit</a>
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'vet_portal:prescription_delete' rx.id %}">Delete</a>
-              </td>
-            </tr>
-          {% empty %}
-            <tr><td colspan="5" class="text-muted">No prescriptions yet.</td></tr>
+          <tr>
+            <td>{{ rx.date_prescribed|date:"M d, Y" }}</td>
+            <td><strong>{{ rx.medication_name }}</strong></td>
+            <td>{{ rx.dosage }}</td>
+            <td>
+              <a href="{% url 'vet_portal:prescription_update' rx.id %}" class="btn btn-sm btn-primary">Edit</a>
+            </td>
+          </tr>
           {% endfor %}
-          </tbody>
-        </table>
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">💊</div>
+        <p>No prescriptions yet</p>
       </div>
+      {% endif %}
     </div>
+  </div>
+</div>
+
+<!-- Appointments -->
+<div class="detail-card">
+  <div class="detail-card-header">
+    📅 Appointments
+  </div>
+  <div class="detail-card-body">
+    {% if appointments %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in appointments %}
+        <tr>
+          <td>{{ a.date_time|date:"M d, Y g:i A" }}</td>
+          <td>{{ a.reason|truncatewords:10 }}</td>
+          <td>
+            <span class="badge {% if a.status == 'scheduled' %}badge-primary{% elif a.status == 'completed' %}badge-success{% else %}badge-danger{% endif %}">
+              {{ a.status }}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'vet_portal:appointment_detail' a.id %}" class="btn btn-sm btn-primary">View</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <p>No appointments yet</p>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

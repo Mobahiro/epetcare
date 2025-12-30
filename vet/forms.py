@@ -1,11 +1,32 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import Veterinarian
+import secrets
+import string
+
+# Secret registration key (only vets should know this)
+VET_REGISTRATION_KEY = "VETACCESS2025"
 
 
 class VetRegisterForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    email = forms.EmailField()
+    registration_key = forms.CharField(
+        max_length=50,
+        label="Veterinarian Registration Key",
+        widget=forms.TextInput(attrs={'placeholder': 'Enter the secret registration key'}),
+        help_text="Contact the administrator if you don't have the registration key"
+    )
+    username = forms.CharField(max_length=150, label="Username")
+    email = forms.CharField(
+        max_length=254,
+        label="Email",
+        widget=forms.TextInput(attrs={'placeholder': 'yourname_REMBO@vet'}),
+        help_text="Use format: yourname_REMBO@vet to register as veterinarian"
+    )
+    personal_email = forms.EmailField(
+        label="Personal Email (Gmail, Yahoo, etc.)",
+        help_text="Your access code will be sent to this real email address",
+        required=False
+    )
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput)
     full_name = forms.CharField(max_length=120)
@@ -18,18 +39,60 @@ class VetRegisterForm(forms.Form):
         label="I agree to the Terms & Privacy Notice",
         error_messages={'required': 'You must accept the Terms & Privacy Notice to register.'}
     )
+    
+    def clean_registration_key(self):
+        key = self.cleaned_data.get("registration_key", "")
+        if key != VET_REGISTRATION_KEY:
+            raise forms.ValidationError(
+                "Invalid registration key. Only authorized veterinarians can register. "
+                "Please contact the administrator."
+            )
+        return key
 
     def clean_username(self):
         username = self.cleaned_data.get("username", "").lower()
+        
+        # Check if username already exists
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("Username already exists")
+        
         return username
-
+    
     def clean_email(self):
-        email = self.cleaned_data.get("email", "")
+        email = self.cleaned_data.get("email", "").lower()
+        
+        # Check if it has the vet keyword: _REMBO@vet
+        if "_rembo@vet" not in email:
+            raise forms.ValidationError(
+                "Email must contain '_REMBO@vet' to register as veterinarian. "
+                "Example: kiyo_REMBO@vet"
+            )
+        
+        # Check if this vet email is already used
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Email already exists")
+            raise forms.ValidationError("This email is already registered")
+        
         return email
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+        email = cleaned_data.get("email", "")
+        personal_email = cleaned_data.get("personal_email", "")
+
+        if password1 and password2 and password1 != password2:
+            self.add_error("password2", "Passwords do not match")
+        
+        # If email contains _REMBO@vet, personal email is required
+        if "_rembo@vet" in email.lower() and not personal_email:
+            self.add_error("personal_email", "Personal email is required for veterinarian registration to send your access code")
+        
+        # Check if personal email is already used by another vet
+        if personal_email and Veterinarian.objects.filter(personal_email=personal_email).exists():
+            self.add_error("personal_email", "This personal email is already registered")
+
+        return cleaned_data
 
     def clean(self):
         cleaned_data = super().clean()
@@ -41,9 +104,22 @@ class VetRegisterForm(forms.Form):
 
         return cleaned_data
 
+    def generate_access_code(self):
+        """Generate a unique 8-character access code"""
+        while True:
+            # Generate code: 3 letters + 5 digits (e.g., ABC12345)
+            letters = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(3))
+            digits = ''.join(secrets.choice(string.digits) for _ in range(5))
+            code = f"{letters}{digits}"
+            
+            # Ensure it's unique
+            if not Veterinarian.objects.filter(access_code=code).exists():
+                return code
+    
     def create_user_and_vet(self):
         username = self.cleaned_data["username"].lower()
-        email = self.cleaned_data["email"]
+        email = self.cleaned_data["email"].lower()  # kiyo_REMBO@vet
+        personal_email = self.cleaned_data["personal_email"]  # real Gmail
         password = self.cleaned_data["password1"]
         full_name = self.cleaned_data["full_name"]
         specialization = self.cleaned_data.get("specialization", "")
@@ -51,11 +127,15 @@ class VetRegisterForm(forms.Form):
         phone = self.cleaned_data.get("phone", "")
         bio = self.cleaned_data.get("bio", "")
 
+        # Create user with the vet email (kiyo_REMBO@vet)
         user = User.objects.create_user(
             username=username,
-            email=email,
+            email=email,  # Use the _REMBO@vet email
             password=password
         )
+
+        # Generate unique access code
+        access_code = self.generate_access_code()
 
         vet = Veterinarian.objects.create(
             user=user,
@@ -63,7 +143,9 @@ class VetRegisterForm(forms.Form):
             specialization=specialization,
             license_number=license_number,
             phone=phone,
-            bio=bio
+            bio=bio,
+            access_code=access_code,
+            personal_email=personal_email  # Real email for sending access code
         )
 
-        return user, vet
+        return user, vet, access_code

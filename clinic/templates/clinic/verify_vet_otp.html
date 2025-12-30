@@ -1,0 +1,82 @@
+{% extends 'clinic/base_auth.html' %}
+{% block title %}Verify Email - ePetCare{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-split">
+    <aside class="auth-hero" aria-hidden="true">
+      <div class="hero-media">
+        {% load static %}
+        <img src="{% static 'clinic/images/picture2.jpeg' %}" alt="Pets illustration" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">Verify your email to complete registration</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </aside>
+    <div class="auth-panel">
+      <div class="auth-container">
+        <div class="auth-header">
+          <h1 class="auth-title">Email Verification</h1>
+          <div class="auth-alt-action">Veterinarian Registration - Step 2 of 2</div>
+        </div>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="auth-alert auth-alert-{% if message.tags == 'error' %}error{% else %}info{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="auth-alert auth-alert-info" style="margin-bottom: 20px;">
+          <strong>📧 Check Your Email!</strong><br>
+          We've sent a 6-digit verification code to:<br>
+          <strong>{{ personal_email }}</strong><br>
+          <small style="margin-top: 8px; display: block;">The code will expire in 10 minutes.</small>
+        </div>
+
+        <form method="post" class="auth-form">
+          {% csrf_token %}
+          <input type="hidden" name="verify_otp" value="1">
+          
+          <div class="auth-field">
+            <label for="id_otp_code">Verification Code</label>
+            <input 
+              type="text" 
+              name="otp_code" 
+              id="id_otp_code" 
+              class="auth-input" 
+              placeholder="Enter 6-digit code" 
+              maxlength="6" 
+              pattern="[0-9]{6}"
+              required 
+              autocomplete="off"
+              style="font-size: 24px; text-align: center; letter-spacing: 8px; font-weight: bold;"
+            >
+            <small class="auth-small" style="color: #6b7280; display: block; margin-top: 0.5rem;">
+              Enter the 6-digit code sent to your email
+            </small>
+          </div>
+
+          <button class="btn auth-submit" type="submit">Verify & Complete Registration</button>
+          
+          <div class="auth-meta" style="text-align: center; margin-top: 16px;">
+            <span class="auth-small">
+              Didn't receive the code? <a href="{% url 'register' %}" class="auth-link">Register again</a>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Auto-focus on OTP input
+document.getElementById('id_otp_code').focus();
+
+// Allow only numbers
+document.getElementById('id_otp_code').addEventListener('input', function(e) {
+  this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

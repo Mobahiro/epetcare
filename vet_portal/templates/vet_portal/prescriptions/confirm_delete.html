@@ -1,15 +1,98 @@
-{% extends 'vet_portal/base.html' %}
-{% block title %}Delete Prescription{% endblock %}
-{% block content %}
-<div class="container">
-  <h2>Delete Prescription</h2>
-  <p>Are you sure you want to delete <strong>{{ prescription.medication_name }}</strong> for <strong>{{ prescription.pet.name }}</strong>?</p>
-  <form method="post">
-    {% csrf_token %}
-    <div class="btn-group">
-      <button class="btn btn-danger" type="submit">Delete</button>
-      <a class="btn btn-secondary" href="{% url 'vet_portal:patient_detail' prescription.pet.id %}">Cancel</a>
-    </div>
-  </form>
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+{% block title %}Delete Prescription - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .confirm-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    max-width: 500px;
+    margin: 40px auto;
+    overflow: hidden;
+    text-align: center;
+  }
+  .confirm-header {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #fff;
+    padding: 24px;
+  }
+  .confirm-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  .confirm-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .confirm-body {
+    padding: 24px;
+  }
+  .confirm-message {
+    font-size: 15px;
+    color: var(--vet-text, #3d3d3d);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  .btn-delete {
+    background: #dc2626;
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-delete:hover {
+    background: #b91c1c;
+  }
+  .btn-cancel {
+    background: transparent;
+    color: var(--vet-text-secondary, #6b6b6b);
+    padding: 12px 24px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover {
+    background: var(--vet-bg, #f8f7f5);
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<div class="confirm-card">
+  <div class="confirm-header">
+    <div class="confirm-icon">⚠️</div>
+    <h1 class="confirm-title">Delete Prescription</h1>
+  </div>
+  <div class="confirm-body">
+    <p class="confirm-message">
+      Are you sure you want to delete the prescription <br>
+      <strong>"{{ prescription.medication_name }}"</strong> for <strong>{{ prescription.pet.name }}</strong>?
+      <br><br>
+      <span style="color: #dc2626;">This action cannot be undone.</span>
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="confirm-actions">
+        <a href="{% url 'vet_portal:patient_detail' prescription.pet.id %}" class="btn-cancel">Cancel</a>
+        <button type="submit" class="btn-delete">🗑️ Delete Prescription</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

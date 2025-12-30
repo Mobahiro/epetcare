@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard - ePetCare Vet Portal{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'clinic/images/epetcare-logo.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'clinic/images/epetcare-logo.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'clinic/styles.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/modern.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/sidebar.css' %}?v={% now "U" %}">
+  <link rel="stylesheet" href="{% static 'clinic/mobile-tables.css' %}?v={% now "U" %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  {% block head_extra %}{% endblock %}
+</head>
+<body style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+<div class="dash-layout">
+  <aside class="dash-sidebar" aria-label="Sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-user">
+        <div class="avatar-sm">{{ request.user.username|slice:':1'|upper }}</div>
+        <div class="user-meta">
+          <div class="user-name">Dr. {{ request.user.vet_profile.full_name }}</div>
+          <div class="user-role">Veterinarian</div>
+        </div>
+      </div>
+      <!-- Branch Indicator -->
+      <div class="branch-indicator" style="margin-top: 12px; padding: 8px 12px; background: rgba(107, 112, 92, 0.15); border-radius: 8px; text-align: center;">
+        <span style="font-size: 12px; color: #6b705c; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+          📍 {{ request.user.vet_profile.get_branch_display }} Branch
+        </span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="side-section">Main</div>
+      <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'vet_portal:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
+        <span class="icon">🏠</span>
+        <span class="text">Dashboard</span>
+      </a>
+      <a class="side-link {% if 'patient' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:patient_list' %}" {% if 'patient' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+        <span class="icon">🐾</span>
+        <span class="text">Patients</span>
+      </a>
+      <a class="side-link {% if 'appointment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:appointment_list' %}" {% if 'appointment' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+        <span class="icon">📅</span>
+        <span class="text">Appointments</span>
+      </a>
+
+      <div class="side-section">Records</div>
+      <a class="side-link {% if 'record' in request.resolver_match.url_name and 'medical' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:medical_record_list' %}" {% if 'record' in request.resolver_match.url_name and 'medical' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+        <span class="icon">📋</span>
+        <span class="text">Medical Records</span>
+      </a>
+      <a class="side-link {% if 'prescription' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:prescription_list' %}" {% if 'prescription' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+        <span class="icon">💊</span>
+        <span class="text">Prescriptions</span>
+      </a>
+
+      <div class="side-section">Management</div>
+      <a class="side-link {% if 'schedule' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:schedule_list' %}" {% if 'schedule' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
+        <span class="icon">🗓️</span>
+        <span class="text">Schedule</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" aria-label="Toggle sidebar" style="display: none;">
+          <span style="font-size: 20px;">☰</span>
+        </button>
+        <form class="topbar-search" role="search" action="#" onsubmit="return false;">
+          <input type="search" placeholder="Search patients..." aria-label="Search" />
+          <button class="search-btn" aria-label="Search">
+            <span style="font-size: 16px;">🔍</span>
+          </button>
+        </form>
+      </div>
+      <div class="topbar-right">
+        <a class="icon-btn notif-btn" href="{% url 'vet_portal:mark_all_notifications_read' %}" title="Notifications">
+          <span style="font-size: 18px;">🔔</span>
+          {% if unread_notifications_count > 0 %}<span class="badge">{{ unread_notifications_count }}</span>{% endif %}
+        </a>
+        <div class="profile-chip">
+          <div class="avatar-sm">{{ request.user.username|slice:':1'|upper }}</div>
+          <div class="chip-text">
+            <div class="chip-name">Dr. {{ request.user.vet_profile.full_name }}</div>
+            <div class="chip-role">Veterinarian</div>
+          </div>
+          <div class="chip-menu">
+            <a href="#">Profile</a>
+            <a href="{% url 'vet_portal:logout' %}">Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="dash-content">
+{% if messages %}
+<div class="messages">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+      {% block dash_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop for mobile sidebar -->
+<div class="sidebar-backdrop" aria-hidden="true"></div>
+
+<script>
+// Sidebar toggle for mobile
+document.querySelector('.sidebar-toggle')?.addEventListener('click', () => {
+  const sidebar = document.querySelector('.dash-sidebar');
+  const backdrop = document.querySelector('.sidebar-backdrop');
+  
+  sidebar?.classList.toggle('open');
+  backdrop?.classList.toggle('show');
+});
+
+// Close sidebar when clicking backdrop
+document.querySelector('.sidebar-backdrop')?.addEventListener('click', () => {
+  document.querySelector('.dash-sidebar')?.classList.remove('open');
+  document.querySelector('.sidebar-backdrop')?.classList.remove('show');
+});
+
+// Close sidebar when clicking a link on mobile
+document.querySelectorAll('.dash-sidebar .side-link').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      document.querySelector('.dash-sidebar')?.classList.remove('open');
+      document.querySelector('.sidebar-backdrop')?.classList.remove('show');
+    }
+  });
+});
+
+// Profile chip menu toggle
+document.querySelector('.profile-chip')?.addEventListener('click', function(e) {
+  e.stopPropagation();
+  this.classList.toggle('show');
+  console.log('Profile chip clicked, show class:', this.classList.contains('show'));
+});
+
+// Close profile menu when clicking outside
+document.addEventListener('click', function(e) {
+  const chip = document.querySelector('.profile-chip');
+  if (chip && !chip.contains(e.target)) {
+    chip.classList.remove('show');
+  }
+});
+
+// Prevent profile menu links from closing the menu immediately
+document.querySelectorAll('.chip-menu a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -38,6 +38,12 @@ def _send(subject: str, message: str, recipient_list: List[str], from_email: Opt
                         used_http = _send_via_resend(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
                     else:
                         logger.error('RESEND_API_KEY missing while EMAIL_HTTP_PROVIDER=resend')
+                elif provider == 'brevo':
+                    api_key = os.environ.get('BREVO_API_KEY', '').strip()
+                    if api_key:
+                        used_http = _send_via_brevo(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
+                    else:
+                        logger.error('BREVO_API_KEY missing while EMAIL_HTTP_PROVIDER=brevo')
             except Exception as e:
                 logger.error('HTTP email provider send failed: %s', e)
 
@@ -103,6 +109,12 @@ def send_mail_http(subject: str, message: str, recipient_list: List[str], from_e
                 logger.error('RESEND_API_KEY missing; cannot send via Resend')
                 return False
             return _send_via_resend(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
+        elif provider == 'brevo':
+            api_key = os.environ.get('BREVO_API_KEY', '').strip()
+            if not api_key:
+                logger.error('BREVO_API_KEY missing; cannot send via Brevo')
+                return False
+            return _send_via_brevo(api_key, subject, message, recipient_list, from_addr, html_message=html_message)
         else:
             logger.error('Unknown EMAIL_HTTP_PROVIDER=%s', provider)
             return False
@@ -170,4 +182,43 @@ def _send_via_resend(api_key: str, subject: str, message: str, recipient_list: L
     if 200 <= resp.status_code < 300:
         return True
     logger.error('Resend error %s: %s', resp.status_code, resp.text)
+    return False
+
+
+def _send_via_brevo(api_key: str, subject: str, message: str, recipient_list: List[str], from_email: Optional[str], html_message: Optional[str] = None) -> bool:
+    """Send email via Brevo (formerly Sendinblue) HTTP API."""
+    if requests is None:
+        return False
+    from email.utils import parseaddr
+    url = 'https://api.brevo.com/v3/smtp/email'
+    headers = {
+        'api-key': api_key,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
+    # Parse the from email to get name and address
+    display_name, pure_email = parseaddr(from_email or 'no-reply@example.com')
+    if not display_name:
+        display_name = 'ePetCare'
+    if not pure_email:
+        pure_email = 'no-reply@example.com'
+    
+    data = {
+        'sender': {'name': display_name, 'email': pure_email},
+        'to': [{'email': r} for r in recipient_list],
+        'subject': subject,
+    }
+    
+    if html_message:
+        data['htmlContent'] = html_message
+        if message:
+            data['textContent'] = message
+    else:
+        data['textContent'] = message or subject
+    
+    resp = requests.post(url, json=data, headers=headers, timeout=15)
+    if 200 <= resp.status_code < 300:
+        logger.info('Brevo email sent successfully: messageId=%s', resp.json().get('messageId'))
+        return True
+    logger.error('Brevo error %s: %s', resp.status_code, resp.text)
     return False

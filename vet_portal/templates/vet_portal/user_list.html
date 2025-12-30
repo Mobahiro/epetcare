@@ -1,39 +1,67 @@
-{% extends 'vet_portal/base.html' %}
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}User Management - ePetCare Vet Portal{% endblock %}
 
-{% block content %}
-<div class="toolbar">
-  <h2>User Management</h2>
-  <a class="btn" href="#">+ Add User</a>
-</div>
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% endblock %}
 
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for user in users %}
-      <tr>
-        <td><a href="{% url 'vet_portal:user_detail' user.pk %}">{{ user.username }}</a></td>
-        <td>{{ user.get_full_name|default:'-' }}</td>
-        <td>{{ user.email|default:'-' }}</td>
-        <td>
-          {% if request.user != user %}
-            <a href="{% url 'vet_portal:user_delete' user.pk %}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">Delete</a>
-          {% else %}
-            <span class="muted">(current user)</span>
-          {% endif %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="4">No users found.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">User Management</h1>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">Manage system users</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="main-card">
+  <div class="card-head">
+    <h2>All Users</h2>
+  </div>
+  
+  <div style="padding: 20px;">
+    {% if users %}
+      <div class="table-responsive">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td><a href="{% url 'vet_portal:user_detail' user.pk %}" style="color: var(--vet-primary, #6b705c); font-weight: 600;">{{ user.username }}</a></td>
+                <td>{{ user.get_full_name|default:'-' }}</td>
+                <td>{{ user.email|default:'-' }}</td>
+                <td>
+                  {% if request.user != user %}
+                    <a href="{% url 'vet_portal:user_delete' user.pk %}" class="btn btn-sm" style="background: #dc2626; color: #fff;">Delete</a>
+                  {% else %}
+                    <span style="color: var(--vet-text-secondary, #6b6b6b); font-size: 13px;">(You)</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-message" style="padding: 40px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
+        <p>No users found.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

@@ -39,6 +39,21 @@ class User:
     is_active: bool
     date_joined: datetime
     last_login: Optional[datetime] = None
+    is_superuser: bool = False
+    is_staff: bool = False
+
+
+@dataclass
+class Superadmin:
+    """Superadmin account - separate from veterinarians"""
+    id: int
+    user_id: int
+    full_name: str
+    email: str
+    is_active: bool
+    created_at: datetime
+    last_login: Optional[datetime] = None
+    user: Optional[User] = None
 
 
 @dataclass
@@ -51,6 +66,7 @@ class Veterinarian:
     phone: str
     bio: str
     created_at: datetime
+    branch: str = 'taguig'  # Branch location: taguig, pasig, makati
     user: Optional[User] = None
 
 
@@ -62,6 +78,7 @@ class Owner:
     phone: str
     address: str
     created_at: datetime
+    branch: str = 'taguig'  # Branch location: taguig, pasig, makati
     user_id: Optional[int] = None
     pets: List['Pet'] = None
 

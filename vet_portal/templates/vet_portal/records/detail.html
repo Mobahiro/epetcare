@@ -1,0 +1,206 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Medical Record Details - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .detail-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+  }
+  .detail-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .detail-card-body {
+    padding: 20px;
+  }
+  .detail-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vet-border, #e5e1dc);
+  }
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  .detail-label {
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    width: 140px;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .detail-value {
+    color: var(--vet-text-secondary, #6b6b6b);
+    font-size: 14px;
+    flex: 1;
+  }
+  .pet-link {
+    color: var(--vet-primary, #6b705c);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .pet-link:hover {
+    text-decoration: underline;
+  }
+  .sidebar-card {
+    margin-bottom: 16px;
+  }
+  .quick-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .quick-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .quick-info-label {
+    font-size: 12px;
+    color: var(--vet-text-secondary, #6b6b6b);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .quick-info-value {
+    font-size: 14px;
+    color: var(--vet-text, #3d3d3d);
+    font-weight: 500;
+  }
+  .btn-danger-full {
+    background: #dc2626;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    text-align: center;
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-danger-full:hover {
+    background: #b91c1c;
+    color: #fff;
+  }
+  @media (max-width: 900px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Medical Record Details</h1>
+      <div style="display: flex; gap: 12px;">
+        <a href="{% url 'vet_portal:patient_detail' pet.id %}" class="btn btn-secondary">← Back to Patient</a>
+        <a href="{% url 'vet_portal:medical_record_update' record.id %}" class="btn btn-primary">✏️ Edit</a>
+      </div>
+    </div>
+    <div class="hero-meta-line">
+      <span class="meta-item">{{ record.visit_date|date:"F d, Y" }}</span>
+      <span class="meta-dot">•</span>
+      <span class="meta-item">{{ pet.name }}</span>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="detail-grid">
+  <!-- Main Content -->
+  <div class="detail-main">
+    <div class="detail-card">
+      <div class="detail-card-header">
+        📋 Record Information
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-row">
+          <div class="detail-label">Visit Date</div>
+          <div class="detail-value">{{ record.visit_date|date:"F d, Y" }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Condition</div>
+          <div class="detail-value">{{ record.condition }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Diagnosis</div>
+          <div class="detail-value">{{ record.diagnosis|default:"Not specified"|linebreaks }}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Treatment</div>
+          <div class="detail-value">{{ record.treatment|linebreaks }}</div>
+        </div>
+        {% if record.notes %}
+        <div class="detail-row">
+          <div class="detail-label">Notes</div>
+          <div class="detail-value">{{ record.notes|linebreaks }}</div>
+        </div>
+        {% endif %}
+        {% if record.follow_up_date %}
+        <div class="detail-row">
+          <div class="detail-label">Follow-up</div>
+          <div class="detail-value">{{ record.follow_up_date|date:"F d, Y" }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="detail-sidebar">
+    <div class="detail-card sidebar-card">
+      <div class="detail-card-header">
+        🐾 Pet Information
+      </div>
+      <div class="detail-card-body">
+        <div class="quick-info">
+          <div class="quick-info-item">
+            <span class="quick-info-label">Name</span>
+            <a href="{% url 'vet_portal:patient_detail' pet.id %}" class="pet-link">
+              {{ pet.name }}
+            </a>
+          </div>
+          <div class="quick-info-item">
+            <span class="quick-info-label">Species</span>
+            <span class="quick-info-value">{{ pet.get_species_display }}</span>
+          </div>
+          <div class="quick-info-item">
+            <span class="quick-info-label">Breed</span>
+            <span class="quick-info-value">{{ pet.breed|default:"Not specified" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-header">
+        ⚠️ Danger Zone
+      </div>
+      <div class="detail-card-body">
+        <a href="{% url 'vet_portal:medical_record_delete' record.id %}" class="btn-danger-full">
+          🗑️ Delete Record
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

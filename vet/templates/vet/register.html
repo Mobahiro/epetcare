@@ -6,6 +6,16 @@
   <a class="btn" href="{% url 'vet:login' %}">Login</a>
 </div>
 
+<div class="info-banner" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+  <strong>🔐 Registration Requirements</strong>
+  <p style="margin: 5px 0 0 0; color: #666;">
+    <strong>1.</strong> Enter the secret registration key (contact admin if you don't have it)<br>
+    <strong>2.</strong> Provide your personal email - your unique access code will be sent there<br>
+    <strong>3.</strong> Wait for admin approval<br>
+    <strong>4.</strong> Use your access code + password to login
+  </p>
+</div>
+
 {% if form.non_field_errors %}
 <div class="error-message">
   {% for error in form.non_field_errors %}

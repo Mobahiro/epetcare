@@ -561,3 +561,45 @@ def database_upload(request):
             {'status': 'error', 'message': str(e)},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def send_otp_email(request):
+    """
+    Send OTP email for password reset from desktop app.
+    Public endpoint (no authentication required).
+    """
+    try:
+        to_email = request.data.get('to_email')
+        subject = request.data.get('subject', 'ePetCare OTP')
+        message = request.data.get('message', '')
+
+        if not to_email or not message:
+            return Response(
+                {'status': 'error', 'message': 'to_email and message are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Send email using Django's send_mail with Gmail SMTP
+        from django.core.mail import send_mail
+        from django.conf import settings
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[to_email],
+            fail_silently=False
+        )
+
+        return Response({
+            'status': 'success',
+            'message': 'Email sent successfully'
+        })
+
+    except Exception as e:
+        return Response(
+            {'status': 'error', 'message': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

@@ -54,6 +54,10 @@ class PetCreateForm(forms.ModelForm):
         }
 
 
+from django.utils import timezone
+from datetime import timedelta
+
+
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
@@ -61,6 +65,75 @@ class AppointmentForm(forms.ModelForm):
         widgets = {
             "date_time": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
+    
+    def clean_date_time(self):
+        """Validate that appointment date/time meets requirements."""
+        date_time = self.cleaned_data.get('date_time')
+        if date_time:
+            now = timezone.now()
+            
+            # FIRST: Check business hours (8 AM - 6 PM) - clinic must be open
+            hour = date_time.hour
+            if hour < 8 or hour >= 18:
+                raise forms.ValidationError(
+                    "Our clinic is open from 8:00 AM to 6:00 PM only. "
+                    "Please select a time within business hours."
+                )
+            
+            # SECOND: Require at least 2 hours advance booking
+            min_booking_time = now + timezone.timedelta(hours=2)
+            if date_time < min_booking_time:
+                raise forms.ValidationError(
+                    "Appointments must be scheduled at least 2 hours in advance. "
+                    "Please select a later time."
+                )
+            
+            # THIRD: Don't allow appointments more than 6 months in advance
+            max_future = now + timezone.timedelta(days=180)
+            if date_time > max_future:
+                raise forms.ValidationError(
+                    "Appointments can only be scheduled up to 6 months in advance."
+                )
+        
+        return date_time
+    
+    def clean(self):
+        """Cross-field validation to check for duplicate appointment times."""
+        cleaned_data = super().clean()
+        date_time = cleaned_data.get('date_time')
+        pet = cleaned_data.get('pet')
+        
+        if date_time and pet:
+            # Get the owner's branch to check appointments in same branch
+            branch = pet.owner.branch
+            
+            # Define time window (30 minutes before and after)
+            time_window = timedelta(minutes=30)
+            window_start = date_time - time_window
+            window_end = date_time + time_window
+            
+            # Check for existing appointments in the same branch within the time window
+            # Only check scheduled appointments (not cancelled or completed)
+            conflicting_appointments = Appointment.objects.filter(
+                pet__owner__branch=branch,
+                date_time__gte=window_start,
+                date_time__lte=window_end,
+                status='scheduled'
+            )
+            
+            # Exclude current instance if editing an existing appointment
+            if self.instance and self.instance.pk:
+                conflicting_appointments = conflicting_appointments.exclude(pk=self.instance.pk)
+            
+            if conflicting_appointments.exists():
+                conflict = conflicting_appointments.first()
+                raise forms.ValidationError(
+                    f"This time slot is not available. There is already an appointment scheduled "
+                    f"at {conflict.date_time.strftime('%I:%M %p')} for {conflict.pet.name}. "
+                    f"Please choose a different time (at least 30 minutes apart)."
+                )
+        
+        return cleaned_data
 
 
 class VaccinationForm(forms.ModelForm):
@@ -97,16 +170,79 @@ class PrescriptionForm(forms.ModelForm):
         widgets = {
             "date_prescribed": forms.DateInput(attrs={"type": "date"}),
         }
-
+import re
 
 class RegisterForm(forms.Form):
-    username = forms.CharField(max_length=150)
-    email = forms.EmailField()
-    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput)
-    full_name = forms.CharField(max_length=120)
-    phone = forms.CharField(max_length=30, required=False)
-    address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    username = forms.CharField(
+        min_length=3,
+        max_length=30,
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'Choose a username', 'maxlength': '30'}),
+        help_text="3-30 characters. Letters, numbers, and underscores only."
+    )
+    email = forms.CharField(
+        max_length=254,
+        label="Email",
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'type': 'email', 'placeholder': 'your@email.com', 'maxlength': '254'})
+    )
+    personal_email = forms.EmailField(
+        label="Personal Email (for Vets only)",
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'auth-input', 'placeholder': 'your.real.email@gmail.com', 'maxlength': '254'})
+    )
+    password1 = forms.CharField(
+        min_length=8,
+        max_length=128,
+        label="Password", 
+        widget=forms.PasswordInput(attrs={'class': 'auth-input', 'placeholder': 'Enter password', 'maxlength': '128'}),
+        help_text="8-128 characters. Must include uppercase, lowercase, number, and special character."
+    )
+    password2 = forms.CharField(
+        label="Confirm Password", 
+        widget=forms.PasswordInput(attrs={'class': 'auth-input', 'placeholder': 'Re-enter password', 'maxlength': '128'})
+    )
+    full_name = forms.CharField(
+        min_length=2,
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'Your full name', 'maxlength': '50'}),
+        help_text="2-50 characters. Letters, spaces, and hyphens only."
+    )
+    specialization = forms.CharField(
+        max_length=50, 
+        required=False, 
+        label="Specialization (Vets only)",
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'e.g., Small Animals, Surgery', 'maxlength': '50'})
+    )
+    license_number = forms.CharField(
+        max_length=30, 
+        required=False, 
+        label="License Number (Vets only)",
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': 'Your license number', 'maxlength': '30'})
+    )
+    phone = forms.CharField(
+        min_length=11,
+        max_length=12, 
+        required=False,  # Made optional - validated in clean() for pet owners only
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'placeholder': '09xxxxxxxxx or 63xxxxxxxxxx', 'maxlength': '12', 'pattern': '[0-9]{11,12}', 'inputmode': 'numeric'}),
+        help_text="Philippine mobile number: 09xxxxxxxxx (11 digits) or 63xxxxxxxxxx (12 digits)"
+    )
+    address = forms.CharField(
+        min_length=5,
+        max_length=255,
+        widget=forms.Textarea(attrs={'class': 'auth-input', 'rows': 3, 'placeholder': 'Your complete address', 'maxlength': '255'}), 
+        required=False,  # Made optional - validated in clean() for pet owners only
+        label="Address"
+    )
+    branch = forms.ChoiceField(
+        choices=[
+            ('taguig', 'Taguig'),
+            ('pasig', 'Pasig'),
+            ('makati', 'Makati'),
+        ],
+        required=False,  # Not required - pet owners select after OTP, vets get branch from email
+        label="Preferred Branch (Pet Owners)",
+        widget=forms.Select(attrs={'class': 'auth-input'}),
+        help_text="Select your preferred vet clinic branch location"
+    )
     accept_terms = forms.BooleanField(
         required=True,
         label="I agree to the Terms & Privacy Notice",
@@ -114,30 +250,165 @@ class RegisterForm(forms.Form):
             'required': 'You must accept the Terms & Privacy Notice to register.'
         }
     )
+    
+    # Branch keywords for vet registration (check for branch name followed by @vet)
+    VET_BRANCH_KEYWORDS = ['taguig@vet', 'pasig@vet', 'makati@vet']
 
     def clean_username(self):
         username = self.cleaned_data.get("username", "").lower()
+        # Only allow letters, numbers, and underscores - no spaces
+        if not re.match(r'^[a-zA-Z0-9_]+$', username):
+            raise forms.ValidationError("Username can only contain letters, numbers, and underscores. No spaces allowed.")
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("Username already exists")
         return username
 
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get("full_name", "").strip()
+        # Only allow letters, spaces, and hyphens
+        if not re.match(r'^[a-zA-Z\s\-]+$', full_name):
+            raise forms.ValidationError("Full name can only contain letters, spaces, and hyphens.")
+        return full_name
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get("phone", "")
+        
+        # Skip validation if empty (will be validated in clean() for pet owners)
+        if not phone:
+            return phone
+        
+        # Remove any non-digit characters
+        phone = ''.join(filter(str.isdigit, phone))
+        
+        # Check valid formats: 09xxxxxxxxx (11 digits) or 63xxxxxxxxxx (12 digits)
+        if phone.startswith('09'):
+            if len(phone) != 11:
+                raise forms.ValidationError("Phone number starting with 09 must be exactly 11 digits")
+        elif phone.startswith('63'):
+            if len(phone) != 12:
+                raise forms.ValidationError("Phone number starting with 63 must be exactly 12 digits")
+        else:
+            raise forms.ValidationError("Phone number must start with 09 or 63")
+        
+        return phone
+
+    def clean_password1(self):
+        password = self.cleaned_data.get("password1", "")
+        
+        # Check for at least one uppercase letter
+        if not re.search(r'[A-Z]', password):
+            raise forms.ValidationError("Password must contain at least one uppercase letter.")
+        
+        # Check for at least one lowercase letter
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError("Password must contain at least one lowercase letter.")
+        
+        # Check for at least one digit
+        if not re.search(r'[0-9]', password):
+            raise forms.ValidationError("Password must contain at least one number.")
+        
+        # Check for at least one special character
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;\'`~]', password):
+            raise forms.ValidationError("Password must contain at least one special character (!@#$%^&*etc).")
+        
+        # No whitespace
+        if re.search(r'\s', password):
+            raise forms.ValidationError("Password cannot contain spaces.")
+        
+        return password
+
     def clean_email(self):
-        email = self.cleaned_data.get("email", "")
+        email = self.cleaned_data.get("email", "").lower()
+        
+        # Check if it's a vet registration email (any branch keyword)
+        is_vet_email = any(keyword in email for keyword in self.VET_BRANCH_KEYWORDS)
+        
+        # If not vet email, validate as normal email
+        if not is_vet_email:
+            from django.core.validators import validate_email
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            try:
+                validate_email(email)
+            except DjangoValidationError:
+                raise forms.ValidationError("Enter a valid email address.")
+        
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Email already exists")
         return email
-
+    
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
+        email = cleaned_data.get("email", "").lower()
+        personal_email = cleaned_data.get("personal_email")
 
         if password1 and password2 and password1 != password2:
             self.add_error("password2", "Passwords do not match")
-
-        # accept_terms is handled automatically by field, but we keep placeholder for any audits/logging
+        
+        # Check if registering as vet (any branch keyword)
+        is_vet_registration = any(keyword in email for keyword in self.VET_BRANCH_KEYWORDS)
+        
+        if is_vet_registration:
+            # Personal email is required for vets
+            if not personal_email:
+                self.add_error("personal_email", "Personal email is required for vet registration to receive your access code")
+            
+            # Specialization is required for vets
+            specialization = cleaned_data.get("specialization", "").strip()
+            if not specialization:
+                self.add_error("specialization", "Specialization is required for veterinarian registration")
+            
+            # License number is required for vets and must be unique
+            license_number = cleaned_data.get("license_number", "").strip()
+            if not license_number:
+                self.add_error("license_number", "License number is required for veterinarian registration")
+            else:
+                # Check uniqueness of license number
+                from vet.models import Veterinarian
+                if Veterinarian.objects.filter(license_number=license_number).exists():
+                    self.add_error("license_number", "This license number is already registered")
+        else:
+            # Pet owner registration - phone and address are required
+            phone = cleaned_data.get("phone", "").strip()
+            address = cleaned_data.get("address", "").strip()
+            
+            if not phone:
+                self.add_error("phone", "Phone number is required for pet owner registration")
+            if not address:
+                self.add_error("address", "Address is required for pet owner registration")
 
         return cleaned_data
+    
+    def is_vet_registration(self):
+        """Check if this is a vet registration based on email (any branch keyword)"""
+        email = self.cleaned_data.get("email", "").lower()
+        return any(keyword in email for keyword in self.VET_BRANCH_KEYWORDS)
+    
+    def get_vet_branch(self):
+        """Extract branch from vet email keyword"""
+        email = self.cleaned_data.get("email", "").lower()
+        if "taguig@vet" in email:
+            return "taguig"
+        elif "pasig@vet" in email:
+            return "pasig"
+        elif "makati@vet" in email:
+            return "makati"
+        return "taguig"  # default
+    
+    def generate_access_code(self):
+        """Generate a unique 8-character access code for vets"""
+        import secrets
+        import string
+        from vet.models import Veterinarian
+        
+        while True:
+            letters = ''.join(secrets.choice(string.ascii_uppercase) for _ in range(3))
+            digits = ''.join(secrets.choice(string.digits) for _ in range(5))
+            code = f"{letters}{digits}"
+            
+            if not Veterinarian.objects.filter(access_code=code).exists():
+                return code
 
     def create_user_and_owner(self):
         username = self.cleaned_data["username"].lower()
@@ -146,6 +417,7 @@ class RegisterForm(forms.Form):
         full_name = self.cleaned_data["full_name"]
         phone = self.cleaned_data.get("phone", "")
         address = self.cleaned_data.get("address", "")
+        branch = self.cleaned_data.get("branch", "taguig")
 
         user = User.objects.create_user(
             username=username,
@@ -158,10 +430,46 @@ class RegisterForm(forms.Form):
             full_name=full_name,
             email=email,
             phone=phone,
-            address=address
+            address=address,
+            branch=branch
         )
 
         return user, owner
+    
+    def create_user_and_vet(self):
+        """Create vet account when branch keyword is detected in email"""
+        from vet.models import Veterinarian
+        
+        username = self.cleaned_data["username"].lower()
+        email = self.cleaned_data["email"].lower()
+        personal_email = self.cleaned_data["personal_email"]
+        password = self.cleaned_data["password1"]
+        full_name = self.cleaned_data["full_name"]
+        specialization = self.cleaned_data.get("specialization", "")
+        license_number = self.cleaned_data.get("license_number", "")
+        phone = self.cleaned_data.get("phone", "")
+        branch = self.get_vet_branch()  # Extract branch from email keyword
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        access_code = self.generate_access_code()
+
+        vet = Veterinarian.objects.create(
+            user=user,
+            full_name=full_name,
+            specialization=specialization,
+            license_number=license_number,
+            phone=phone,
+            access_code=access_code,
+            personal_email=personal_email,
+            branch=branch
+        )
+
+        return user, vet, access_code
 
 
 class PasswordResetRequestForm(PasswordResetForm):

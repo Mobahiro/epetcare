@@ -1,24 +1,100 @@
-{% extends 'vet_portal/base.html' %}
+{% extends 'vet_portal/dashboard_base.html' %}
 {% load static %}
 {% block title %}Upload Pet Image{% endblock %}
-{% block content %}
-<div class="container">
-  <h2>Upload Pet Image</h2>
-  <p class="text-muted">Use this form to attach an image to a pet record.</p>
-  <form id="uploadForm" method="post" enctype="multipart/form-data" action="{# we will handle with JS to call API #}">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="pet_id" class="form-label">Pet ID</label>
-      <input type="number" id="pet_id" name="pet_id" class="form-control" required />
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .upload-card {
+    background: var(--vet-surface, #fff);
+    border-radius: 12px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    overflow: hidden;
+    max-width: 500px;
+    margin: 24px auto;
+  }
+  .upload-card-header {
+    background: linear-gradient(135deg, #6b705c 0%, #7a8066 100%);
+    color: #fff;
+    padding: 20px 24px;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .upload-card-body {
+    padding: 32px 24px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--vet-text, #3d3d3d);
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--vet-border, #e5e1dc);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus {
+    outline: none;
+    border-color: #6b705c;
+    box-shadow: 0 0 0 3px rgba(107, 112, 92, 0.1);
+  }
+  .result-box {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8f6f4;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<!-- Hero section -->
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Upload Pet Image</h1>
+      <a href="{% url 'vet_portal:dashboard' %}" class="btn btn-secondary">← Back to Dashboard</a>
     </div>
-    <div class="mb-3">
-      <label for="file" class="form-label">Image File</label>
-      <input type="file" id="file" name="file" class="form-control" accept="image/*" required />
+    <div class="hero-meta-line">
+      <span class="meta-item">Use this form to attach an image to a pet record</span>
     </div>
-    <button type="submit" class="btn btn-primary">Upload</button>
-  </form>
-  <div id="result" class="mt-3"></div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<div class="upload-card">
+  <div class="upload-card-header">
+    📷 Upload Image
+  </div>
+  <div class="upload-card-body">
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="pet_id">Pet ID</label>
+        <input type="number" id="pet_id" name="pet_id" placeholder="Enter pet ID" required />
+      </div>
+      <div class="form-group">
+        <label for="file">Image File</label>
+        <input type="file" id="file" name="file" accept="image/*" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">📤 Upload Image</button>
+    </form>
+    <div id="result" class="result-box" style="display: none;"></div>
+  </div>
 </div>
+
 <script>
   document.getElementById('uploadForm').addEventListener('submit', async function(e){
     e.preventDefault();
@@ -26,6 +102,7 @@
     const petId = form.pet_id.value;
     const fileInput = form.file;
     const result = document.getElementById('result');
+    result.style.display = 'block';
     result.textContent = 'Uploading...';
 
     const data = new FormData();

@@ -1,25 +1,145 @@
-{% extends 'clinic/base.html' %}
+{% extends 'clinic/dashboard_base.html' %}
+{% load static %}
 {% block title %}Delete Pet - ePetCare{% endblock %}
-{% block content %}
-<div class="toolbar">
-  <h2>Delete Pet</h2>
-  <a class="btn btn-secondary" href="{% url 'pet_detail' pet.pk %}">← Cancel</a>
-</div>
 
-<div class="card" style="max-width: 500px; margin: 20px auto;">
-  <h3 style="color: var(--bad);">Are you sure you want to delete?</h3>
-  <p>You are about to delete the pet: <strong>{{ pet.name }}</strong> ({{ pet.get_species_display }}).</p>
-  <p>This action cannot be undone. All data associated with this pet will be permanently removed.</p>
+{% block head_extra %}
+<style>
+  .delete-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    max-width: 480px;
+    margin: 40px auto;
+    overflow: hidden;
+  }
+  .delete-header {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    padding: 24px;
+    border-bottom: 1px solid #fecaca;
+  }
+  .delete-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #dc2626;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .delete-body {
+    padding: 24px;
+  }
+  .delete-body p {
+    font-size: 14px;
+    color: var(--owner-text, #573D1C);
+    margin: 0 0 12px 0;
+    line-height: 1.6;
+  }
+  .pet-info {
+    background: var(--owner-bg, #FFF5E9);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .pet-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--owner-primary, #d48b3e), var(--owner-primary-light, #FFBD59));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .pet-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--owner-text, #573D1C);
+  }
+  .pet-species {
+    font-size: 13px;
+    color: var(--owner-text-secondary, #8B7355);
+  }
+  .warning-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #92400e;
+    margin-top: 16px;
+  }
+  .delete-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 20px 24px;
+    border-top: 1px solid var(--owner-border, #e8e4df);
+    background: #fafafa;
+  }
+  .btn-cancel {
+    background: transparent;
+    color: var(--owner-text-secondary, #8B7355);
+    padding: 10px 20px;
+    border: 1px solid var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover {
+    background: #fff;
+    border-color: var(--owner-text-secondary);
+  }
+  .btn-delete {
+    background: #dc2626;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-delete:hover {
+    background: #b91c1c;
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<div class="delete-card">
+  <div class="delete-header">
+    <h2>⚠️ Delete Pet</h2>
+  </div>
+  <div class="delete-body">
+    <p>You are about to permanently delete this pet:</p>
+    
+    <div class="pet-info">
+      <div class="pet-avatar">{{ pet.name|slice:":1"|upper }}</div>
+      <div>
+        <div class="pet-name">{{ pet.name }}</div>
+        <div class="pet-species">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+      </div>
+    </div>
+    
+    <div class="warning-box">
+      ⚠️ <strong>Warning:</strong> This action cannot be undone. All data associated with this pet including appointments and medical records will be permanently removed.
+    </div>
+  </div>
   
-  <form method="post" style="margin-top: 20px;">
+  <form method="post" class="delete-actions">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.GET.next|default:'pet_list' }}">
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <a href="{% url 'pet_detail' pet.pk %}" class="btn btn-secondary">Cancel</a>
-      <button type="submit" class="btn" style="background: linear-gradient(90deg, var(--bad) 0%, #b91c1c 100%);">
-        Delete Pet
-      </button>
-    </div>
+    <a href="{% url 'pet_detail' pet.pk %}" class="btn-cancel">Cancel</a>
+    <button type="submit" class="btn-delete">Delete Pet</button>
   </form>
 </div>
 {% endblock %}

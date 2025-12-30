@@ -1,0 +1,161 @@
+{% extends 'clinic/base_auth.html' %}
+{% block title %}Login - ePetCare{% endblock %}
+{% block content %}
+<section class="auth-page">
+  <div class="auth-split">
+    <aside class="auth-hero" aria-hidden="true">
+      <div class="hero-media">
+        {% load static %}
+        <img src="{% static 'clinic/images/picture1.jpeg' %}" alt="Pet care illustration" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">Finally, all your pet's health in one place</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </aside>
+    <div class="auth-panel">
+      <div class="auth-container">
+    <div class="auth-header">
+      <h1 class="auth-title">Log in</h1>
+      <div class="auth-alt-action">
+        or <a href="{% url 'register' %}" class="auth-link">Sign up</a>
+      </div>
+    </div>
+
+{% if form.errors %}
+    <div class="auth-alert auth-alert-error">
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors.0 }}
+      {% else %}
+        Please correct the errors below.
+      {% endif %}
+    </div>
+{% endif %}
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="auth-alert auth-alert-{% if message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% elif message.tags == 'success' %}info{% else %}info{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+    <form method="post" class="auth-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="login_type" id="login_type" value="owner">
+      
+      <div class="auth-field">
+        <label for="id_username">Username or Email</label>
+        <input type="text" name="username" id="id_username" class="auth-input" placeholder="Enter your username" value="{{ form.username.value|default:'' }}" required autocomplete="username">
+        {% if form.username.errors %}
+          <div class="auth-error">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <div class="auth-field">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" class="auth-input" placeholder="Enter your password" required autocomplete="current-password">
+        {% if form.password.errors %}
+          <div class="auth-error">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+      
+      <!-- Access Code Field (shown only for vets) -->
+      <div class="auth-field" id="access-code-field" style="display: none;">
+        <label for="id_access_code">Access Code <span style="color: red;">*</span></label>
+        <input type="text" name="access_code" id="id_access_code" class="auth-input" placeholder="Enter your 8-character code" maxlength="8" autocomplete="off">
+        <small class="auth-small" style="color: #6b7280; display: block; margin-top: 0.25rem;">Required for veterinarian accounts - sent to your email during registration</small>
+        {% if form.access_code.errors %}
+          <div class="auth-error">{{ form.access_code.errors.0 }}</div>
+        {% endif %}
+        <div class="auth-error" id="access-code-error" style="display: none;"></div>
+      </div>
+      
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn auth-submit" type="submit">Log in</button>
+      <div class="auth-meta" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <span class="auth-small">Forgot your password? <a href="{% url 'password_reset_request' %}" class="auth-link">Get a code</a></span>
+      </div>
+      </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const usernameInput = document.getElementById('id_username');
+  const accessCodeField = document.getElementById('access-code-field');
+  const accessCodeInput = document.getElementById('id_access_code');
+  const loginTypeInput = document.getElementById('login_type');
+  const form = document.querySelector('.auth-form');
+  
+  // Check if username belongs to vet account
+  async function checkIfVet(username) {
+    if (!username || username.length < 2) {
+      hideAccessCodeField();
+      return;
+    }
+    
+    try {
+      const response = await fetch('/check-user-type/?username=' + encodeURIComponent(username));
+      const data = await response.json();
+      
+      if (data.is_vet) {
+        showAccessCodeField();
+      } else {
+        hideAccessCodeField();
+      }
+    } catch (error) {
+      console.error('Error checking user type:', error);
+      hideAccessCodeField();
+    }
+  }
+  
+  function showAccessCodeField() {
+    accessCodeField.style.display = 'block';
+    accessCodeInput.required = true;
+    loginTypeInput.value = 'vet';
+  }
+  
+  function hideAccessCodeField() {
+    accessCodeField.style.display = 'none';
+    accessCodeInput.required = false;
+    accessCodeInput.value = '';
+    loginTypeInput.value = 'owner';
+  }
+  
+  // Debounce function to avoid too many API calls
+  let debounceTimer;
+  function debounce(func, delay) {
+    return function() {
+      const context = this;
+      const args = arguments;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    };
+  }
+  
+  // Check user type on username input
+  usernameInput.addEventListener('input', debounce(function() {
+    checkIfVet(this.value.trim());
+  }, 500));
+  
+  // Check on page load if username is pre-filled
+  if (usernameInput.value) {
+    checkIfVet(usernameInput.value.trim());
+  }
+  
+  // Form validation
+  form.addEventListener('submit', function(e) {
+    const isVet = loginTypeInput.value === 'vet';
+    if (isVet && !accessCodeInput.value.trim()) {
+      e.preventDefault();
+      const errorDiv = document.getElementById('access-code-error');
+      errorDiv.textContent = 'Access code is required for veterinarian login';
+      errorDiv.style.display = 'block';
+      accessCodeInput.focus();
+      return false;
+    }
+  });
+})();
+</script>
+{% endblock %}

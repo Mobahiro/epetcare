@@ -9,6 +9,19 @@ from ..mixins import vet_required
 
 @login_required
 @vet_required
+def prescription_list(request):
+    """List all active prescriptions"""
+    prescriptions = Prescription.objects.select_related(
+        'pet', 'pet__owner'
+    ).filter(is_active=True).order_by('-date_prescribed')
+    
+    return render(request, 'vet_portal/prescriptions/list.html', {
+        'prescriptions': prescriptions,
+    })
+
+
+@login_required
+@vet_required
 def prescription_create(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
     if request.method == 'POST':
