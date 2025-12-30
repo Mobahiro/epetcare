@@ -5,7 +5,7 @@ from .models import Appointment, Prescription, MedicalRecord, Notification, Owne
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.core.mail import send_mail
+from .utils.emailing import send_mail_http
 from django.db import transaction
 
 import logging
@@ -154,18 +154,19 @@ def email_owner_on_notification(sender, instance: Notification, created: bool, *
         except Exception:
             html_body = None
         try:
-            send_mail(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to_email], html_message=html_body, fail_silently=False)
-            # Mark as emailed to avoid duplicate sends on replay
-            def _mark_emailed():
-                try:
-                    Notification.objects.filter(pk=instance.pk, emailed=False).update(emailed=True)
-                except Exception:
-                    pass
-            # Ensure DB commit before update in transaction contexts
-            if transaction.get_connection().in_atomic_block:
-                transaction.on_commit(_mark_emailed)
-            else:
-                _mark_emailed()
+            success = send_mail_http(subject, text_body, [to_email], settings.DEFAULT_FROM_EMAIL, html_message=html_body)
+            if success:
+                # Mark as emailed to avoid duplicate sends on replay
+                def _mark_emailed():
+                    try:
+                        Notification.objects.filter(pk=instance.pk, emailed=False).update(emailed=True)
+                    except Exception:
+                        pass
+                # Ensure DB commit before update in transaction contexts
+                if transaction.get_connection().in_atomic_block:
+                    transaction.on_commit(_mark_emailed)
+                else:
+                    _mark_emailed()
         except Exception as mail_err:
             # Don't break request flow if emailing fails
             logger.error(f'Failed to send notification email: {mail_err}')

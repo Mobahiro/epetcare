@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.core.mail import send_mail
+from clinic.utils.emailing import send_mail_http
 from clinic.models import Notification
 
 class Command(BaseCommand):
@@ -37,9 +37,12 @@ class Command(BaseCommand):
             except Exception:
                 html_body = None
             try:
-                send_mail(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to_email], html_message=html_body, fail_silently=False)
-                Notification.objects.filter(pk=notif.pk, emailed=False).update(emailed=True)
-                count += 1
+                success = send_mail_http(subject, text_body, [to_email], settings.DEFAULT_FROM_EMAIL, html_message=html_body)
+                if success:
+                    Notification.objects.filter(pk=notif.pk, emailed=False).update(emailed=True)
+                    count += 1
+                else:
+                    self.stdout.write(self.style.ERROR(f"Failed to send to {to_email} via HTTP provider"))
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Failed to send to {to_email}: {e}"))
                 continue

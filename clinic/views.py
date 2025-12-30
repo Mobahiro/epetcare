@@ -102,7 +102,7 @@ def send_vet_registration_otp(request, form):
         logger = logging.getLogger(__name__)
         logger.info(f"Attempting to send OTP to {registration_data['personal_email']}")
 
-        from django.core.mail import send_mail
+        from .utils.emailing import send_mail_http
 
         subject = 'ePetCare Vet Registration - Verification Code'
         body = f'''Dear {registration_data['full_name']},
@@ -116,12 +116,11 @@ This code will expire in 10 minutes. Please enter it on the registration page to
 Best regards,
 ePetCare Team'''
 
-        send_mail(
+        send_mail_http(
             subject,
             body,
-            settings.DEFAULT_FROM_EMAIL,
             [registration_data['personal_email']],
-            fail_silently=False,
+            settings.DEFAULT_FROM_EMAIL,
         )
 
         logger.info(f"OTP email sent to {registration_data['personal_email']}")
@@ -216,7 +215,8 @@ def verify_vet_registration_otp(request):
         
         # Send access code via email
         try:
-            send_mail(
+            from .utils.emailing import send_mail_http
+            send_mail_http(
                 'ePetCare - Your Veterinarian Access Code',
                 f'''Dear Dr. {vet.full_name},
 
@@ -232,9 +232,8 @@ Your account is pending admin approval. Once approved, you'll be able to access 
 
 Best regards,
 ePetCare Team''',
-                settings.DEFAULT_FROM_EMAIL,
                 [vet.personal_email],
-                fail_silently=False,
+                settings.DEFAULT_FROM_EMAIL,
             )
         except Exception as e:
             print(f"Error sending access code email: {str(e)}")
@@ -289,7 +288,7 @@ def send_owner_registration_otp(request, form):
         logger = logging.getLogger(__name__)
         logger.info(f"Attempting to send OTP to {registration_data['email']}")
 
-        from django.core.mail import send_mail
+        from .utils.emailing import send_mail_http
 
         subject = 'ePetCare Registration - Verification Code'
         body = f'''Dear {registration_data['full_name']},
@@ -305,12 +304,11 @@ After verification, you will select your preferred branch location.
 Best regards,
 ePetCare Team'''
 
-        send_mail(
+        send_mail_http(
             subject,
             body,
-            settings.DEFAULT_FROM_EMAIL,
             [registration_data['email']],
-            fail_silently=False,
+            settings.DEFAULT_FROM_EMAIL,
         )
 
         logger.info(f"OTP email sent to {registration_data['email']}")
@@ -570,9 +568,13 @@ def password_reset_request_otp(request):
                 message = render_to_string('clinic/auth/otp_email.txt', ctx)
                 html_message = render_to_string('clinic/auth/otp_email.html', ctx)
                 try:
-                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=html_message, fail_silently=False)
+                    from .utils.emailing import send_mail_http
+                    success = send_mail_http(subject, message, [user.email], settings.DEFAULT_FROM_EMAIL, html_message=html_message)
                     import logging
-                    logging.getLogger('clinic').info(f'Password reset OTP email sent to {user.email}')
+                    if success:
+                        logging.getLogger('clinic').info(f'Password reset OTP email sent to {user.email}')
+                    else:
+                        logging.getLogger('clinic').error(f'Password reset email failed via HTTP provider')
                 except Exception as e:
                     import logging
                     logging.getLogger('clinic').error(f'Password reset email failed: {e}')
@@ -747,8 +749,14 @@ def change_password_request_otp(request):
         
         logger.info(f"Attempting to send email to {user.email}")
         try:
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], html_message=html_message, fail_silently=False)
-            logger.info(f'Password change OTP email sent successfully to {user.email}')
+            from .utils.emailing import send_mail_http
+            success = send_mail_http(subject, message, [user.email], settings.DEFAULT_FROM_EMAIL, html_message=html_message)
+            if success:
+                logger.info(f'Password change OTP email sent successfully to {user.email}')
+            else:
+                logger.error(f'Password change OTP email failed via HTTP provider')
+                messages.error(request, 'Failed to send verification code. Please try again.')
+                return redirect('profile')
         except Exception as e:
             logger.error(f'Password change OTP email failed: {e}')
             import traceback
