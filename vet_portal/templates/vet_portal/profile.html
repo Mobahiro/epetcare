@@ -1,0 +1,881 @@
+{% extends 'vet_portal/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}My Profile - ePetCare Vet Portal{% endblock %}
+
+{% block head_extra %}
+<style>
+  .profile-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .profile-header {
+    margin-bottom: 24px;
+  }
+  
+  .profile-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+  }
+  
+  .profile-header p {
+    color: #666;
+    margin: 0;
+    font-size: 15px;
+  }
+  
+  /* Profile Card */
+  .profile-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid rgba(107, 112, 92, 0.1);
+  }
+  
+  .profile-card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  }
+  
+  .profile-card-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .profile-card-body {
+    padding: 0;
+  }
+  
+  /* Profile Field Row */
+  .profile-field {
+    display: flex;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.15s;
+  }
+  
+  .profile-field:last-child {
+    border-bottom: none;
+  }
+  
+  .profile-field:hover {
+    background: #fafbfc;
+  }
+  
+  .field-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .field-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+  
+  .field-value {
+    font-size: 16px;
+    color: #333;
+    word-break: break-word;
+    font-weight: 500;
+  }
+  
+  .field-value.empty {
+    color: #999;
+    font-style: italic;
+    font-weight: 400;
+  }
+  
+  .field-action {
+    margin-left: 16px;
+    flex-shrink: 0;
+  }
+  
+  /* Edit Button */
+  .btn-edit {
+    background: transparent;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  
+  .btn-edit:hover {
+    background: #6b705c;
+    border-color: #6b705c;
+    color: white;
+  }
+  
+  .btn-edit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+  }
+  
+  .btn-edit:disabled:hover {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #666;
+  }
+  
+  /* Edit Mode */
+  .field-edit-form {
+    display: none;
+    flex: 1;
+  }
+  
+  .profile-field.editing .field-info {
+    display: none;
+  }
+  
+  .profile-field.editing .field-edit-form {
+    display: block;
+  }
+  
+  .profile-field.editing .field-action .btn-edit {
+    display: none;
+  }
+  
+  .edit-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #6b705c;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  
+  .edit-input:focus {
+    border-color: #545845;
+    box-shadow: 0 0 0 3px rgba(107, 112, 92, 0.15);
+  }
+  
+  .edit-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #6b705c;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  
+  .edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  
+  .btn-save {
+    background: #6b705c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  
+  .btn-save:hover {
+    background: #545845;
+  }
+  
+  .btn-cancel {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  
+  .btn-cancel:hover {
+    background: #eee;
+  }
+  
+  /* Badges */
+  .badge {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .badge-locked {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  
+  .badge-admin {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  
+  .badge-security {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  
+  .badge-system {
+    background: #e5e7eb;
+    color: #6b7280;
+  }
+  
+  /* Info text under field */
+  .field-hint {
+    font-size: 12px;
+    color: #999;
+    margin-top: 6px;
+  }
+  
+  .field-hint a {
+    color: #6b705c;
+    font-weight: 500;
+  }
+  
+  /* Confirmation Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+  }
+  
+  .modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .modal-box {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    padding: 28px;
+    transform: scale(0.9);
+    transition: transform 0.2s;
+  }
+  
+  .modal-overlay.show .modal-box {
+    transform: scale(1);
+  }
+  
+  .modal-icon {
+    width: 56px;
+    height: 56px;
+    background: #fef3c7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 20px;
+  }
+  
+  .modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .modal-message {
+    text-align: center;
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  
+  .modal-warning {
+    background: #fef3c7;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .modal-warning strong {
+    color: #d97706;
+    font-size: 13px;
+  }
+  
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .modal-actions button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .btn-modal-cancel {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #666;
+  }
+  
+  .btn-modal-confirm {
+    background: #6b705c;
+    border: none;
+    color: white;
+  }
+  
+  .btn-modal-confirm:hover {
+    background: #545845;
+  }
+  
+  /* Help Card */
+  .help-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border: 1px dashed #dee2e6;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  
+  .help-card p {
+    color: #666;
+    margin: 0 0 14px 0;
+    font-size: 15px;
+  }
+  
+  .help-card a {
+    color: #6b705c;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+  }
+  
+  .help-card a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Toast notification */
+  .toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #333;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  .toast-notification.success {
+    background: #10b981;
+  }
+  
+  .toast-notification.error {
+    background: #ef4444;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 640px) {
+    .profile-header h1 {
+      font-size: 24px;
+    }
+    
+    .profile-card-header {
+      padding: 16px 18px;
+    }
+    
+    .profile-field {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px 18px;
+    }
+    
+    .field-action {
+      margin-left: 0;
+      margin-top: 14px;
+      width: 100%;
+    }
+    
+    .btn-edit {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .edit-actions {
+      width: 100%;
+    }
+    
+    .edit-actions button {
+      flex: 1;
+    }
+    
+    .modal-box {
+      margin: 16px;
+      padding: 24px;
+    }
+    
+    .toast-notification {
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+    <p>Manage your account and professional information</p>
+  </div>
+
+  <!-- Account Settings -->
+  <div class="profile-card">
+    <div class="profile-card-header">
+      <h2>🔐 Account Settings</h2>
+    </div>
+    <div class="profile-card-body">
+      <!-- Username -->
+      <div class="profile-field" id="field-username">
+        <div class="field-info">
+          <div class="field-label">
+            Username
+            {% if not can_change_username %}
+            <span class="badge badge-locked">🔒 Locked until {{ next_username_date|date:"M d, Y" }}</span>
+            {% else %}
+            <span class="badge badge-security">30-day cooldown</span>
+            {% endif %}
+          </div>
+          <div class="field-value">{{ request.user.username }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'vet_portal:profile_update_field' %}" class="ajax-form" data-field="username" data-confirm="true">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="username">
+            <input type="text" name="value" class="edit-input" value="{{ request.user.username }}" required minlength="3" maxlength="150">
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('username')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('username')" {% if not can_change_username %}disabled{% endif %}>
+            ✏️ Edit
+          </button>
+        </div>
+      </div>
+
+      <!-- System Email (readonly) -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            System Email
+            <span class="badge badge-system">Auto-generated</span>
+          </div>
+          <div class="field-value">{{ request.user.email }}</div>
+          <div class="field-hint">This is your system login email and cannot be changed.</div>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" disabled>🔒 Locked</button>
+        </div>
+      </div>
+
+      <!-- Personal Email (readonly) -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            Personal Email
+            <span class="badge badge-admin">🔐 Admin Only</span>
+          </div>
+          <div class="field-value">{{ vet.personal_email|default:"Not set" }}</div>
+          <div class="field-hint">Access codes are sent to this email. Contact admin to change.</div>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" disabled>🔒 Locked</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Information -->
+  <div class="profile-card">
+    <div class="profile-card-header">
+      <h2>👨‍⚕️ Professional Information</h2>
+    </div>
+    <div class="profile-card-body">
+      <!-- Full Name (Admin Only) -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            Full Name
+            <span class="badge badge-admin">🔐 Admin Only</span>
+          </div>
+          <div class="field-value">{{ vet.full_name|default:"Not set" }}</div>
+          <div class="field-hint">To change your name, contact <a href="mailto:epetcarewebsystem@gmail.com">epetcarewebsystem@gmail.com</a></div>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" disabled>🔒 Locked</button>
+        </div>
+      </div>
+
+      <!-- License Number (Admin Only) -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            License Number
+            <span class="badge badge-admin">🔐 Admin Only</span>
+          </div>
+          <div class="field-value">{{ vet.license_number|default:"Not provided" }}</div>
+          <div class="field-hint">To update your license, contact <a href="mailto:epetcarewebsystem@gmail.com">epetcarewebsystem@gmail.com</a></div>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" disabled>🔒 Locked</button>
+        </div>
+      </div>
+
+      <!-- Branch (Admin Only) -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            Branch
+            <span class="badge badge-admin">🔐 Admin Only</span>
+          </div>
+          <div class="field-value">{{ vet.get_branch_display|default:"Not assigned" }}</div>
+          <div class="field-hint">Branch assignments are managed by admin.</div>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" disabled>🔒 Locked</button>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="profile-field" id="field-phone">
+        <div class="field-info">
+          <div class="field-label">Phone Number</div>
+          <div class="field-value {% if not vet.phone %}empty{% endif %}">{{ vet.phone|default:"Not set" }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'vet_portal:profile_update_field' %}" class="ajax-form" data-field="phone">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="phone">
+            <input type="tel" name="value" class="edit-input" value="{{ vet.phone|default:'' }}" placeholder="Enter phone number">
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('phone')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('phone')">✏️ Edit</button>
+        </div>
+      </div>
+
+      <!-- Specialization -->
+      <div class="profile-field" id="field-specialization">
+        <div class="field-info">
+          <div class="field-label">Specialization</div>
+          <div class="field-value {% if not vet.specialization %}empty{% endif %}">{{ vet.specialization|default:"Not set" }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'vet_portal:profile_update_field' %}" class="ajax-form" data-field="specialization">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="specialization">
+            <input type="text" name="value" class="edit-input" value="{{ vet.specialization|default:'' }}" placeholder="e.g., Small Animals, Surgery">
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('specialization')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('specialization')">✏️ Edit</button>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div class="profile-field" id="field-bio">
+        <div class="field-info">
+          <div class="field-label">Bio</div>
+          <div class="field-value {% if not vet.bio %}empty{% endif %}">{{ vet.bio|default:"Not set"|truncatewords:30 }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'vet_portal:profile_update_field' %}" class="ajax-form" data-field="bio">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="bio">
+            <textarea name="value" class="edit-textarea" placeholder="Tell us about yourself...">{{ vet.bio|default:'' }}</textarea>
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('bio')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('bio')">✏️ Edit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Card -->
+  <div class="help-card">
+    <p>Need help with your account or want to change restricted information?</p>
+    <a href="mailto:epetcarewebsystem@gmail.com">📧 Contact Support</a>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Confirm Change</div>
+    <div class="modal-message">Are you sure you want to update your <strong id="modalFieldName"></strong>?</div>
+    <div class="modal-warning">
+      <strong>⏰ You must wait 30 days before changing this again.</strong>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-confirm" id="modalConfirmBtn">Yes, Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast"></div>
+
+<script>
+// Store original values
+const originalValues = {
+  username: "{{ request.user.username|escapejs }}",
+  phone: "{{ vet.phone|default:''|escapejs }}",
+  specialization: "{{ vet.specialization|default:''|escapejs }}",
+  bio: "{{ vet.bio|default:''|escapejs }}"
+};
+
+// Start editing a field
+function startEdit(field) {
+  const fieldEl = document.getElementById('field-' + field);
+  if (fieldEl) {
+    // Close any other open edits
+    document.querySelectorAll('.profile-field.editing').forEach(el => {
+      if (el.id !== 'field-' + field) {
+        el.classList.remove('editing');
+      }
+    });
+    fieldEl.classList.add('editing');
+    const input = fieldEl.querySelector('.edit-input, .edit-textarea');
+    if (input) {
+      input.focus();
+      if (input.select) input.select();
+    }
+  }
+}
+
+// Cancel editing
+function cancelEdit(field) {
+  const fieldEl = document.getElementById('field-' + field);
+  if (fieldEl) {
+    fieldEl.classList.remove('editing');
+    // Reset value
+    const input = fieldEl.querySelector('.edit-input, .edit-textarea');
+    if (input) {
+      input.value = originalValues[field] || '';
+    }
+  }
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast-notification ' + type + ' show';
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// Modal handling
+let pendingForm = null;
+
+function showModal(fieldName, form) {
+  pendingForm = form;
+  document.getElementById('modalFieldName').textContent = fieldName;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingForm = null;
+}
+
+document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+  if (pendingForm) {
+    submitForm(pendingForm, true);
+  }
+  closeModal();
+});
+
+// Close modal on overlay click
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeModal();
+  }
+});
+
+// Submit form via AJAX
+function submitForm(form, confirmed = false) {
+  const formData = new FormData(form);
+  const field = formData.get('field');
+  const fieldEl = document.getElementById('field-' + field);
+  
+  // Show loading state
+  const saveBtn = form.querySelector('.btn-save');
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+  
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update the displayed value
+      const valueEl = fieldEl.querySelector('.field-value');
+      const newValue = formData.get('value');
+      valueEl.textContent = newValue || 'Not set';
+      valueEl.classList.toggle('empty', !newValue);
+      
+      // Update original value
+      originalValues[field] = newValue;
+      
+      // Close edit mode
+      fieldEl.classList.remove('editing');
+      
+      // Show success message
+      showToast(data.message || 'Saved successfully!', 'success');
+      
+      // If username changed, reload after delay to update UI
+      if (field === 'username') {
+        setTimeout(() => location.reload(), 1500);
+      }
+    } else {
+      showToast(data.error || 'Failed to save', 'error');
+    }
+  })
+  .catch(error => {
+    showToast('An error occurred. Please try again.', 'error');
+  })
+  .finally(() => {
+    saveBtn.textContent = originalText;
+    saveBtn.disabled = false;
+  });
+}
+
+// Handle form submissions
+document.querySelectorAll('.ajax-form').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const needsConfirm = this.dataset.confirm === 'true';
+    const field = this.dataset.field;
+    const input = this.querySelector('.edit-input, .edit-textarea');
+    const newValue = input.value;
+    
+    // Check if value actually changed
+    if (newValue === originalValues[field]) {
+      cancelEdit(field);
+      return;
+    }
+    
+    if (needsConfirm) {
+      showModal(field, this);
+    } else {
+      submitForm(this);
+    }
+  });
+});
+
+// Close edit on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.profile-field.editing').forEach(el => {
+      const field = el.id.replace('field-', '');
+      cancelEdit(field);
+    });
+    closeModal();
+  }
+});
+</script>
+{% endblock %}

@@ -13,169 +13,743 @@
   <link rel="stylesheet" href="{% static 'clinic/dashboard.css' %}?v={% now "U" %}">
   <link rel="stylesheet" href="{% static 'clinic/sidebar.css' %}?v={% now "U" %}">
   <link rel="stylesheet" href="{% static 'clinic/mobile-tables.css' %}?v={% now "U" %}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <style>
+    /* Vet Portal Design - Consistent with Pet Owner */
+    :root {
+      --vet-primary: #6b705c;
+      --vet-primary-light: #8a9178;
+      --vet-bg: #f5f5f0;
+      --vet-surface: #ffffff;
+      --vet-surface-hover: #fafaf8;
+      --vet-border: #e5e5e0;
+      --vet-text: #3d3d3d;
+      --vet-text-secondary: #6b7280;
+    }
+
+    /* Reset conflicting styles */
+    .dash-topbar,
+    .dash-topbar *,
+    .profile-dropdown,
+    .profile-dropdown *,
+    .profile-menu,
+    .profile-menu * {
+      box-sizing: border-box !important;
+    }
+
+    .topbar-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      height: auto !important;
+      padding-right: 0 !important;
+      position: static !important;
+      overflow: visible !important;
+    }
+
+    .profile-menu a,
+    .profile-menu-item {
+      display: flex !important;
+      float: none !important;
+      position: static !important;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--vet-bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Clean Layout */
+    .dash-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Clean Sidebar */
+    .dash-sidebar {
+      background: var(--vet-surface);
+      border-right: 1px solid var(--vet-border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 100%;
+      overflow-y: auto;
+      z-index: 50;
+    }
+    
+    /* Offset main content for fixed sidebar */
+    .dash-main {
+      margin-left: 220px;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--vet-border);
+      position: relative;
+    }
+    
+    .sidebar-close {
+      display: none;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--vet-bg);
+      border: 1px solid var(--vet-border);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+      cursor: pointer;
+      color: var(--vet-text-secondary);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .sidebar-close:hover {
+      background: #e8e8e0;
+      color: var(--vet-primary);
+    }
+
+    .brand-logo-img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--vet-primary);
+    }
+
+    /* Branch Indicator */
+    .branch-indicator {
+      margin: 12px 10px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #f5f5f0, #e8e8e0);
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid var(--vet-border);
+    }
+    
+    .branch-label {
+      font-size: 11px;
+      color: var(--vet-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+    
+    .branch-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--vet-primary);
+    }
+
+    /* Navigation */
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+    }
+
+    .nav-section {
+      margin-bottom: 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: var(--vet-text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      margin-bottom: 2px;
+    }
+
+    .nav-link:hover {
+      background: var(--vet-surface-hover);
+      color: var(--vet-text);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, #f0f0eb, #e5e5de);
+      color: var(--vet-text);
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      width: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    /* Top Bar */
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      background: var(--vet-surface);
+      border-bottom: 1px solid var(--vet-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--vet-text);
+      margin: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .topbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--vet-text-secondary);
+      transition: all 0.15s ease;
+      text-decoration: none;
+      position: relative;
+      font-size: 16px;
+    }
+
+    .topbar-btn:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--vet-text);
+    }
+
+    .topbar-btn .notif-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 7px;
+      height: 7px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 2px solid var(--vet-surface);
+    }
+
+    /* Profile Dropdown */
+    .profile-dropdown {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      height: auto !important;
+      top: auto !important;
+      right: auto !important;
+      min-width: auto !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+    }
+
+    .profile-trigger {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 6px 12px 6px 8px !important;
+      background: var(--vet-primary) !important;
+      border: none !important;
+      border-radius: 20px !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+      height: auto !important;
+      color: white !important;
+      backdrop-filter: none !important;
+    }
+
+    .profile-trigger:hover {
+      background: #5a5e4d !important;
+    }
+
+    .profile-avatar {
+      width: 24px !important;
+      height: 24px !important;
+      background: rgba(255,255,255,0.25) !important;
+      color: white !important;
+      border-radius: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-weight: 600 !important;
+      font-size: 10px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .profile-name {
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      color: white !important;
+      white-space: nowrap !important;
+    }
+
+    .profile-chevron {
+      font-size: 10px !important;
+      color: rgba(255,255,255,0.8) !important;
+      margin-left: 2px !important;
+    }
+
+    .profile-menu {
+      position: absolute !important;
+      top: calc(100% + 8px) !important;
+      right: 0 !important;
+      width: 280px !important;
+      background: #fff !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05) !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.96);
+      transform-origin: top right;
+      transition: all 0.2s ease;
+      z-index: 9999 !important;
+      overflow: visible !important;
+      padding: 0 !important;
+      min-width: auto !important;
+      color: #333 !important;
+      border: none !important;
+      max-height: none !important;
+      height: auto !important;
+      display: block !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    .profile-dropdown.open .profile-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .pm-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .pm-header:hover {
+      background: #f8f8f8;
+    }
+
+    .pm-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--vet-primary), var(--vet-primary-light));
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .pm-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pm-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+
+    .pm-email {
+      font-size: 13px;
+      color: #666;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pm-divider {
+      height: 1px !important;
+      background: #eee !important;
+      margin: 0 !important;
+      display: block !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+
+    .pm-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 12px 16px !important;
+      color: #333 !important;
+      text-decoration: none !important;
+      transition: background 0.15s !important;
+      font-size: 14px !important;
+      background: transparent !important;
+      width: 100% !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+
+    .pm-item:hover {
+      background: #f5f5f5 !important;
+    }
+
+    .pm-icon {
+      font-size: 16px !important;
+      width: 20px !important;
+      text-align: center !important;
+    }
+
+    .pm-logout {
+      color: #dc3545 !important;
+    }
+
+    .pm-logout:hover {
+      background: #fef2f2 !important;
+    }
+
+    /* Mobile toggle button */
+    .mobile-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--vet-bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Content area */
+    .dash-content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* Messages */
+    .messages {
+      margin-bottom: 16px;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .alert-error, .alert-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .alert-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .alert-info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .dash-sidebar {
+        position: fixed;
+        left: -280px;
+        width: 260px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+        background: var(--vet-surface);
+        height: 100%;
+      }
+
+      .dash-sidebar.open {
+        left: 0;
+      }
+
+      .mobile-toggle {
+        display: flex !important;
+      }
+      
+      .sidebar-close {
+        display: flex !important;
+      }
+
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .sidebar-backdrop.show {
+        display: block;
+        opacity: 1;
+      }
+
+      .profile-name {
+        display: none !important;
+      }
+      
+      .dash-main {
+        margin-left: 0;
+        width: 100%;
+      }
+      
+      .dash-content {
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .dash-content {
+        padding: 12px;
+      }
+
+      .dash-topbar {
+        padding: 10px 12px;
+      }
+      
+      .topbar-title {
+        font-size: 16px;
+      }
+      
+      .profile-trigger {
+        padding: 4px 8px !important;
+      }
+      
+      .profile-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+      }
+      
+      .topbar-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+      }
+      
+      .profile-menu {
+        right: 0 !important;
+        left: auto !important;
+        min-width: 220px !important;
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .dash-topbar {
+        padding: 8px 10px;
+      }
+      
+      .mobile-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+      
+      .topbar-title {
+        font-size: 14px;
+      }
+    }
+  </style>
   {% block head_extra %}{% endblock %}
 </head>
-<body style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+<body>
 <div class="dash-layout">
-  <aside class="dash-sidebar" aria-label="Sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-user">
-        <div class="avatar-sm">{{ request.user.username|slice:':1'|upper }}</div>
-        <div class="user-meta">
-          <div class="user-name">Dr. {{ request.user.vet_profile.full_name }}</div>
-          <div class="user-role">Veterinarian</div>
-        </div>
-      </div>
-      <!-- Branch Indicator -->
-      <div class="branch-indicator" style="margin-top: 12px; padding: 8px 12px; background: rgba(107, 112, 92, 0.15); border-radius: 8px; text-align: center;">
-        <span style="font-size: 12px; color: #6b705c; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
-          📍 {{ request.user.vet_profile.get_branch_display }} Branch
-        </span>
-      </div>
+  <!-- Sidebar - Clean like Pet Owner Dashboard -->
+  <aside class="dash-sidebar" id="dashSidebar" aria-label="Sidebar">
+    <div class="sidebar-brand">
+      <img src="{% static 'clinic/images/epetcare-logo.png' %}" alt="ePetCare" class="brand-logo-img">
+      <div class="brand-text">ePetCare</div>
+      <button class="sidebar-close" onclick="toggleSidebar()" aria-label="Close sidebar">✕</button>
     </div>
+    
+    <!-- Branch Indicator -->
+    {% if request.user.vet_profile.branch %}
+    <div class="branch-indicator">
+      <div class="branch-label">Your Branch</div>
+      <div class="branch-name">📍 {{ request.user.vet_profile.get_branch_display }}</div>
+    </div>
+    {% endif %}
+
     <nav class="sidebar-nav">
-      <div class="side-section">Main</div>
-      <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'vet_portal:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
-        <span class="icon">🏠</span>
-        <span class="text">Dashboard</span>
-      </a>
-      <a class="side-link {% if 'patient' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:patient_list' %}" {% if 'patient' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-        <span class="icon">🐾</span>
-        <span class="text">Patients</span>
-      </a>
-      <a class="side-link {% if 'appointment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:appointment_list' %}" {% if 'appointment' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-        <span class="icon">📅</span>
-        <span class="text">Appointments</span>
-      </a>
-
-      <div class="side-section">Records</div>
-      <a class="side-link {% if 'record' in request.resolver_match.url_name and 'medical' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:medical_record_list' %}" {% if 'record' in request.resolver_match.url_name and 'medical' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-        <span class="icon">📋</span>
-        <span class="text">Medical Records</span>
-      </a>
-      <a class="side-link {% if 'prescription' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:prescription_list' %}" {% if 'prescription' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-        <span class="icon">💊</span>
-        <span class="text">Prescriptions</span>
-      </a>
-
-      <div class="side-section">Management</div>
-      <a class="side-link {% if 'schedule' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:schedule_list' %}" {% if 'schedule' in request.resolver_match.url_name %}aria-current="page"{% endif %}>
-        <span class="icon">🗓️</span>
-        <span class="text">Schedule</span>
-      </a>
-      
-      <div class="side-section">Account</div>
-      <a class="side-link" href="{% url 'vet:profile' %}">
-        <span class="icon">👤</span>
-        <span class="text">Profile</span>
-      </a>
-      <a class="side-link" href="{% url 'vet_portal:logout' %}">
-        <span class="icon">🚪</span>
-        <span class="text">Logout</span>
-      </a>
+      <div class="nav-section">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'vet_portal:dashboard' %}">
+          <span class="nav-icon">🏠</span>
+          <span>Home</span>
+        </a>
+        <a class="nav-link {% if 'patient' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:patient_list' %}">
+          <span class="nav-icon">🐾</span>
+          <span>Patients</span>
+        </a>
+        <a class="nav-link {% if 'appointment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:appointment_list' %}">
+          <span class="nav-icon">📅</span>
+          <span>Appointments</span>
+        </a>
+        <a class="nav-link {% if 'record' in request.resolver_match.url_name or 'prescription' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:medical_record_list' %}">
+          <span class="nav-icon">📋</span>
+          <span>Medical Records</span>
+        </a>
+        <a class="nav-link {% if 'schedule' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:schedule_list' %}">
+          <span class="nav-icon">🗓️</span>
+          <span>Schedule</span>
+        </a>
+        <a class="nav-link {% if 'profile' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'vet_portal:profile' %}">
+          <span class="nav-icon">👤</span>
+          <span>Profile</span>
+        </a>
+      </div>
     </nav>
   </aside>
 
+  <!-- Main Content -->
   <div class="dash-main">
     <header class="dash-topbar">
       <div class="topbar-left">
-        <button class="sidebar-toggle" aria-label="Toggle sidebar" style="display: none;">
-          <span style="font-size: 20px;">☰</span>
-        </button>
-        <form class="topbar-search" role="search" action="#" onsubmit="return false;">
-          <input type="search" placeholder="Search patients..." aria-label="Search" />
-          <button class="search-btn" aria-label="Search">
-            <span style="font-size: 16px;">🔍</span>
-          </button>
-        </form>
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+        <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
       </div>
       <div class="topbar-right">
-        <a class="icon-btn notif-btn" href="{% url 'vet_portal:mark_all_notifications_read' %}" title="Notifications">
-          <span style="font-size: 18px;">🔔</span>
-          {% if unread_notifications_count > 0 %}<span class="badge">{{ unread_notifications_count }}</span>{% endif %}
+        <!-- Notification Button -->
+        <a href="{% url 'vet_portal:mark_all_notifications_read' %}" class="topbar-btn" title="Notifications">
+          🔔
+          {% if unread_notifications_count > 0 %}
+          <span class="notif-dot"></span>
+          {% endif %}
         </a>
-        <div class="profile-chip">
-          <div class="avatar-sm">{{ request.user.username|slice:':1'|upper }}</div>
-          <div class="chip-text">
-            <div class="chip-name">Dr. {{ request.user.vet_profile.full_name }}</div>
-            <div class="chip-role">Veterinarian</div>
-          </div>
-          <div class="chip-menu">
-            <a href="{% url 'vet:profile' %}">Profile</a>
-            <a href="{% url 'vet_portal:logout' %}">Logout</a>
+        
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-trigger" onclick="toggleProfileMenu(event)">
+            <div class="profile-avatar">
+              {{ request.user.username|slice:':2'|upper }}
+            </div>
+            <span class="profile-name">Dr. {{ request.user.vet_profile.full_name|default:request.user.username }}</span>
+            <span class="profile-chevron">▾</span>
+          </button>
+          <div class="profile-menu" style="position: absolute !important; display: block !important; flex-direction: column !important;">
+            <a href="{% url 'vet_portal:profile' %}" class="pm-header">
+              <div class="pm-avatar">{{ request.user.username|slice:':2'|upper }}</div>
+              <div class="pm-info">
+                <div class="pm-name">My profile</div>
+                <div class="pm-email">{{ request.user.email }}</div>
+              </div>
+            </a>
+            <div class="pm-divider"></div>
+            <a href="{% url 'vet_portal:profile' %}" class="pm-item">
+              <span class="pm-icon">👤</span>
+              <span>Settings</span>
+            </a>
+            <a href="{% url 'vet_portal:mark_all_notifications_read' %}" class="pm-item">
+              <span class="pm-icon">🔔</span>
+              <span>Notifications</span>
+            </a>
+            <div class="pm-divider"></div>
+            <a href="{% url 'vet_portal:logout' %}" class="pm-item pm-logout">
+              <span class="pm-icon">↪</span>
+              <span>Log out</span>
+            </a>
           </div>
         </div>
       </div>
     </header>
     <div class="dash-content">
-{% if messages %}
-<div class="messages">
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  {% endfor %}
-</div>
-{% endif %}
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       {% block dash_content %}{% endblock %}
     </div>
   </div>
 </div>
-
-<!-- Backdrop for mobile sidebar -->
-<div class="sidebar-backdrop" aria-hidden="true"></div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()" aria-hidden="true"></div>
 
 <script>
-// Sidebar toggle for mobile
-document.querySelector('.sidebar-toggle')?.addEventListener('click', () => {
-  const sidebar = document.querySelector('.dash-sidebar');
-  const backdrop = document.querySelector('.sidebar-backdrop');
-  
-  sidebar?.classList.toggle('open');
-  backdrop?.classList.toggle('show');
-});
+  // Sidebar toggle for mobile
+  function toggleSidebar() {
+    document.getElementById('dashSidebar').classList.toggle('open');
+    document.getElementById('sidebarBackdrop').classList.toggle('show');
+  }
 
-// Close sidebar when clicking backdrop
-document.querySelector('.sidebar-backdrop')?.addEventListener('click', () => {
-  document.querySelector('.dash-sidebar')?.classList.remove('open');
-  document.querySelector('.sidebar-backdrop')?.classList.remove('show');
-});
+  // Profile dropdown toggle
+  function toggleProfileMenu(e) {
+    e.stopPropagation();
+    document.getElementById('profileDropdown').classList.toggle('open');
+  }
 
-// Close sidebar when clicking a link on mobile
-document.querySelectorAll('.dash-sidebar .side-link').forEach(link => {
-  link.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-      document.querySelector('.dash-sidebar')?.classList.remove('open');
-      document.querySelector('.sidebar-backdrop')?.classList.remove('show');
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
     }
   });
-});
-
-// Profile chip menu toggle
-document.querySelector('.profile-chip')?.addEventListener('click', function(e) {
-  e.stopPropagation();
-  this.classList.toggle('show');
-  console.log('Profile chip clicked, show class:', this.classList.contains('show'));
-});
-
-// Close profile menu when clicking outside
-document.addEventListener('click', function(e) {
-  const chip = document.querySelector('.profile-chip');
-  if (chip && !chip.contains(e.target)) {
-    chip.classList.remove('show');
-  }
-});
-
-// Prevent profile menu links from closing the menu immediately
-document.querySelectorAll('.chip-menu a').forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.stopPropagation();
-  });
-});
 </script>
-
 {% block extra_js %}{% endblock %}
 </body>
 </html>

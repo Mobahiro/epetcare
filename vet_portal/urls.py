@@ -35,6 +35,10 @@ urlpatterns = [
     # Schedule
     path('schedule/', views.schedule_list, name='schedule_list'),
     
+    # Profile
+    path('profile/', views.vet_profile, name='profile'),
+    path('profile/update-field/', views.profile_update_field, name='profile_update_field'),
+    
     # Medical Records
     path('records/', views.medical_record_list, name='medical_record_list'),
     path('records/<int:pk>/', views.medical_record_detail, name='medical_record_detail'),
