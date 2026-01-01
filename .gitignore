@@ -2,30 +2,61 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
 
 # Django/SQLite artifacts
 *.sqlite3
+db.sqlite3
 local_settings.py
 media/
 staticfiles/
 
-# VS Code
+# VS Code / IDE
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# Environments
+# Environments & Secrets
 .env
 .env.*
 *.env
 !.env.example
+.envrc
+secrets.json
+secrets.yaml
+*.pem
+*.key
 
-# Desktop app secrets and artifacts
-vet_desktop_app/config.json
-vet_desktop_app/logs/
-vet_desktop_app/backups/
-vet_desktop_app/data/
-vet_desktop_app/dist/
-vet_desktop_app/build/
+# Desktop app - ENTIRE FOLDER (superadmin app - not for public)
+vet_desktop_app/
+
+# Logs
+logs/
+*.log
+
+# Backup files
+backups/
+*.bak
+*.backup
 
 # OS junk
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Temporary files
+tmp_*
+*.tmp
+*.temp
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
