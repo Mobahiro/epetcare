@@ -64,6 +64,16 @@
         <span class="icon">🗓️</span>
         <span class="text">Schedule</span>
       </a>
+      
+      <div class="side-section">Account</div>
+      <a class="side-link" href="{% url 'vet:profile' %}">
+        <span class="icon">👤</span>
+        <span class="text">Profile</span>
+      </a>
+      <a class="side-link" href="{% url 'vet_portal:logout' %}">
+        <span class="icon">🚪</span>
+        <span class="text">Logout</span>
+      </a>
     </nav>
   </aside>
 
@@ -92,7 +102,7 @@
             <div class="chip-role">Veterinarian</div>
           </div>
           <div class="chip-menu">
-            <a href="#">Profile</a>
+            <a href="{% url 'vet:profile' %}">Profile</a>
             <a href="{% url 'vet_portal:logout' %}">Logout</a>
           </div>
         </div>

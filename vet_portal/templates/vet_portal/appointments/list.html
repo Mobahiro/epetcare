@@ -141,6 +141,11 @@
   color: #D32F2F;
 }
 
+.badge-warning {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
 .btn-sm {
   padding: 6px 12px;
   font-size: 13px;
@@ -150,13 +155,64 @@
 }
 
 .btn-primary {
-  background-color: #3b82f6;
+  background-color: #6b705c;
   color: white;
   border: none;
 }
 
 .btn-primary:hover {
-  background-color: #2563eb;
+  background-color: #545845;
+}
+
+/* Mobile Card Layout */
+@media (max-width: 768px) {
+  .table-mobile-cards thead {
+    display: none;
+  }
+  
+  .table-mobile-cards,
+  .table-mobile-cards tbody,
+  .table-mobile-cards tr,
+  .table-mobile-cards td {
+    display: block;
+    width: 100%;
+  }
+  
+  .table-mobile-cards tr {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .table-mobile-cards td {
+    padding: 8px 0;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .table-mobile-cards td:last-child {
+    border-bottom: none;
+    padding-top: 12px;
+    justify-content: flex-start;
+  }
+  
+  .table-mobile-cards td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    flex-shrink: 0;
+    margin-right: 16px;
+  }
+  
+  .table-mobile-cards td[data-label="Actions"]::before {
+    display: none;
+  }
 }
 </style>
 {% endblock %}

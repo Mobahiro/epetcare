@@ -45,13 +45,13 @@
 }
 
 /* Very small screens - card layout for tables */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .table-responsive {
     margin: 0;
     padding: 0;
   }
   
-  /* Convert table to card layout on very small screens */
+  /* Convert table to card layout on mobile */
   .table-mobile-cards {
     display: block;
   }
@@ -70,29 +70,39 @@
   .table-mobile-cards tr {
     background: #fff;
     border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   
   .table-mobile-cards td {
-    padding: 8px 0;
+    padding: 10px 0;
     border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
     text-align: left;
-    position: relative;
-    padding-left: 45%;
     white-space: normal;
+  }
+  
+  .table-mobile-cards td:last-child {
+    border-bottom: none;
+    padding-top: 12px;
   }
   
   .table-mobile-cards td::before {
     content: attr(data-label);
-    position: absolute;
-    left: 0;
-    width: 40%;
-    padding-right: 10px;
     font-weight: 600;
     color: #374151;
+    flex-shrink: 0;
+    margin-right: 16px;
+    min-width: 80px;
+  }
+  
+  .table-mobile-cards td[data-label="Actions"]::before {
+    display: none;
   }
   
   .table-mobile-cards .btn-sm {
