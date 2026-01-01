@@ -16,6 +16,9 @@ def dashboard(request):
         messages.error(request, "Access denied. You need veterinarian privileges.")
         return redirect('home')
     
+    # Auto-update missed appointments (past scheduled → missed)
+    Appointment.update_missed_appointments()
+    
     # Get veterinarian
     vet = request.user.vet_profile
     

@@ -241,7 +241,7 @@
         <tbody>
           {% for appointment in today_appointments %}
           <tr>
-            <td>{{ appointment.date_time|date:"H:i" }}</td>
+            <td>{{ appointment.date_time|date:"g:i A" }}</td>
             <td>
               <a href="{% url 'vet_portal:patient_detail' appointment.pet.id %}" style="color: #6b705c; font-weight: 500;">
                 {{ appointment.pet.name }}

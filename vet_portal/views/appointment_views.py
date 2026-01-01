@@ -17,6 +17,9 @@ def appointment_list(request):
         messages.error(request, "Access denied.")
         return redirect('home')
     
+    # Auto-update missed appointments (past scheduled → missed)
+    Appointment.update_missed_appointments()
+    
     appointments = Appointment.objects.select_related(
         'pet', 'pet__owner'
     ).order_by('-date_time')

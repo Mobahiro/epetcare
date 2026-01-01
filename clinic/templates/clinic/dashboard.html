@@ -54,7 +54,7 @@
       <span class="stat-label">Next Visit</span>
     </div>
     <div class="stat-value">{% if appointments %}{{ appointments.0.date_time|date:"M d" }}{% else %}—{% endif %}</div>
-    <div class="stat-trend">{% if appointments %}{{ appointments.0.date_time|date:"H:i" }}{% else %}No upcoming visits{% endif %}</div>
+    <div class="stat-trend">{% if appointments %}{{ appointments.0.date_time|date:"g:i A" }}{% else %}No upcoming visits{% endif %}</div>
   </div>
 </div>
 
@@ -99,7 +99,7 @@
               <tr>
                 <td>
                   <div class="cell-primary">{{ a.date_time|date:"M d, Y" }}</div>
-                  <div class="cell-secondary">{{ a.date_time|date:"H:i" }}</div>
+                  <div class="cell-secondary">{{ a.date_time|date:"g:i A" }}</div>
                 </td>
                 <td>
                   <div class="cell-primary">{{ a.pet.name }}</div>
@@ -189,7 +189,7 @@
               <div class="notif-title">{{ n.title }}</div>
               <div class="notif-message">{{ n.message }}</div>
               <div class="notif-time">
-                {{ n.created_at|date:'M d, Y H:i' }}
+                {{ n.created_at|date:'M d, Y' }} at {{ n.created_at|date:'g:i A' }}
                 {% if not n.is_read %}
                 <a href="{% url 'notification_mark_read' n.id %}?next=dashboard#notifications" class="btn-modern btn-ghost btn-sm" style="margin-left: 8px;" onclick="markNotificationRead({{ n.id }}); return true;">Mark as read</a>
                 {% endif %}
@@ -254,7 +254,7 @@
             {{ appointments.0.date_time|date:"M d, Y" }}
           </div>
           <div style="font-size: var(--font-size-lg); color: var(--color-brand); font-weight: 600; margin-bottom: var(--space-3);">
-            {{ appointments.0.date_time|date:"H:i" }}
+            {{ appointments.0.date_time|date:"g:i A" }}
           </div>
           <div style="font-size: var(--font-size-md); color: var(--color-text-secondary); margin-bottom: var(--space-2);">
             {{ appointments.0.pet.name }}

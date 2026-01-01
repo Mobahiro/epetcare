@@ -1699,6 +1699,12 @@ form {
   border:1px solid #ffcdd2;
 }
 
+.badge.missed{
+  background:#fff3e0;
+  color:#e65100;
+  border:1px solid #ffcc80;
+}
+
 .muted{
   color:var(--muted);
 }

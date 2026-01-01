@@ -236,6 +236,7 @@
     <option value="scheduled">Scheduled</option>
     <option value="completed">Completed</option>
     <option value="cancelled">Cancelled</option>
+    <option value="missed">Missed</option>
   </select>
 </div>
 
@@ -261,7 +262,7 @@
         <tr class="appointment-row" data-status="{{ appointment.status }}">
           <td>
             <div style="font-weight: 600;">{{ appointment.date_time|date:"M d, Y" }}</div>
-            <div style="font-size: 12px; color: var(--vet-text-secondary);">{{ appointment.date_time|date:"H:i" }}</div>
+            <div style="font-size: 12px; color: var(--vet-text-secondary);">{{ appointment.date_time|date:"g:i A" }}</div>
           </td>
           <td>
             <div class="pet-info">
@@ -281,6 +282,8 @@
               <span class="badge completed">Completed</span>
             {% elif appointment.status == 'cancelled' %}
               <span class="badge cancelled">Cancelled</span>
+            {% elif appointment.status == 'missed' %}
+              <span class="badge missed">Missed</span>
             {% endif %}
           </td>
         </tr>

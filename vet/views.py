@@ -102,6 +102,9 @@ def dashboard(request):
         )
         return redirect('unified_login')
     
+    # Auto-update missed appointments (past scheduled → missed)
+    Appointment.update_missed_appointments()
+    
     # Get counts for dashboard stats
     total_owners = Owner.objects.count()
     total_pets = Pet.objects.count()
@@ -136,6 +139,9 @@ def patients(request):
 @login_required
 def appointments(request):
     """List all appointments"""
+    # Auto-update missed appointments (past scheduled → missed)
+    Appointment.update_missed_appointments()
+    
     appointments = Appointment.objects.select_related('pet', 'pet__owner').order_by('-date_time')
     return render(request, 'vet/appointments.html', {"appointments": appointments})
 
@@ -173,7 +179,7 @@ def mark_notification_read(request, notification_id):
 
 @login_required
 def vet_profile(request):
-    """Vet profile editing with rate limiting for sensitive fields.
+    """Vet profile page with inline editing.
     
     Security policy:
     - Username: Can change once per month
@@ -181,9 +187,6 @@ def vet_profile(request):
     - Full Name & License: Admin-only (contact epetcarewebsystem@gmail.com)
     - Phone/Bio/Specialization: Freely editable
     """
-    from django.utils import timezone
-    from .forms import VetProfileForm, VetUserProfileForm
-    
     vet = getattr(request.user, 'vet_profile', None)
     if not vet:
         messages.error(request, "Veterinarian profile not found for your account.")
@@ -194,37 +197,7 @@ def vet_profile(request):
     can_change_email, next_email_date = vet.can_change_email()
     can_change_password, next_password_date = vet.can_change_password()
 
-    if request.method == 'POST':
-        user_form = VetUserProfileForm(request.POST, instance=request.user, vet=vet)
-        vet_form = VetProfileForm(request.POST, instance=vet)
-
-        if user_form.is_valid() and vet_form.is_valid():
-            # Track if username changed (for rate limit timestamps)
-            username_changed = user_form.cleaned_data['username'] != request.user.username
-            
-            # Save user
-            user_form.save()
-            
-            # Update rate limit timestamps if fields were changed
-            if username_changed:
-                vet.last_username_change = timezone.now()
-            
-            # Save vet contact info (phone, bio, specialization)
-            vet_form.save()
-            
-            # Save rate limit timestamps
-            if username_changed:
-                vet.save(update_fields=['last_username_change'])
-
-            messages.success(request, "Your profile has been updated successfully.")
-            return redirect('vet:profile')
-    else:
-        user_form = VetUserProfileForm(instance=request.user, vet=vet)
-        vet_form = VetProfileForm(instance=vet)
-
     return render(request, 'vet/profile.html', {
-        'user_form': user_form,
-        'vet_form': vet_form,
         'vet': vet,
         # Rate limit status
         'can_change_username': can_change_username,
@@ -234,3 +207,79 @@ def vet_profile(request):
         'can_change_password': can_change_password,
         'next_password_date': next_password_date,
     })
+
+
+@login_required
+def profile_update_field(request):
+    """AJAX endpoint for updating individual profile fields.
+    
+    Handles: username (rate-limited), phone, specialization, bio
+    """
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    
+    vet = getattr(request.user, 'vet_profile', None)
+    if not vet:
+        return JsonResponse({'success': False, 'error': 'Veterinarian profile not found'}, status=404)
+    
+    field = request.POST.get('field')
+    value = request.POST.get('value', '').strip()
+    
+    allowed_fields = ['username', 'phone', 'specialization', 'bio']
+    if field not in allowed_fields:
+        return JsonResponse({'success': False, 'error': 'Invalid field'}, status=400)
+    
+    try:
+        if field == 'username':
+            # Check rate limit
+            can_change, next_date = vet.can_change_username()
+            if not can_change:
+                return JsonResponse({
+                    'success': False, 
+                    'error': f'Username can only be changed once per month. Try again after {next_date.strftime("%B %d, %Y")}.'
+                }, status=403)
+            
+            # Validate username
+            if not value:
+                return JsonResponse({'success': False, 'error': 'Username cannot be empty'}, status=400)
+            
+            if len(value) < 3:
+                return JsonResponse({'success': False, 'error': 'Username must be at least 3 characters'}, status=400)
+            
+            # Check uniqueness
+            if User.objects.filter(username=value).exclude(pk=request.user.pk).exists():
+                return JsonResponse({'success': False, 'error': 'This username is already taken'}, status=400)
+            
+            # Update username and timestamp
+            request.user.username = value
+            request.user.save(update_fields=['username'])
+            vet.last_username_change = timezone.now()
+            vet.save(update_fields=['last_username_change'])
+            
+            return JsonResponse({'success': True, 'message': 'Username updated successfully!'})
+        
+        elif field == 'phone':
+            vet.phone = value or None
+            vet.save(update_fields=['phone'])
+            return JsonResponse({'success': True, 'message': 'Phone number updated successfully!'})
+        
+        elif field == 'specialization':
+            vet.specialization = value or None
+            vet.save(update_fields=['specialization'])
+            return JsonResponse({'success': True, 'message': 'Specialization updated successfully!'})
+        
+        elif field == 'bio':
+            vet.bio = value or None
+            vet.save(update_fields=['bio'])
+            return JsonResponse({'success': True, 'message': 'Bio updated successfully!'})
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Unknown error'}, status=500)

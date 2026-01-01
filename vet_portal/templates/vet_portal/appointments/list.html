@@ -65,6 +65,8 @@
                   <span class="badge badge-success">Completed</span>
                 {% elif appointment.status == 'cancelled' %}
                   <span class="badge badge-danger">Cancelled</span>
+                {% elif appointment.status == 'missed' %}
+                  <span class="badge badge-warning">Missed</span>
                 {% else %}
                   <span class="badge">{{ appointment.status }}</span>
                 {% endif %}

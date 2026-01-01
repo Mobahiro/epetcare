@@ -484,6 +484,9 @@ def dashboard(request):
         messages.error(request, "Session error. Please log in again.")
         return redirect('login')
     
+    # Auto-update missed appointments (past scheduled → missed)
+    Appointment.update_missed_appointments()
+    
     # Opportunistically process any unsent emails for this owner upon visit
     if owner:
         try:
@@ -727,6 +730,114 @@ def edit_profile(request):
         'can_change_password': can_change_password,
         'next_password_date': next_password_date,
     })
+
+
+@login_required
+def profile_update_field(request):
+    """AJAX endpoint to update a single profile field.
+    
+    Handles rate limiting for username/email and freely editable fields.
+    Returns JSON response.
+    """
+    from django.http import JsonResponse
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    
+    # Check if AJAX request
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    
+    owner = getattr(request.user, 'owner_profile', None)
+    if not owner:
+        return JsonResponse({'success': False, 'error': 'Owner profile not found'}, status=404)
+    
+    field = request.POST.get('field')
+    value = request.POST.get('value', '').strip()
+    
+    allowed_fields = ['username', 'email', 'phone', 'address']
+    if field not in allowed_fields:
+        return JsonResponse({'success': False, 'error': 'Invalid field'}, status=400)
+    
+    try:
+        if field == 'username':
+            # Check rate limit
+            can_change, next_date = owner.can_change_username()
+            if not can_change:
+                return JsonResponse({
+                    'success': False, 
+                    'error': f'Username can only be changed once per month. Try again after {next_date.strftime("%B %d, %Y")}.'
+                }, status=403)
+            
+            # Validate username
+            if len(value) < 3:
+                return JsonResponse({'success': False, 'error': 'Username must be at least 3 characters'}, status=400)
+            
+            # Check uniqueness
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            if User.objects.filter(username=value).exclude(pk=request.user.pk).exists():
+                return JsonResponse({'success': False, 'error': 'This username is already taken'}, status=400)
+            
+            # Update username
+            old_username = request.user.username
+            if value != old_username:
+                request.user.username = value
+                request.user.save(update_fields=['username'])
+                owner.last_username_change = timezone.now()
+                owner.save(update_fields=['last_username_change'])
+            
+            return JsonResponse({'success': True, 'message': 'Username updated successfully!'})
+        
+        elif field == 'email':
+            # Check rate limit
+            can_change, next_date = owner.can_change_email()
+            if not can_change:
+                return JsonResponse({
+                    'success': False, 
+                    'error': f'Email can only be changed once per month. Try again after {next_date.strftime("%B %d, %Y")}.'
+                }, status=403)
+            
+            # Validate email
+            from django.core.validators import validate_email
+            from django.core.exceptions import ValidationError
+            try:
+                validate_email(value)
+            except ValidationError:
+                return JsonResponse({'success': False, 'error': 'Please enter a valid email address'}, status=400)
+            
+            # Check uniqueness
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            if User.objects.filter(email=value).exclude(pk=request.user.pk).exists():
+                return JsonResponse({'success': False, 'error': 'This email is already in use'}, status=400)
+            
+            # Update email
+            old_email = request.user.email
+            if value != old_email:
+                request.user.email = value
+                request.user.save(update_fields=['email'])
+                owner.email = value
+                owner.last_email_change = timezone.now()
+                owner.save(update_fields=['email', 'last_email_change'])
+            
+            return JsonResponse({'success': True, 'message': 'Email updated successfully!'})
+        
+        elif field == 'phone':
+            owner.phone = value if value else None
+            owner.save(update_fields=['phone'])
+            return JsonResponse({'success': True, 'message': 'Phone number updated successfully!'})
+        
+        elif field == 'address':
+            owner.address = value if value else None
+            owner.save(update_fields=['address'])
+            return JsonResponse({'success': True, 'message': 'Address updated successfully!'})
+    
+    except Exception as e:
+        import logging
+        logger = logging.getLogger('clinic')
+        logger.error(f"Error updating profile field {field}: {e}")
+        return JsonResponse({'success': False, 'error': 'An error occurred. Please try again.'}, status=500)
 
 
 @login_required
@@ -1164,6 +1275,10 @@ def medical_record_delete(request, pk: int):
 @login_required
 def appointment_list(request):
     from django.utils import timezone
+    
+    # Auto-update missed appointments (past scheduled → missed)
+    Appointment.update_missed_appointments()
+    
     owner = getattr(request.user, 'owner_profile', None)
     appointments = Appointment.objects.select_related('pet').filter(pet__owner=owner).order_by('-date_time') if owner else Appointment.objects.none()
     # Get next upcoming appointment (earliest future appointment)

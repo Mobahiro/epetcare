@@ -80,7 +80,7 @@
             <span class="mon">{{ a.date_time|date:"b" }}</span>
           </div>
           <div class="timeline-card">
-            <div class="time">{{ a.date_time|date:"H:i" }}</div>
+            <div class="time">{{ a.date_time|date:"g:i A" }}</div>
             <div class="title">{{ a.pet.name }} - {{ a.pet.owner.full_name }}</div>
             <div class="sub">{{ a.reason }}</div>
             <div class="status">
@@ -90,6 +90,8 @@
                 <span class="badge badge-success">Completed</span>
               {% elif a.status == 'cancelled' %}
                 <span class="badge badge-danger">Cancelled</span>
+              {% elif a.status == 'missed' %}
+                <span class="badge badge-warning">Missed</span>
               {% endif %}
             </div>
           </div>
@@ -112,7 +114,7 @@
             <span class="mon">{{ a.date_time|date:"b" }}</span>
           </div>
           <div class="timeline-card">
-            <div class="time">{{ a.date_time|date:"H:i" }}</div>
+            <div class="time">{{ a.date_time|date:"g:i A" }}</div>
             <div class="title">{{ a.pet.name }} - {{ a.pet.owner.full_name }}</div>
             <div class="sub">{{ a.reason }}</div>
           </div>

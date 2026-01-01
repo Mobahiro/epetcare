@@ -239,7 +239,7 @@
           <div class="notification-title">{{ notification.title }}</div>
           <div class="notification-message">{{ notification.message }}</div>
           <div class="notification-meta">
-            <span>{{ notification.created_at|date:"M d, Y H:i" }}</span>
+            <span>{{ notification.created_at|date:"M d, Y" }} at {{ notification.created_at|date:"g:i A" }}</span>
             {% if not notification.is_read %}
               <a href="{% url 'vet:mark_notification_read' notification.id %}" class="notification-action">Mark as Read</a>
             {% endif %}

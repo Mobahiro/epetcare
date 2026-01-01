@@ -148,6 +148,7 @@ class Appointment(models.Model):
         SCHEDULED = 'scheduled', 'Scheduled'
         COMPLETED = 'completed', 'Completed'
         CANCELLED = 'cancelled', 'Cancelled'
+        MISSED = 'missed', 'Missed'
 
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='appointments')
     date_time = models.DateTimeField()
@@ -158,6 +159,18 @@ class Appointment(models.Model):
 
     def __str__(self) -> str:
         return f"Appt: {self.pet.name} on {self.date_time:%Y-%m-%d %H:%M}"
+    
+    @classmethod
+    def update_missed_appointments(cls):
+        """Update all past scheduled appointments to missed status.
+        
+        Call this in views that display appointments to ensure real-time status.
+        """
+        from django.utils import timezone
+        return cls.objects.filter(
+            status=cls.Status.SCHEDULED,
+            date_time__lt=timezone.now()
+        ).update(status=cls.Status.MISSED)
 
 
 class Vaccination(models.Model):

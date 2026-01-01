@@ -16,6 +16,7 @@ urlpatterns = [
     path('check-user-type/', check_user_type, name='check_user_type'),
     path('api/branch-vet-counts/', branch_vet_counts, name='branch_vet_counts'),
     path('profile/', views.edit_profile, name='profile'),
+    path('profile/update-field/', views.profile_update_field, name='profile_update_field'),
     path('profile/password/request-otp/', views.change_password_request_otp, name='profile_request_password_otp'),
     path('profile/password/verify-otp/', views.change_password_verify_otp, name='profile_verify_password_otp'),
     path('profile/password/set-new/', views.change_password_set_new, name='profile_set_new_password'),

@@ -94,7 +94,7 @@
         <div class="list tablelike">
           {% for a in appointments %}
           <div class="row row-compact">
-            <div class="cell cell-date"><span class="cell-value">{{ a.date_time|date:"Y-m-d H:i" }}</span></div>
+            <div class="cell cell-date"><span class="cell-value">{{ a.date_time|date:"M d, Y" }} at {{ a.date_time|date:"g:i A" }}</span></div>
             <div class="cell cell-reason"><span class="cell-value">{{ a.reason }}</span></div>
             <div class="cell cell-status">
               {% if a.status == 'scheduled' %}
@@ -103,6 +103,8 @@
                 <span class="pill completed">Completed</span>
               {% elif a.status == 'cancelled' %}
                 <span class="pill cancelled">Cancelled</span>
+              {% elif a.status == 'missed' %}
+                <span class="pill missed">Missed</span>
               {% else %}
                 <span class="pill">{{ a.get_status_display }}</span>
               {% endif %}
@@ -159,7 +161,7 @@
         <div class="rail-title">Next Appointment</div>
         {% if appointments %}
           <div class="rail-row">
-            <div class="rail-primary">{{ appointments.0.date_time|date:"M d, Y H:i" }}</div>
+            <div class="rail-primary">{{ appointments.0.date_time|date:"M d, Y" }} at {{ appointments.0.date_time|date:"g:i A" }}</div>
             <div class="rail-secondary">{{ appointments.0.reason }}</div>
           </div>
           <div class="rail-row rail-actions-row">
@@ -170,6 +172,8 @@
                 <span class="pill completed">Completed</span>
               {% elif appointments.0.status == 'cancelled' %}
                 <span class="pill cancelled">Cancelled</span>
+              {% elif appointments.0.status == 'missed' %}
+                <span class="pill missed">Missed</span>
               {% else %}
                 <span class="pill">{{ appointments.0.get_status_display }}</span>
               {% endif %}

@@ -3,323 +3,874 @@
 {% block title %}Edit Profile - ePetCare{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
 <style>
-  .security-notice {
-    background: linear-gradient(135deg, #fef3cd 0%, #fff8e7 100%);
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 16px;
+  .profile-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .profile-header {
+    margin-bottom: 24px;
+  }
+  
+  .profile-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+  
+  .profile-header p {
+    color: #666;
+    margin: 0;
+  }
+  
+  /* Profile Card */
+  .profile-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
     margin-bottom: 20px;
   }
-  .security-notice h4 {
-    color: #856404;
-    margin: 0 0 8px 0;
-    font-size: 14px;
+  
+  .profile-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .profile-card-header h2 {
+    font-size: 16px;
     font-weight: 600;
-  }
-  .security-notice ul {
     margin: 0;
-    padding-left: 20px;
-    color: #856404;
-    font-size: 13px;
+    color: #333;
   }
-  .security-notice li {
+  
+  .profile-card-body {
+    padding: 0;
+  }
+  
+  /* Profile Field Row */
+  .profile-field {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+  }
+  
+  .profile-field:last-child {
+    border-bottom: none;
+  }
+  
+  .profile-field:hover {
+    background: #fafafa;
+  }
+  
+  .field-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .field-label {
+    font-size: 12px;
+    color: #888;
     margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
-  .field-locked {
-    position: relative;
+  
+  .field-value {
+    font-size: 15px;
+    color: #333;
+    word-break: break-word;
   }
-  .field-locked input {
-    background: #f8f9fa !important;
-    color: #6c757d !important;
+  
+  .field-value.empty {
+    color: #999;
+    font-style: italic;
   }
-  .form-group input,
-  .form-group textarea {
+  
+  .field-action {
+    margin-left: 16px;
+    flex-shrink: 0;
+  }
+  
+  /* Edit Button */
+  .btn-edit {
+    background: transparent;
+    border: 1px solid #ddd;
+    color: #666;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .btn-edit:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #333;
+  }
+  
+  .btn-edit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Edit Mode */
+  .field-edit-form {
+    display: none;
+    flex: 1;
+  }
+  
+  .profile-field.editing .field-info {
+    display: none;
+  }
+  
+  .profile-field.editing .field-edit-form {
+    display: block;
+  }
+  
+  .profile-field.editing .field-action .btn-edit {
+    display: none;
+  }
+  
+  .edit-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .edit-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #d48b3e;
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
     width: 100%;
     box-sizing: border-box;
   }
-  .lock-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    background: #e9ecef;
-    color: #495057;
+  
+  .edit-input:focus {
+    border-color: #c67a2e;
+    box-shadow: 0 0 0 3px rgba(212, 139, 62, 0.15);
+  }
+  
+  .edit-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #d48b3e;
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  
+  .edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  .btn-save {
+    background: #d48b3e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .btn-save:hover {
+    background: #c67a2e;
+  }
+  
+  .btn-cancel {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  .btn-cancel:hover {
+    background: #eee;
+  }
+  
+  /* Badges */
+  .badge {
+    font-size: 10px;
     padding: 2px 8px;
-    border-radius: 12px;
-    margin-left: 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
   }
-  .lock-badge.admin-only {
-    background: #f8d7da;
-    color: #721c24;
+  
+  .badge-locked {
+    background: #fee2e2;
+    color: #dc2626;
   }
-  .cooldown-info {
-    font-size: 12px;
-    color: #6c757d;
+  
+  .badge-admin {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  
+  .badge-security {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  
+  /* Info text under field */
+  .field-hint {
+    font-size: 11px;
+    color: #999;
     margin-top: 4px;
   }
-  .admin-contact {
+  
+  .field-hint a {
+    color: #d48b3e;
+  }
+  
+  /* Confirmation Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+  }
+  
+  .modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .modal-box {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    padding: 24px;
+    transform: scale(0.9);
+    transition: transform 0.2s;
+  }
+  
+  .modal-overlay.show .modal-box {
+    transform: scale(1);
+  }
+  
+  .modal-icon {
+    width: 48px;
+    height: 48px;
+    background: #fef3c7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+  }
+  
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .modal-message {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  
+  .modal-warning {
+    background: #fef3c7;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .modal-warning strong {
+    color: #d97706;
+    font-size: 13px;
+  }
+  
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .btn-modal-cancel {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #666;
+  }
+  
+  .btn-modal-confirm {
+    background: #d48b3e;
+    border: none;
+    color: white;
+  }
+  
+  .btn-modal-confirm:hover {
+    background: #c67a2e;
+  }
+  
+  /* Security Section */
+  .password-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+  }
+  
+  .password-info {
+    flex: 1;
+  }
+  
+  .password-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  
+  .password-value {
+    font-size: 15px;
+    color: #333;
+  }
+  
+  .btn-change-password {
+    background: #d48b3e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .btn-change-password:hover {
+    background: #c67a2e;
+  }
+  
+  .btn-change-password:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Help Card */
+  .help-card {
     background: #f8f9fa;
     border: 1px dashed #dee2e6;
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 12px;
+    padding: 20px;
     text-align: center;
+    margin-top: 20px;
   }
-  .admin-contact a {
+  
+  .help-card p {
+    color: #666;
+    margin: 0 0 12px 0;
+    font-size: 14px;
+  }
+  
+  .help-card a {
     color: #d48b3e;
     font-weight: 600;
+    font-size: 15px;
   }
   
-  /* Mobile Responsive Styles */
-  @media (max-width: 768px) {
-    .security-notice {
-      padding: 12px;
-      margin-bottom: 16px;
+  /* Toast notification */
+  .toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #333;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 10000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  
+  .toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  .toast-notification.success {
+    background: #10b981;
+  }
+  
+  .toast-notification.error {
+    background: #ef4444;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 640px) {
+    .profile-container {
+      padding: 0;
     }
-    .security-notice h4 {
-      font-size: 13px;
+    
+    .profile-header h1 {
+      font-size: 20px;
     }
-    .security-notice ul {
-      font-size: 12px;
-      padding-left: 16px;
-    }
-    .lock-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      margin-left: 4px;
-      display: block;
-      margin-top: 4px;
-      width: fit-content;
-    }
-    .form-section {
-      padding: 16px;
-    }
-    .form-section h3 {
-      font-size: 16px;
-    }
-    .form-group label {
-      font-size: 14px;
-      flex-wrap: wrap;
-    }
-    .form-group input,
-    .form-group textarea {
-      font-size: 16px; /* Prevents zoom on iOS */
-      padding: 12px;
-    }
-    .cooldown-info {
-      font-size: 11px;
-    }
-    .form-actions {
+    
+    .profile-field {
       flex-direction: column;
+      align-items: flex-start;
     }
-    .form-actions .btn {
+    
+    .field-action {
+      margin-left: 0;
+      margin-top: 12px;
       width: 100%;
-      text-align: center;
-      padding: 14px 20px;
     }
-    .admin-contact {
-      padding: 14px;
+    
+    .btn-edit {
+      width: 100%;
+      justify-content: center;
     }
-    .admin-contact p {
-      font-size: 13px;
+    
+    .edit-actions {
+      width: 100%;
     }
-    .card-tabs {
-      flex-wrap: wrap;
-    }
-    .card-tab {
+    
+    .edit-actions button {
       flex: 1;
-      text-align: center;
-      padding: 10px 8px;
-      font-size: 13px;
     }
-  }
-  
-  @media (max-width: 480px) {
-    .security-notice ul {
-      font-size: 11px;
+    
+    .modal-box {
+      margin: 16px;
+      padding: 20px;
     }
-    .lock-badge {
-      font-size: 9px;
+    
+    .password-status {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
     }
-    .form-section {
-      padding: 12px;
+    
+    .btn-change-password {
+      width: 100%;
+    }
+    
+    .toast-notification {
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
     }
   }
 </style>
 {% endblock %}
 
 {% block dash_content %}
-<!-- Hero section -->
-<section class="dash-hero">
-  <div class="hero-main">
-    <div class="hero-title-row">
-      <h1 class="hero-title">My Profile</h1>
-    </div>
-    <div class="hero-meta-line">
-      <span class="meta-item">Update your account and contact information.</span>
-    </div>
-  </div>
-  <div class="hero-divider"></div>
-</section>
-
-<div class="main-card">
-  <div class="card-head with-tabs">
-    <nav class="card-tabs" role="tablist">
-      <a href="#personal" class="card-tab active" role="tab" aria-controls="personal" aria-selected="true">Personal Information</a>
-      <a href="#security" class="card-tab" role="tab" aria-controls="security" aria-selected="false">Security</a>
-    </nav>
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+    <p>Manage your account settings and contact information</p>
   </div>
 
-  <div class="tab-panel active" id="personal">
-    <form method="post" class="profile-form" style="padding: 20px;">
-      {% csrf_token %}
-
-      <!-- Security Notice -->
-      <div class="security-notice">
-        <h4>🔒 Profile Security Policy</h4>
-        <ul>
-          <li><strong>Username & Email:</strong> Can be changed once every 30 days</li>
-          <li><strong>Password:</strong> Can be changed once every 30 days (requires OTP verification)</li>
-          <li><strong>Full Name:</strong> Contact admin at <a href="mailto:epetcarewebsystem@gmail.com">epetcarewebsystem@gmail.com</a> to change</li>
-          <li><strong>Phone & Address:</strong> Can be changed anytime</li>
-        </ul>
-      </div>
-
-      <div class="form-section">
-        <h3>User Account</h3>
-
-        <div class="form-group {% if not can_change_username %}field-locked{% endif %}">
-          <label for="{{ user_form.username.id_for_label }}">
-            Username:
+  <!-- Account Settings -->
+  <div class="profile-card">
+    <div class="profile-card-header">
+      <h2>🔐 Account Settings</h2>
+    </div>
+    <div class="profile-card-body">
+      <!-- Username -->
+      <div class="profile-field" id="field-username">
+        <div class="field-info">
+          <div class="field-label">
+            Username
             {% if not can_change_username %}
-              <span class="lock-badge">🔒 Locked until {{ next_username_date|date:"M d, Y" }}</span>
+            <span class="badge badge-locked">🔒 Locked until {{ next_username_date|date:"M d, Y" }}</span>
+            {% else %}
+            <span class="badge badge-security">30-day cooldown</span>
             {% endif %}
-          </label>
-          {{ user_form.username }}
-          {% if user_form.username.errors %}
-            <div class="error-message">{{ user_form.username.errors }}</div>
-          {% endif %}
-          {% if can_change_username %}
-            <div class="cooldown-info">After changing, you must wait 30 days before changing again.</div>
-          {% endif %}
-        </div>
-
-        <div class="form-group {% if not can_change_email %}field-locked{% endif %}">
-          <label for="{{ user_form.email.id_for_label }}">
-            Email:
-            {% if not can_change_email %}
-              <span class="lock-badge">🔒 Locked until {{ next_email_date|date:"M d, Y" }}</span>
-            {% endif %}
-          </label>
-          {{ user_form.email }}
-          {% if user_form.email.errors %}
-            <div class="error-message">{{ user_form.email.errors }}</div>
-          {% endif %}
-          {% if can_change_email %}
-            <div class="cooldown-info">After changing, you must wait 30 days before changing again.</div>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>Contact Information</h3>
-
-        <div class="form-group field-locked">
-          <label>
-            Full Name:
-            <span class="lock-badge admin-only">🔐 Admin Only</span>
-          </label>
-          <input type="text" value="{{ owner.full_name }}" disabled class="form-control" style="background: #f5f5f5;">
-          <div class="cooldown-info">To change your full name, please contact <a href="mailto:epetcarewebsystem@gmail.com">epetcarewebsystem@gmail.com</a></div>
-        </div>
-
-        <div class="form-group">
-          <label for="{{ owner_form.phone.id_for_label }}">Phone Number:</label>
-          {{ owner_form.phone }}
-          {% if owner_form.phone.errors %}
-            <div class="error-message">{{ owner_form.phone.errors }}</div>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="{{ owner_form.address.id_for_label }}">Address:</label>
-          {{ owner_form.address }}
-          {% if owner_form.address.errors %}
-            <div class="error-message">{{ owner_form.address.errors }}</div>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
-      </div>
-    </form>
-  </div>
-
-  <div class="tab-panel" id="security">
-    <div style="padding: 20px;">
-      <div class="form-section">
-        <h3>Change Password</h3>
-        
-        {% if not can_change_password %}
-          <div class="security-notice" style="background: linear-gradient(135deg, #f8d7da 0%, #fce4e6 100%); border-color: #f5c6cb;">
-            <h4 style="color: #721c24;">🔒 Password Change Locked</h4>
-            <p style="color: #721c24; margin: 0;">You can change your password again after <strong>{{ next_password_date|date:"F d, Y" }}</strong>.</p>
           </div>
-        {% else %}
-          <p style="color: #666; margin-bottom: 20px;">For security, we'll send a verification code to your email before allowing password changes. After changing, you must wait 30 days before changing again.</p>
-
-          <form method="post" action="{% url 'profile_request_password_otp' %}" id="passwordChangeForm">
+          <div class="field-value">{{ request.user.username }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'profile_update_field' %}" class="ajax-form" data-field="username" data-confirm="true">
             {% csrf_token %}
-            <input type="hidden" name="email" value="{{ request.user.email }}">
-            <div class="form-group">
-              <label>Current Email:</label>
-              <input type="text" value="{{ request.user.email }}" disabled class="form-control" style="background: #f5f5f5;">
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary">Send Verification Code</button>
+            <input type="hidden" name="field" value="username">
+            <input type="text" name="value" class="edit-input" value="{{ request.user.username }}" required minlength="3" maxlength="150">
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('username')">Cancel</button>
             </div>
           </form>
-        {% endif %}
-      </div>
-
-      <div class="form-section" style="margin-top: 30px;">
-        <h3>Need Help?</h3>
-        <div class="admin-contact">
-          <p style="margin: 0 0 10px 0; color: #666;">For account issues or to change restricted information (Full Name), please contact our support team:</p>
-          <a href="mailto:epetcarewebsystem@gmail.com">📧 epetcarewebsystem@gmail.com</a>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('username')" {% if not can_change_username %}disabled{% endif %}>
+            ✏️ Edit
+          </button>
         </div>
       </div>
+
+      <!-- Email -->
+      <div class="profile-field" id="field-email">
+        <div class="field-info">
+          <div class="field-label">
+            Email
+            {% if not can_change_email %}
+            <span class="badge badge-locked">🔒 Locked until {{ next_email_date|date:"M d, Y" }}</span>
+            {% else %}
+            <span class="badge badge-security">30-day cooldown</span>
+            {% endif %}
+          </div>
+          <div class="field-value">{{ request.user.email }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'profile_update_field' %}" class="ajax-form" data-field="email" data-confirm="true">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="email">
+            <input type="email" name="value" class="edit-input" value="{{ request.user.email }}" required>
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('email')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('email')" {% if not can_change_email %}disabled{% endif %}>
+            ✏️ Edit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Information -->
+  <div class="profile-card">
+    <div class="profile-card-header">
+      <h2>📇 Contact Information</h2>
+    </div>
+    <div class="profile-card-body">
+      <!-- Full Name (Admin Only) -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            Full Name
+            <span class="badge badge-admin">🔐 Admin Only</span>
+          </div>
+          <div class="field-value">{{ owner.full_name|default:"Not set" }}</div>
+          <div class="field-hint">To change your name, contact <a href="mailto:epetcarewebsystem@gmail.com">epetcarewebsystem@gmail.com</a></div>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" disabled>🔒 Locked</button>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="profile-field" id="field-phone">
+        <div class="field-info">
+          <div class="field-label">Phone Number</div>
+          <div class="field-value {% if not owner.phone %}empty{% endif %}">{{ owner.phone|default:"Not set" }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'profile_update_field' %}" class="ajax-form" data-field="phone">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="phone">
+            <input type="tel" name="value" class="edit-input" value="{{ owner.phone|default:'' }}" placeholder="Enter phone number">
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('phone')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('phone')">✏️ Edit</button>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="profile-field" id="field-address">
+        <div class="field-info">
+          <div class="field-label">Address</div>
+          <div class="field-value {% if not owner.address %}empty{% endif %}">{{ owner.address|default:"Not set" }}</div>
+        </div>
+        <div class="field-edit-form">
+          <form method="post" action="{% url 'profile_update_field' %}" class="ajax-form" data-field="address">
+            {% csrf_token %}
+            <input type="hidden" name="field" value="address">
+            <textarea name="value" class="edit-textarea" placeholder="Enter your address">{{ owner.address|default:'' }}</textarea>
+            <div class="edit-actions">
+              <button type="submit" class="btn-save">Save</button>
+              <button type="button" class="btn-cancel" onclick="cancelEdit('address')">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="field-action">
+          <button class="btn-edit" onclick="startEdit('address')">✏️ Edit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Section -->
+  <div class="profile-card">
+    <div class="profile-card-header">
+      <h2>🔒 Security</h2>
+    </div>
+    <div class="profile-card-body">
+      <div class="password-status">
+        <div class="password-info">
+          <div class="password-label">Password</div>
+          <div class="password-value">••••••••••</div>
+          {% if not can_change_password %}
+          <div class="field-hint" style="color: #dc2626;">🔒 Locked until {{ next_password_date|date:"M d, Y" }}</div>
+          {% else %}
+          <div class="field-hint">After changing, you must wait 30 days before changing again.</div>
+          {% endif %}
+        </div>
+        <form method="post" action="{% url 'profile_request_password_otp' %}">
+          {% csrf_token %}
+          <input type="hidden" name="email" value="{{ request.user.email }}">
+          <button type="submit" class="btn-change-password" {% if not can_change_password %}disabled{% endif %}>
+            Change Password
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Card -->
+  <div class="help-card">
+    <p>Need help with your account or want to change restricted information?</p>
+    <a href="mailto:epetcarewebsystem@gmail.com">📧 Contact Support</a>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Confirm Change</div>
+    <div class="modal-message">Are you sure you want to update your <strong id="modalFieldName"></strong>?</div>
+    <div class="modal-warning">
+      <strong>⏰ You must wait 30 days before changing this again.</strong>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-confirm" id="modalConfirmBtn">Yes, Save Changes</button>
     </div>
   </div>
 </div>
 
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast"></div>
+
 <script>
-(function(){
-  const tabs = document.querySelectorAll('.card-tabs .card-tab');
-  const panels = document.querySelectorAll('.tab-panel');
+// Store original values
+const originalValues = {
+  username: "{{ request.user.username|escapejs }}",
+  email: "{{ request.user.email|escapejs }}",
+  phone: "{{ owner.phone|default:''|escapejs }}",
+  address: "{{ owner.address|default:''|escapejs }}"
+};
 
-  function activate(id){
-    panels.forEach(p=>p.classList.toggle('active', '#'+p.id===id));
-    tabs.forEach(t=>t.classList.toggle('active', t.getAttribute('href')===id));
+// Start editing a field
+function startEdit(field) {
+  const fieldEl = document.getElementById('field-' + field);
+  if (fieldEl) {
+    // Close any other open edits
+    document.querySelectorAll('.profile-field.editing').forEach(el => {
+      if (el.id !== 'field-' + field) {
+        el.classList.remove('editing');
+      }
+    });
+    fieldEl.classList.add('editing');
+    const input = fieldEl.querySelector('.edit-input, .edit-textarea');
+    if (input) {
+      input.focus();
+      if (input.select) input.select();
+    }
   }
+}
 
-  if(location.hash){
-    activate(location.hash);
-  } else {
-    activate('#personal');
+// Cancel editing
+function cancelEdit(field) {
+  const fieldEl = document.getElementById('field-' + field);
+  if (fieldEl) {
+    fieldEl.classList.remove('editing');
+    // Reset value
+    const input = fieldEl.querySelector('.edit-input, .edit-textarea');
+    if (input) {
+      input.value = originalValues[field] || '';
+    }
   }
+}
 
-  tabs.forEach(t=>t.addEventListener('click', function(e){
+// Show toast notification
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast-notification ' + type + ' show';
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// Modal handling
+let pendingForm = null;
+
+function showModal(fieldName, form) {
+  pendingForm = form;
+  document.getElementById('modalFieldName').textContent = fieldName;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingForm = null;
+}
+
+document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+  if (pendingForm) {
+    submitForm(pendingForm, true);
+  }
+  closeModal();
+});
+
+// Close modal on overlay click
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeModal();
+  }
+});
+
+// Submit form via AJAX
+function submitForm(form, confirmed = false) {
+  const formData = new FormData(form);
+  const field = formData.get('field');
+  const fieldEl = document.getElementById('field-' + field);
+  
+  // Show loading state
+  const saveBtn = form.querySelector('.btn-save');
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+  
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update the displayed value
+      const valueEl = fieldEl.querySelector('.field-value');
+      const newValue = formData.get('value');
+      valueEl.textContent = newValue || 'Not set';
+      valueEl.classList.toggle('empty', !newValue);
+      
+      // Update original value
+      originalValues[field] = newValue;
+      
+      // Close edit mode
+      fieldEl.classList.remove('editing');
+      
+      // Show success message
+      showToast(data.message || 'Saved successfully!', 'success');
+      
+      // If username or email changed, reload after delay to update UI
+      if (field === 'username' || field === 'email') {
+        setTimeout(() => location.reload(), 1500);
+      }
+    } else {
+      showToast(data.error || 'Failed to save', 'error');
+    }
+  })
+  .catch(error => {
+    showToast('An error occurred. Please try again.', 'error');
+  })
+  .finally(() => {
+    saveBtn.textContent = originalText;
+    saveBtn.disabled = false;
+  });
+}
+
+// Handle form submissions
+document.querySelectorAll('.ajax-form').forEach(form => {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
-    const href = this.getAttribute('href');
-    history.pushState(null, null, href);
-    activate(href);
-  }));
+    
+    const needsConfirm = this.dataset.confirm === 'true';
+    const field = this.dataset.field;
+    const input = this.querySelector('.edit-input, .edit-textarea');
+    const newValue = input.value;
+    
+    // Check if value actually changed
+    if (newValue === originalValues[field]) {
+      cancelEdit(field);
+      return;
+    }
+    
+    if (needsConfirm) {
+      showModal(field, this);
+    } else {
+      submitForm(this);
+    }
+  });
+});
 
-  window.addEventListener('hashchange', ()=>activate(location.hash||'#personal'));
-})();
+// Close edit on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.profile-field.editing').forEach(el => {
+      const field = el.id.replace('field-', '');
+      cancelEdit(field);
+    });
+    closeModal();
+  }
+});
 </script>
 {% endblock %}
