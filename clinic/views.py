@@ -129,6 +129,10 @@ ePetCare Team'''
         request.session['vet_otp_id'] = otp_record.id
         request.session['vet_personal_email'] = registration_data['personal_email']
 
+        # Clear any stale messages to prevent cross-flow contamination
+        storage = messages.get_messages(request)
+        storage.used = True
+
         return render(request, 'clinic/verify_vet_otp.html', {
             'personal_email': registration_data['personal_email'],
             'otp_sent': True
@@ -170,6 +174,9 @@ def verify_vet_registration_otp(request):
         
         # Verify OTP
         if otp_record.otp_code != otp_entered:
+            # Clear any stale messages first
+            storage = messages.get_messages(request)
+            storage.used = True
             messages.error(request, "Invalid verification code. Please try again.")
             return render(request, 'clinic/verify_vet_otp.html', {
                 'personal_email': otp_record.personal_email,
@@ -317,6 +324,10 @@ ePetCare Team'''
         request.session['owner_otp_id'] = otp_record.id
         request.session['owner_email'] = registration_data['email']
 
+        # Clear any stale messages to prevent cross-flow contamination
+        storage = messages.get_messages(request)
+        storage.used = True
+
         return render(request, 'clinic/verify_owner_otp.html', {
             'email': registration_data['email'],
             'otp_sent': True
@@ -356,6 +367,9 @@ def verify_owner_registration_otp(request):
         
         # Verify OTP
         if otp_record.otp_code != otp_entered:
+            # Clear any stale messages first, then add only the error
+            storage = messages.get_messages(request)
+            storage.used = True
             messages.error(request, "Invalid verification code. Please try again.")
             return render(request, 'clinic/verify_owner_otp.html', {
                 'email': otp_record.email,
@@ -579,8 +593,7 @@ def password_reset_request_otp(request):
                     import logging
                     logging.getLogger('clinic').error(f'Password reset email failed: {e}')
 
-            # Always show success page to avoid enumeration
-            messages.info(request, "If an account exists, we've sent a 6-digit code to the email on file.")
+            # Always redirect to verify page to avoid enumeration (template shows the info message)
             return redirect('password_reset_verify')
     else:
         form = PasswordResetRequestForm()
@@ -640,63 +653,61 @@ def password_reset_set_new(request):
 
 @login_required
 def edit_profile(request):
+    """Edit owner profile with rate limiting for sensitive fields.
+    
+    Security policy:
+    - Username: Can change once per month
+    - Email: Can change once per month (requires OTP)
+    - Password: Can change once per month (requires OTP)
+    - Full Name: Admin-only (contact epetcarewebsystem@gmail.com)
+    - Phone/Address: Freely editable
+    """
     owner = getattr(request.user, 'owner_profile', None)
     if not owner:
         messages.error(request, "Owner profile not found for your account.")
         return redirect('dashboard')
 
+    # Get rate limit status for display
+    can_change_username, next_username_date = owner.can_change_username()
+    can_change_email, next_email_date = owner.can_change_email()
+    can_change_password, next_password_date = owner.can_change_password()
+
     if request.method == 'POST':
-        # Process both forms
-        user_form = UserProfileForm(request.POST, instance=request.user)
+        # Process forms with owner for rate limit checking
+        user_form = UserProfileForm(request.POST, instance=request.user, owner=owner)
         owner_form = OwnerForm(request.POST, instance=owner)
 
-        # Ensure protected fields render as readonly in the form widgets
-        try:
-            user_form.fields['username'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
-            user_form.fields['email'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
-        except Exception:
-            pass
-        try:
-            owner_form.fields['phone'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
-        except Exception:
-            pass
-
         if user_form.is_valid() and owner_form.is_valid():
-            # Enforce immutable fields server-side: username and email should not be changed
-            # regardless of what is submitted in the POST. Likewise, owner's phone
-            # is considered a protected contact field and must remain unchanged here.
-            orig_username = request.user.username
-            orig_email = request.user.email
-            orig_phone = owner.phone
-
-            # Save user while preserving immutable fields
-            user_instance = user_form.save(commit=False)
-            user_instance.username = orig_username
-            user_instance.email = orig_email
-            user_instance.save()
-
-            # Save owner while preserving protected phone and syncing email from user
+            # Track if username or email changed (for rate limit timestamps)
+            username_changed = user_form.cleaned_data['username'] != request.user.username
+            email_changed = user_form.cleaned_data['email'] != request.user.email
+            
+            # Save user
+            user_instance = user_form.save()
+            
+            # Update rate limit timestamps if fields were changed
+            if username_changed:
+                owner.last_username_change = timezone.now()
+            if email_changed:
+                owner.last_email_change = timezone.now()
+                # Sync email to owner profile
+                owner.email = user_instance.email
+            
+            # Save owner contact info (phone, address)
             owner_instance = owner_form.save(commit=False)
-            owner_instance.email = orig_email
-            owner_instance.phone = orig_phone
+            if email_changed:
+                owner_instance.email = user_instance.email
             owner_instance.save()
+            
+            # Save rate limit timestamps
+            if username_changed or email_changed:
+                owner.save(update_fields=['last_username_change', 'last_email_change', 'email'])
 
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('profile')
     else:
-        user_form = UserProfileForm(instance=request.user)
+        user_form = UserProfileForm(instance=request.user, owner=owner)
         owner_form = OwnerForm(instance=owner)
-
-        # Mark protected fields readonly for display
-        try:
-            user_form.fields['username'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
-            user_form.fields['email'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
-        except Exception:
-            pass
-        try:
-            owner_form.fields['phone'].widget.attrs.update({'readonly': 'readonly', 'class': 'form-control'})
-        except Exception:
-            pass
 
     # Get last updated date
     last_updated = request.user.date_joined
@@ -707,16 +718,38 @@ def edit_profile(request):
         'user_form': user_form,
         'owner_form': owner_form,
         'owner': owner,
-        'last_updated': last_updated
+        'last_updated': last_updated,
+        # Rate limit status
+        'can_change_username': can_change_username,
+        'next_username_date': next_username_date,
+        'can_change_email': can_change_email,
+        'next_email_date': next_email_date,
+        'can_change_password': can_change_password,
+        'next_password_date': next_password_date,
     })
 
 
 @login_required
 def change_password_request_otp(request):
-    """Request OTP for password change from profile page"""
+    """Request OTP for password change from profile page.
+    
+    Security: Password can only be changed once per month.
+    """
     import logging
     logger = logging.getLogger('clinic')
     logger.info(f"change_password_request_otp called - method: {request.method}, user: {request.user}")
+    
+    # Check rate limit for password changes
+    owner = getattr(request.user, 'owner_profile', None)
+    if owner:
+        can_change, next_date = owner.can_change_password()
+        if not can_change:
+            messages.error(
+                request, 
+                f"You can only change your password once per month. "
+                f"Next allowed change: {next_date.strftime('%B %d, %Y')}"
+            )
+            return redirect('profile')
     
     if request.method == 'POST':
         user = request.user
@@ -766,7 +799,7 @@ def change_password_request_otp(request):
 
         # Store user ID in session
         request.session['pw_change_user_id'] = user.id
-        messages.info(request, f"We've sent a 6-digit verification code to {user.email}")
+        # Don't add messages.info here - template already shows "Enter the verification code sent to {{ email }}"
         return redirect('profile_verify_password_otp')
 
     return redirect('profile')
@@ -840,7 +873,10 @@ def change_password_verify_otp(request):
     return render(request, 'clinic/profile_verify_otp.html', {'email': request.user.email})
 @login_required
 def change_password_set_new(request):
-    """Set new password after OTP verification"""
+    """Set new password after OTP verification.
+    
+    Security: Updates last_password_change timestamp for rate limiting.
+    """
 
     if not request.session.get('pw_change_verified'):
         messages.error(request, 'Please verify your email first.')
@@ -850,6 +886,13 @@ def change_password_set_new(request):
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
+            
+            # Update rate limit timestamp for password change
+            owner = getattr(user, 'owner_profile', None)
+            if owner:
+                owner.last_password_change = timezone.now()
+                owner.save(update_fields=['last_password_change'])
+            
             # Keep the user logged in after password change
             update_session_auth_hash(request, user)
             # Clear session flags

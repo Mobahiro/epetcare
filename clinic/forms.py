@@ -2,23 +2,90 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from .models import Owner, Pet, Appointment, Vaccination, MedicalRecord, Prescription
 
 
 class OwnerForm(forms.ModelForm):
+    """Form for editing owner contact information.
+    
+    Security policy:
+    - full_name: Admin-only (cannot be changed by user, must contact epetcarewebsystem@gmail.com)
+    - phone, address: Freely editable
+    - email: Synced from User model, not directly editable here
+    """
     class Meta:
         model = Owner
-        fields = ["full_name", "email", "phone", "address"]
+        fields = ["phone", "address"]  # Removed full_name - admin only
+
+
+class OwnerFullNameForm(forms.ModelForm):
+    """Admin-only form for editing owner's full name"""
+    class Meta:
+        model = Owner
+        fields = ["full_name"]
 
 
 class UserProfileForm(forms.ModelForm):
-    """Form for editing user details like username and email"""
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-
+    """Form for editing user details like username and email.
+    
+    Security policy:
+    - username: Can change once per month (rate limited)
+    - email: Can change once per month (rate limited), requires OTP verification
+    - first_name, last_name: Disabled (part of full_name, admin-only)
+    """
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['username', 'email']
+    
+    def __init__(self, *args, owner=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.owner = owner
+        
+        # Check rate limits and disable fields if needed
+        if owner:
+            can_change_username, next_username_date = owner.can_change_username()
+            can_change_email, next_email_date = owner.can_change_email()
+            
+            if not can_change_username:
+                self.fields['username'].disabled = True
+                self.fields['username'].help_text = f"You can change your username again after {next_username_date.strftime('%B %d, %Y')}"
+            
+            if not can_change_email:
+                self.fields['email'].disabled = True
+                self.fields['email'].help_text = f"You can change your email again after {next_email_date.strftime('%B %d, %Y')}"
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if self.owner and self.instance:
+            # Check if username is actually being changed
+            if username != self.instance.username:
+                can_change, next_date = self.owner.can_change_username()
+                if not can_change:
+                    raise forms.ValidationError(
+                        f"You can only change your username once per month. "
+                        f"Next allowed change: {next_date.strftime('%B %d, %Y')}"
+                    )
+                # Check if username is already taken
+                if User.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+                    raise forms.ValidationError("This username is already taken.")
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if self.owner and self.instance:
+            # Check if email is actually being changed
+            if email != self.instance.email:
+                can_change, next_date = self.owner.can_change_email()
+                if not can_change:
+                    raise forms.ValidationError(
+                        f"You can only change your email once per month. "
+                        f"Next allowed change: {next_date.strftime('%B %d, %Y')}"
+                    )
+                # Check if email is already taken
+                if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+                    raise forms.ValidationError("This email is already registered to another account.")
+        return email
 
 
 class PetForm(forms.ModelForm):
@@ -478,6 +545,8 @@ class PasswordResetRequestForm(PasswordResetForm):
     Django's default PasswordResetForm expects an email. Many users type their
     username instead, which results in no email being sent. This subclass
     resolves that by matching on email (case-insensitive) OR username.
+    
+    Security: Validates that the email/username exists in the system.
     """
 
     def get_users(self, email):  # 'email' is the input value from the single field
@@ -494,6 +563,29 @@ class PasswordResetRequestForm(PasswordResetForm):
 
         # Only users with usable passwords
         return [u for u in candidates if u.has_usable_password()]
+    
+    def clean_email(self):
+        """Validate that the email or username exists in the system."""
+        value = self.cleaned_data.get('email', '').strip()
+        
+        if not value:
+            raise forms.ValidationError("Please enter your email or username.")
+        
+        users = list(self.get_users(value))
+        
+        if not users:
+            if '@' in value:
+                raise forms.ValidationError(
+                    "This email is not registered in our system. "
+                    "Please check the email address or create a new account."
+                )
+            else:
+                raise forms.ValidationError(
+                    "This username is not registered in our system. "
+                    "Please check the username or try your email address instead."
+                )
+        
+        return value
 
 
 class PasswordResetOTPForm(forms.Form):

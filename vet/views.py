@@ -169,3 +169,68 @@ def mark_notification_read(request, notification_id):
             messages.error(request, "Notification not found.")
     
     return redirect('vet:notifications')
+
+
+@login_required
+def vet_profile(request):
+    """Vet profile editing with rate limiting for sensitive fields.
+    
+    Security policy:
+    - Username: Can change once per month
+    - Password: Can change once per month (requires OTP)
+    - Full Name & License: Admin-only (contact epetcarewebsystem@gmail.com)
+    - Phone/Bio/Specialization: Freely editable
+    """
+    from django.utils import timezone
+    from .forms import VetProfileForm, VetUserProfileForm
+    
+    vet = getattr(request.user, 'vet_profile', None)
+    if not vet:
+        messages.error(request, "Veterinarian profile not found for your account.")
+        return redirect('vet:dashboard')
+
+    # Get rate limit status for display
+    can_change_username, next_username_date = vet.can_change_username()
+    can_change_email, next_email_date = vet.can_change_email()
+    can_change_password, next_password_date = vet.can_change_password()
+
+    if request.method == 'POST':
+        user_form = VetUserProfileForm(request.POST, instance=request.user, vet=vet)
+        vet_form = VetProfileForm(request.POST, instance=vet)
+
+        if user_form.is_valid() and vet_form.is_valid():
+            # Track if username changed (for rate limit timestamps)
+            username_changed = user_form.cleaned_data['username'] != request.user.username
+            
+            # Save user
+            user_form.save()
+            
+            # Update rate limit timestamps if fields were changed
+            if username_changed:
+                vet.last_username_change = timezone.now()
+            
+            # Save vet contact info (phone, bio, specialization)
+            vet_form.save()
+            
+            # Save rate limit timestamps
+            if username_changed:
+                vet.save(update_fields=['last_username_change'])
+
+            messages.success(request, "Your profile has been updated successfully.")
+            return redirect('vet:profile')
+    else:
+        user_form = VetUserProfileForm(instance=request.user, vet=vet)
+        vet_form = VetProfileForm(instance=vet)
+
+    return render(request, 'vet/profile.html', {
+        'user_form': user_form,
+        'vet_form': vet_form,
+        'vet': vet,
+        # Rate limit status
+        'can_change_username': can_change_username,
+        'next_username_date': next_username_date,
+        'can_change_email': can_change_email,
+        'next_email_date': next_email_date,
+        'can_change_password': can_change_password,
+        'next_password_date': next_password_date,
+    })

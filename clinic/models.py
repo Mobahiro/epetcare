@@ -25,9 +25,44 @@ class Owner(models.Model):
         help_text='Preferred vet clinic branch location'
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Rate limiting: track last change timestamps for sensitive fields
+    last_username_change = models.DateTimeField(null=True, blank=True, help_text='Last time username was changed')
+    last_email_change = models.DateTimeField(null=True, blank=True, help_text='Last time email was changed')
+    last_password_change = models.DateTimeField(null=True, blank=True, help_text='Last time password was changed')
 
     def __str__(self) -> str:
         return f"{self.full_name} ({self.get_branch_display()})"
+    
+    def can_change_username(self):
+        """Check if user can change username (1 month cooldown)"""
+        if not self.last_username_change:
+            return True, None
+        from datetime import timedelta
+        next_allowed = self.last_username_change + timedelta(days=30)
+        if timezone.now() >= next_allowed:
+            return True, None
+        return False, next_allowed
+    
+    def can_change_email(self):
+        """Check if user can change email (1 month cooldown)"""
+        if not self.last_email_change:
+            return True, None
+        from datetime import timedelta
+        next_allowed = self.last_email_change + timedelta(days=30)
+        if timezone.now() >= next_allowed:
+            return True, None
+        return False, next_allowed
+    
+    def can_change_password(self):
+        """Check if user can change password (1 month cooldown)"""
+        if not self.last_password_change:
+            return True, None
+        from datetime import timedelta
+        next_allowed = self.last_password_change + timedelta(days=30)
+        if timezone.now() >= next_allowed:
+            return True, None
+        return False, next_allowed
 
 
 class Pet(models.Model):

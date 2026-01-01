@@ -59,10 +59,9 @@
       padding: 0;
     }
 
-    /* Clean Layout - Narrower Sidebar */
+    /* Clean Layout */
     .dash-layout {
-      display: grid;
-      grid-template-columns: 220px 1fr;
+      display: flex;
       min-height: 100vh;
     }
 
@@ -72,10 +71,22 @@
       border-right: 1px solid var(--owner-border);
       display: flex;
       flex-direction: column;
-      position: sticky;
+      position: fixed;
       top: 0;
-      height: 100vh;
+      left: 0;
+      width: 220px;
+      height: 100%;
       overflow-y: auto;
+      z-index: 50;
+    }
+    
+    /* Offset main content for fixed sidebar */
+    .dash-main {
+      margin-left: 220px;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar-brand {
@@ -84,6 +95,30 @@
       gap: 10px;
       padding: 18px 16px;
       border-bottom: 1px solid var(--owner-border);
+      position: relative;
+    }
+    
+    .sidebar-close {
+      display: none;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--owner-bg);
+      border: 1px solid var(--owner-border);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+      cursor: pointer;
+      color: var(--owner-text-secondary);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .sidebar-close:hover {
+      background: #ffe8d6;
+      color: var(--owner-primary);
     }
 
     .brand-logo {
@@ -150,13 +185,6 @@
       width: 20px;
       font-size: 16px;
       text-align: center;
-    }
-
-    /* Main Content Area */
-    .dash-main {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
     }
 
     /* Top Bar - Like Brevo */
@@ -426,16 +454,15 @@
 
     /* Responsive */
     @media (max-width: 1024px) {
-      .dash-layout {
-        grid-template-columns: 1fr;
-      }
-
       .dash-sidebar {
         position: fixed;
-        left: -100%;
-        width: 220px;
-        z-index: 100;
+        left: -280px;
+        width: 260px;
+        z-index: 1000;
         transition: left 0.3s ease;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+        background: var(--owner-surface);
+        height: 100%;
       }
 
       .dash-sidebar.open {
@@ -443,33 +470,102 @@
       }
 
       .mobile-toggle {
-        display: block;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: var(--owner-bg);
+        border-radius: 8px;
+        font-size: 20px;
+      }
+      
+      .sidebar-close {
+        display: flex !important;
       }
 
       .sidebar-backdrop {
         display: none;
         position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.3);
-        z-index: 99;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
 
       .sidebar-backdrop.show {
         display: block;
+        opacity: 1;
       }
 
       .profile-name {
         display: none;
       }
+      
+      .dash-main {
+        margin-left: 0;
+        width: 100%;
+      }
+      
+      .dash-content {
+        padding: 16px;
+      }
     }
 
     @media (max-width: 640px) {
       .dash-content {
-        padding: 16px;
+        padding: 12px;
       }
 
       .dash-topbar {
-        padding: 10px 16px;
+        padding: 10px 12px;
+      }
+      
+      .topbar-title {
+        font-size: 16px;
+      }
+      
+      .profile-trigger {
+        padding: 4px 8px !important;
+      }
+      
+      .profile-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+      }
+      
+      .topbar-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+      }
+      
+      /* Mobile profile menu positioning */
+      .profile-menu {
+        right: 0 !important;
+        left: auto !important;
+        min-width: 220px !important;
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .dash-topbar {
+        padding: 8px 10px;
+      }
+      
+      .mobile-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+      
+      .topbar-title {
+        font-size: 14px;
       }
     }
   </style>
@@ -482,6 +578,7 @@
     <div class="sidebar-brand">
       <img src="{% static 'clinic/images/epetcare-logo.png' %}" alt="ePetCare" class="brand-logo-img">
       <div class="brand-text">ePetCare</div>
+      <button class="sidebar-close" onclick="toggleSidebar()" aria-label="Close sidebar">✕</button>
     </div>
     
     <!-- Branch Indicator -->

@@ -17,7 +17,7 @@ logger = logging.getLogger('epetcare')
 if TYPE_CHECKING:
     try:
         from .models import (
-            User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+            User, Veterinarian, Superadmin, Owner, Pet, Appointment, MedicalRecord,
             Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
             TreatmentType, Schedule
         )
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
         # Fallback for environments where relative import isn't resolved
         try:
             from models.models import (
-                User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+                User, Veterinarian, Superadmin, Owner, Pet, Appointment, MedicalRecord,
                 Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
                 TreatmentType, Schedule
             )
@@ -80,7 +80,7 @@ if getattr(sys, 'frozen', False):
         # Try importing from models.models first
         try:
             from models.models import (
-                User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+                User, Veterinarian, Superadmin, Owner, Pet, Appointment, MedicalRecord,
                 Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
                 TreatmentType, Schedule
             )
@@ -103,6 +103,7 @@ if getattr(sys, 'frozen', False):
                 # Get the classes from the module
                 User = models_module.User
                 Veterinarian = models_module.Veterinarian
+                Superadmin = models_module.Superadmin
                 Owner = models_module.Owner
                 Pet = models_module.Pet
                 Appointment = models_module.Appointment
@@ -133,14 +134,14 @@ else:
     try:
         # Try relative import first
         from .models import (
-            User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+            User, Veterinarian, Superadmin, Owner, Pet, Appointment, MedicalRecord,
             Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
             TreatmentType, Schedule
         )
     except ImportError:
         # Fall back to absolute import
         from models.models import (
-            User, Veterinarian, Owner, Pet, Appointment, MedicalRecord,
+            User, Veterinarian, Superadmin, Owner, Pet, Appointment, MedicalRecord,
             Prescription, Vaccination, Treatment, TreatmentRecord, VetNotification,
             TreatmentType, Schedule
         )
@@ -572,6 +573,69 @@ class VeterinarianDataAccess(DataAccessBase):
 
         # Update veterinarian
         return self.db.update('vet_veterinarian', vet_data, vet_id)
+
+
+class SuperadminDataAccess(DataAccessBase):
+    """Data access for Superadmin model"""
+
+    def get_by_id(self, superadmin_id: int) -> Optional[Any]:
+        """Get a superadmin by ID"""
+        query = "SELECT * FROM vet_superadmin WHERE id = ?"
+        success, result = self.db.execute_query(query, (superadmin_id,))
+
+        if not success or not result:
+            return None
+
+        sa_dict = self._row_to_dict(result[0])
+        return Superadmin(
+            id=sa_dict['id'],
+            user_id=sa_dict['user_id'],
+            full_name=sa_dict['full_name'],
+            email=sa_dict['email'],
+            is_active=bool(sa_dict.get('is_active', True)),
+            created_at=self._parse_datetime(sa_dict['created_at']),
+            last_login=self._parse_datetime(sa_dict.get('last_login'))
+        )
+
+    def get_by_user_id(self, user_id: int) -> Optional[Any]:
+        """Get a superadmin by user ID"""
+        query = "SELECT * FROM vet_superadmin WHERE user_id = ?"
+        success, result = self.db.execute_query(query, (user_id,))
+
+        if not success or not result:
+            return None
+
+        sa_dict = self._row_to_dict(result[0])
+        return Superadmin(
+            id=sa_dict['id'],
+            user_id=sa_dict['user_id'],
+            full_name=sa_dict['full_name'],
+            email=sa_dict['email'],
+            is_active=bool(sa_dict.get('is_active', True)),
+            created_at=self._parse_datetime(sa_dict['created_at']),
+            last_login=self._parse_datetime(sa_dict.get('last_login'))
+        )
+
+    def get_all(self) -> List[Any]:
+        """Get all superadmins"""
+        query = "SELECT * FROM vet_superadmin"
+        success, result = self.db.execute_query(query, ())
+        if not success:
+            return []
+
+        superadmins = []
+        for row in result:
+            sa_dict = self._row_to_dict(row)
+            superadmins.append(Superadmin(
+                id=sa_dict['id'],
+                user_id=sa_dict['user_id'],
+                full_name=sa_dict['full_name'],
+                email=sa_dict['email'],
+                is_active=bool(sa_dict.get('is_active', True)),
+                created_at=self._parse_datetime(sa_dict['created_at']),
+                last_login=self._parse_datetime(sa_dict.get('last_login'))
+            ))
+        return superadmins
 
 
 class OwnerDataAccess(DataAccessBase):

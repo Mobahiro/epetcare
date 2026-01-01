@@ -115,30 +115,32 @@
     <a class="btn-add" href="{% url 'owner_create' %}">+ Add Owner</a>
   </div>
   
-  <table class="modern-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for owner in owners %}
+  <div class="modern-table-wrapper">
+    <table class="modern-table">
+      <thead>
         <tr>
-          <td><a href="{% url 'owner_detail' owner.pk %}">{{ owner.full_name }}</a></td>
-          <td>{{ owner.email|default:'—' }}</td>
-          <td>{{ owner.phone|default:'—' }}</td>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3">
-            <div class="empty-state">No owners registered yet.</div>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for owner in owners %}
+          <tr>
+            <td><a href="{% url 'owner_detail' owner.pk %}">{{ owner.full_name }}</a></td>
+            <td>{{ owner.email|default:'—' }}</td>
+            <td>{{ owner.phone|default:'—' }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">
+              <div class="empty-state">No owners registered yet.</div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
 

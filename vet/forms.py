@@ -149,3 +149,55 @@ class VetRegisterForm(forms.Form):
         )
 
         return user, vet, access_code
+
+class VetProfileForm(forms.ModelForm):
+    """Form for editing veterinarian contact information.
+    
+    Security policy:
+    - full_name: Admin-only (cannot be changed by vet, must contact epetcarewebsystem@gmail.com)
+    - license_number: Admin-only
+    - phone, bio, specialization: Freely editable
+    """
+    class Meta:
+        model = Veterinarian
+        fields = ["phone", "specialization", "bio"]
+
+
+class VetUserProfileForm(forms.ModelForm):
+    """Form for editing vet user account details.
+    
+    Security policy:
+    - username: Can change once per month (rate limited)
+    - email: Can change once per month (rate limited)
+    """
+    class Meta:
+        model = User
+        fields = ['username']
+    
+    def __init__(self, *args, vet=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.vet = vet
+        
+        # Check rate limits and disable fields if needed
+        if vet:
+            can_change_username, next_username_date = vet.can_change_username()
+            
+            if not can_change_username:
+                self.fields['username'].disabled = True
+                self.fields['username'].help_text = f"You can change your username again after {next_username_date.strftime('%B %d, %Y')}"
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if self.vet and self.instance:
+            # Check if username is actually being changed
+            if username != self.instance.username:
+                can_change, next_date = self.vet.can_change_username()
+                if not can_change:
+                    raise forms.ValidationError(
+                        f"You can only change your username once per month. "
+                        f"Next allowed change: {next_date.strftime('%B %d, %Y')}"
+                    )
+                # Check if username is already taken
+                if User.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+                    raise forms.ValidationError("This username is already taken.")
+        return username

@@ -8504,3 +8504,77 @@ LINE 1: ...inic_appointment SET veterinarian_id = NULL WHERE veterinari...
 2025-12-30 18:44:56,063 - epetcare - INFO - Application started successfully
 2025-12-30 20:27:42,927 - epetcare - INFO - Reconnecting to PostgreSQL ...
 2025-12-30 20:27:44,136 - epetcare - INFO - Reconnected to PostgreSQL
+2025-12-30 23:08:06,230 - epetcare - INFO - Reconnecting to PostgreSQL ...
+2025-12-30 23:08:07,802 - epetcare - INFO - Reconnected to PostgreSQL
+2025-12-30 23:08:10,678 - epetcare - INFO - Reconnecting to PostgreSQL ...
+2025-12-30 23:08:11,665 - epetcare - INFO - Reconnected to PostgreSQL
+2025-12-30 23:45:39,594 - epetcare - INFO - Reconnecting to PostgreSQL ...
+2025-12-30 23:45:40,810 - epetcare - INFO - Reconnected to PostgreSQL
+2025-12-30 23:45:55,617 - epetcare - INFO - Reconnecting to PostgreSQL ...
+2025-12-30 23:45:56,602 - epetcare - INFO - Reconnected to PostgreSQL
+2025-12-30 23:45:58,089 - epetcare - INFO - Reconnecting to PostgreSQL ...
+2025-12-30 23:45:59,055 - epetcare - INFO - Reconnected to PostgreSQL
+2025-12-31 02:24:16,559 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-31 02:24:16,559 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-31 02:24:17,059 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-31 02:24:17,490 - epetcare - ERROR - Failed to import application modules: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+2025-12-31 02:24:17,562 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 83, in <module>
+    from views.main_window import MainWindow
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\login_dialog.py", line 89, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
+ImportError: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+
+2025-12-31 02:24:17,562 - epetcare - ERROR - Error during startup: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+2025-12-31 02:24:17,563 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 83, in <module>
+    from views.main_window import MainWindow
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\login_dialog.py", line 89, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
+ImportError: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+
+2025-12-31 02:24:35,448 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-31 02:24:35,448 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-31 02:24:35,607 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-31 02:24:35,741 - epetcare - ERROR - Failed to import application modules: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+2025-12-31 02:24:35,743 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 83, in <module>
+    from views.main_window import MainWindow
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\login_dialog.py", line 89, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
+ImportError: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+
+2025-12-31 02:24:35,744 - epetcare - ERROR - Error during startup: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+2025-12-31 02:24:35,744 - epetcare - ERROR - Traceback (most recent call last):
+  File "main.py", line 83, in <module>
+    from views.main_window import MainWindow
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\main_window.py", line 118, in <module>
+    from views.login_dialog import LoginDialog
+  File "C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\views\login_dialog.py", line 89, in <module>
+    from models.data_access import UserDataAccess, VeterinarianDataAccess, SuperadminDataAccess
+ImportError: cannot import name 'SuperadminDataAccess' from 'models.data_access' (C:\Users\hamme\Documents\Projects\epetcare\vet_desktop_app\models\data_access.py)
+
+2025-12-31 02:32:25,520 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-31 02:32:25,520 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-31 02:32:25,855 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-31 02:32:26,498 - epetcare - INFO - Initializing application...
+2025-12-31 02:32:26,625 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-12-31 02:32:27,855 - epetcare - INFO - PostgreSQL connection established
+2025-12-31 02:32:27,855 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-12-31 02:32:28,186 - epetcare - INFO - Creating main window...
+2025-12-31 02:33:06,913 - epetcare - INFO - Starting ePetCare Vet Desktop Application
+2025-12-31 02:33:06,913 - epetcare - WARNING - module_finder.py not found. Continuing without it.
+2025-12-31 02:33:07,056 - epetcare - WARNING - utils.database (SQLite) module is deprecated and not used for active data access.
+2025-12-31 02:33:07,324 - epetcare - INFO - Initializing application...
+2025-12-31 02:33:07,356 - epetcare - WARNING - Stylesheet not found in any of the checked locations
+2025-12-31 02:33:07,380 - epetcare - INFO - Connecting to PostgreSQL host=dpg-d3an6aggjchc73cpr5i0-a.oregon-postgres.render.com port=5432 db=epetcare_database user=shiro sslmode=require
+2025-12-31 02:33:08,345 - epetcare - INFO - PostgreSQL connection established
+2025-12-31 02:33:08,345 - epetcare - INFO - Connected to PostgreSQL successfully
+2025-12-31 02:33:08,703 - epetcare - INFO - Creating main window...
+2025-12-31 02:33:19,529 - epetcare - INFO - Application started successfully

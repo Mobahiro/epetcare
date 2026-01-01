@@ -358,6 +358,17 @@
         .stat-value {
             font-size: 26px;
         }
+        
+        /* Mobile table responsiveness */
+        .vet-table {
+            min-width: 600px;
+        }
+        
+        .vet-table th,
+        .vet-table td {
+            padding: 10px 12px;
+            white-space: nowrap;
+        }
     }
 </style>
 
@@ -412,6 +423,7 @@
         </div>
         <div class="vet-card-body">
             {% if upcoming_appointments %}
+            <div style="overflow-x: auto;">
             <table class="vet-table">
                 <thead>
                     <tr>
@@ -461,6 +473,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% else %}
             <div class="vet-empty-state">
                 <div class="vet-empty-icon">📭</div>

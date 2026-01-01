@@ -245,7 +245,8 @@
     <h2>All Appointments</h2>
   </div>
   
-  <table class="modern-table" id="appointmentsTable">
+  <div class="modern-table-wrapper" style="overflow-x: auto;">
+    <table class="modern-table" id="appointmentsTable">
     <thead>
       <tr>
         <th>Date & Time</th>
@@ -295,6 +296,7 @@
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 {% endblock %}
 
