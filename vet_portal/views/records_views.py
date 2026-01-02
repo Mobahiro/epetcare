@@ -7,10 +7,18 @@ from ..forms import MedicalRecordForm
 from ..mixins import vet_required
 
 
+def _get_vet_branch(request):
+    """Get the current vet's branch"""
+    return request.user.vet_profile.branch
+
+
 @login_required
 @vet_required
 def medical_record_create(request, pet_id):
-    pet = get_object_or_404(Pet, id=pet_id)
+    vet_branch = _get_vet_branch(request)
+    # Only allow access to pets in the vet's branch
+    pet = get_object_or_404(Pet.objects.filter(owner__branch=vet_branch), id=pet_id)
+    
     if request.method == 'POST':
         form = MedicalRecordForm(request.POST)
         if form.is_valid():
@@ -40,7 +48,13 @@ def medical_record_create(request, pet_id):
 @login_required
 @vet_required
 def medical_record_update(request, pk):
-    record = get_object_or_404(MedicalRecord, pk=pk)
+    vet_branch = _get_vet_branch(request)
+    # Only allow access to records of pets in the vet's branch
+    record = get_object_or_404(
+        MedicalRecord.objects.filter(pet__owner__branch=vet_branch),
+        pk=pk
+    )
+    
     if request.method == 'POST':
         form = MedicalRecordForm(request.POST, instance=record)
         if form.is_valid():
@@ -65,7 +79,13 @@ def medical_record_update(request, pk):
 @login_required
 @vet_required
 def medical_record_delete(request, pk):
-    record = get_object_or_404(MedicalRecord, pk=pk)
+    vet_branch = _get_vet_branch(request)
+    # Only allow access to records of pets in the vet's branch
+    record = get_object_or_404(
+        MedicalRecord.objects.filter(pet__owner__branch=vet_branch),
+        pk=pk
+    )
+    
     pet_id = record.pet.id
     if request.method == 'POST':
         record.delete()
@@ -77,8 +97,14 @@ def medical_record_delete(request, pk):
 @login_required
 @vet_required
 def medical_record_detail(request, pk):
-    """Display detailed view of a medical record"""
-    record = get_object_or_404(MedicalRecord.objects.select_related('pet', 'pet__owner'), pk=pk)
+    """Display detailed view of a medical record - only for vet's branch"""
+    vet_branch = _get_vet_branch(request)
+    record = get_object_or_404(
+        MedicalRecord.objects.select_related('pet', 'pet__owner').filter(
+            pet__owner__branch=vet_branch
+        ),
+        pk=pk
+    )
     
     context = {
         'record': record,
@@ -90,8 +116,11 @@ def medical_record_detail(request, pk):
 @login_required
 @vet_required
 def medical_record_list(request):
-    """List all medical records"""
-    records = MedicalRecord.objects.select_related(
+    """List all medical records - only for vet's branch"""
+    vet_branch = _get_vet_branch(request)
+    records = MedicalRecord.objects.filter(
+        pet__owner__branch=vet_branch
+    ).select_related(
         'pet', 'pet__owner'
     ).order_by('-visit_date')
     

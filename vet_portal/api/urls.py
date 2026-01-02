@@ -3,14 +3,14 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'owners', views.OwnerViewSet)
-router.register(r'pets', views.PetViewSet)
-router.register(r'appointments', views.AppointmentViewSet)
-router.register(r'medical-records', views.MedicalRecordViewSet)
-router.register(r'prescriptions', views.PrescriptionViewSet)
-router.register(r'treatments', views.TreatmentViewSet)
-router.register(r'treatment-records', views.TreatmentRecordViewSet)
-router.register(r'vet-schedules', views.VetScheduleViewSet)
+router.register(r'owners', views.OwnerViewSet, basename='owner')
+router.register(r'pets', views.PetViewSet, basename='pet')
+router.register(r'appointments', views.AppointmentViewSet, basename='appointment')
+router.register(r'medical-records', views.MedicalRecordViewSet, basename='medicalrecord')
+router.register(r'prescriptions', views.PrescriptionViewSet, basename='prescription')
+router.register(r'treatments', views.TreatmentViewSet, basename='treatment')
+router.register(r'treatment-records', views.TreatmentRecordViewSet, basename='treatmentrecord')
+router.register(r'vet-schedules', views.VetScheduleViewSet, basename='vetschedule')
 router.register(r'notifications', views.VetNotificationViewSet, basename='notification')
 
 urlpatterns = [

@@ -19,23 +19,28 @@ def dashboard(request):
     # Auto-update missed appointments (past scheduled → missed)
     Appointment.update_missed_appointments()
     
-    # Get veterinarian
+    # Get veterinarian and their branch
     vet = request.user.vet_profile
+    vet_branch = vet.branch
     
-    # Get today's appointments
+    # Get today's appointments - ONLY for pets in vet's branch
     today = timezone.now().date()
     today_appointments = Appointment.objects.filter(
-        date_time__date=today
+        date_time__date=today,
+        pet__owner__branch=vet_branch  # Filter by branch
     ).select_related('pet', 'pet__owner').order_by('date_time')
     
-    # Get upcoming appointments (next 7 days)
+    # Get upcoming appointments (next 7 days) - ONLY for pets in vet's branch
     upcoming_appointments = Appointment.objects.filter(
         date_time__date__gt=today,
-        date_time__date__lte=today + timezone.timedelta(days=7)
+        date_time__date__lte=today + timezone.timedelta(days=7),
+        pet__owner__branch=vet_branch  # Filter by branch
     ).select_related('pet', 'pet__owner').order_by('date_time')
     
-    # Get recent medical records
-    recent_records = MedicalRecord.objects.select_related(
+    # Get recent medical records - ONLY for pets in vet's branch
+    recent_records = MedicalRecord.objects.filter(
+        pet__owner__branch=vet_branch  # Filter by branch
+    ).select_related(
         'pet', 'pet__owner'
     ).order_by('-visit_date')[:10]
     
@@ -49,17 +54,20 @@ def dashboard(request):
         veterinarian=vet, is_read=False
     ).count()
     
-    # Get statistics
-    total_pets = Pet.objects.count()
+    # Get statistics - ONLY for vet's branch
+    total_pets = Pet.objects.filter(owner__branch=vet_branch).count()
     total_appointments = Appointment.objects.filter(
-        date_time__date__gte=today
+        date_time__date__gte=today,
+        pet__owner__branch=vet_branch  # Filter by branch
     ).count()
     total_pending_prescriptions = Prescription.objects.filter(
-        is_active=True
+        is_active=True,
+        pet__owner__branch=vet_branch  # Filter by branch
     ).count()
     
     context = {
         'vet': vet,
+        'vet_branch': vet.get_branch_display(),
         'today_appointments': today_appointments,
         'upcoming_appointments': upcoming_appointments,
         'recent_records': recent_records,

@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo ePetCare Vet Portal - ENHANCED VERSION
+echo ePetCare Vet Portal - Superadmin Dashboard
 echo ========================================
 echo.
 
@@ -21,31 +21,13 @@ echo Python found:
 python --version
 echo.
 
-REM Check for and fix common issues before starting
-echo Checking for common issues...
-if exist "vet_desktop_app\utils\remote_db_client.py" (
-    echo Verifying remote_db_client.py...
-    python -m py_compile "vet_desktop_app\utils\remote_db_client.py" >nul 2>&1
-    if errorlevel 1 (
-        echo WARNING: Issues detected in remote_db_client.py
-        echo Attempting to fix...
-        if exist "diagnose_db_sync.py" (
-            python diagnose_db_sync.py --quick-fix >nul 2>&1
-            echo Fixes applied.
-        )
-    ) else (
-        echo remote_db_client.py looks good.
-    )
-)
-echo.
-
 REM Install dependencies without complex checking
-echo Installing dependencies...
+echo Installing/checking dependencies...
 pip install PySide6 Pillow requests urllib3 certifi psycopg2-binary --quiet
-echo Dependencies installed!
+echo Dependencies ready!
 echo.
 
-REM Check application configuration (server_url and Postgres) safely
+REM Check application configuration
 echo Checking application configuration...
 set "_CHECKCFG=check_config_tmp.py"
 > "%_CHECKCFG%" echo import json, sys, io, os
@@ -69,69 +51,11 @@ python "%_CHECKCFG%"
 del "%_CHECKCFG%" >nul 2>&1
 echo.
 
-REM Create runner script (will NOT overwrite existing Postgres config)
-echo Creating application script...
-echo import os, sys, json, traceback > run_app.py
-echo root_dir = r'%CD%' >> run_app.py
-echo app_dir = os.path.join(root_dir, 'vet_desktop_app') >> run_app.py
-echo sys.path.insert(0, root_dir) >> run_app.py
-echo sys.path.insert(0, app_dir) >> run_app.py
-echo os.chdir(app_dir) >> run_app.py
-echo cfg_path = os.path.join(app_dir, 'config.json') >> run_app.py
-echo needs_template = False >> run_app.py
-echo if not os.path.exists(cfg_path): >> run_app.py
-echo     needs_template = True >> run_app.py
-echo else: >> run_app.py
-echo     try: >> run_app.py
-echo         data = json.load(open(cfg_path, 'r')) >> run_app.py
-echo         if 'postgres' not in data or 'app' not in data or 'server_url' not in data.get('app', {}): >> run_app.py
-echo             needs_template = True >> run_app.py
-echo     except Exception: >> run_app.py
-echo         needs_template = True >> run_app.py
-echo if needs_template: >> run_app.py
-echo     template = { >> run_app.py
-echo         'postgres': { >> run_app.py
-echo             'host': 'YOUR_DB_HOST', >> run_app.py
-echo             'port': 5432, >> run_app.py
-echo             'database': 'YOUR_DB_NAME', >> run_app.py
-echo             'user': 'YOUR_DB_USER', >> run_app.py
-echo             'password': 'YOUR_DB_PASSWORD', >> run_app.py
-echo             'sslmode': 'require', >> run_app.py
-echo             'database_url': '', >> run_app.py
-echo             'pg_dump_path': '' >> run_app.py
-echo         }, >> run_app.py
-echo         'app': { >> run_app.py
-echo             'offline_mode': False, >> run_app.py
-echo             'sync_interval': 300, >> run_app.py
-echo             'auto_backup': True, >> run_app.py
-echo             'server_url': 'https://epetcare.onrender.com' >> run_app.py
-echo         }, >> run_app.py
-echo         'ui': {'theme': 'light', 'font_size': 10} >> run_app.py
-echo     } >> run_app.py
-echo     with open(cfg_path, 'w') as f: json.dump(template, f, indent=4) >> run_app.py
-echo     print('Created config.json with server_url and postgres template - please fill credentials if needed.') >> run_app.py
-echo else: >> run_app.py
-echo     try: >> run_app.py
-echo         data = json.load(open(cfg_path, 'r')) >> run_app.py
-echo         srv = data.get('app', {}).get('server_url', '<missing>') >> run_app.py
-echo         print(f'Using existing config.json (server_url: {srv})') >> run_app.py
-echo     except Exception: >> run_app.py
-echo         print('Using existing config.json') >> run_app.py
-echo try: >> run_app.py
-echo     print('Starting ePetCare Vet Portal...') >> run_app.py
-echo     with open('main.py','r',encoding='utf-8') as f: code = compile(f.read(),'main.py','exec'); exec(code) >> run_app.py
-echo except Exception as e: >> run_app.py
-echo     print('\nERROR:', e) >> run_app.py
-echo     traceback.print_exc() >> run_app.py
-echo     input('\nPress Enter to exit...') >> run_app.py
-
-echo Script created (non-destructive).
-echo.
-
-REM Run the Python script
+REM Run the desktop app directly
 echo Starting ePetCare Vet Portal...
 echo.
-python run_app.py
+cd vet_desktop_app
+python main.py
 
 REM Check if the application ran successfully
 if errorlevel 1 (
@@ -139,6 +63,7 @@ if errorlevel 1 (
     echo ERROR: Application failed to start properly
     echo Error code: %errorlevel%
     echo.
+    cd ..
     echo Launching diagnostic tool...
     if exist "diagnose_db_sync.py" (
         python diagnose_db_sync.py
@@ -150,11 +75,7 @@ if errorlevel 1 (
     )
 ) else (
     echo Application ran successfully
-)
-
-REM Clean up
-if exist run_app.py (
-    del run_app.py >nul 2>&1
+    cd ..
 )
 
 echo.

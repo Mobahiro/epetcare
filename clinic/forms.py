@@ -104,6 +104,36 @@ class PetForm(forms.ModelForm):
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set max date to today to prevent future dates
+        from datetime import date
+        self.fields['birth_date'].widget.attrs['max'] = date.today().isoformat()
+        # Set maxlength for name and breed
+        self.fields['name'].widget.attrs['maxlength'] = '25'
+        self.fields['breed'].widget.attrs['maxlength'] = '35'
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if len(name) > 25:
+            raise forms.ValidationError("Pet name cannot exceed 25 characters.")
+        if len(name) < 1:
+            raise forms.ValidationError("Pet name is required.")
+        return name
+    
+    def clean_breed(self):
+        breed = self.cleaned_data.get('breed', '').strip()
+        if len(breed) > 35:
+            raise forms.ValidationError("Breed cannot exceed 35 characters.")
+        return breed
+    
+    def clean_birth_date(self):
+        from datetime import date
+        birth_date = self.cleaned_data.get('birth_date')
+        if birth_date and birth_date > date.today():
+            raise forms.ValidationError("Birth date cannot be in the future.")
+        return birth_date
 
 
 class PetCreateForm(forms.ModelForm):
@@ -119,6 +149,36 @@ class PetCreateForm(forms.ModelForm):
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set max date to today to prevent future dates
+        from datetime import date
+        self.fields['birth_date'].widget.attrs['max'] = date.today().isoformat()
+        # Set maxlength for name and breed
+        self.fields['name'].widget.attrs['maxlength'] = '25'
+        self.fields['breed'].widget.attrs['maxlength'] = '35'
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if len(name) > 25:
+            raise forms.ValidationError("Pet name cannot exceed 25 characters.")
+        if len(name) < 1:
+            raise forms.ValidationError("Pet name is required.")
+        return name
+    
+    def clean_breed(self):
+        breed = self.cleaned_data.get('breed', '').strip()
+        if len(breed) > 35:
+            raise forms.ValidationError("Breed cannot exceed 35 characters.")
+        return breed
+    
+    def clean_birth_date(self):
+        from datetime import date
+        birth_date = self.cleaned_data.get('birth_date')
+        if birth_date and birth_date > date.today():
+            raise forms.ValidationError("Birth date cannot be in the future.")
+        return birth_date
 
 
 from django.utils import timezone

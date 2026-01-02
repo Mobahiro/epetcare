@@ -154,7 +154,8 @@
 <div class="patient-header">
   <div class="patient-photo">
     {% if patient.image_url or patient.image %}
-      <img src="{{ patient.image_url|default:patient.image.url }}" alt="{{ patient.name }}">
+      <img src="{{ patient.image_url|default:patient.image.url }}" alt="{{ patient.name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <span class="patient-photo-placeholder" style="display:none;">🐾</span>
     {% else %}
       <span class="patient-photo-placeholder">🐾</span>
     {% endif %}

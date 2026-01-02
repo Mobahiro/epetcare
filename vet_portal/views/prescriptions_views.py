@@ -7,13 +7,22 @@ from ..forms import PrescriptionForm
 from ..mixins import vet_required
 
 
+def _get_vet_branch(request):
+    """Get the current vet's branch"""
+    return request.user.vet_profile.branch
+
+
 @login_required
 @vet_required
 def prescription_list(request):
-    """List all active prescriptions"""
-    prescriptions = Prescription.objects.select_related(
+    """List all active prescriptions - only for vet's branch"""
+    vet_branch = _get_vet_branch(request)
+    prescriptions = Prescription.objects.filter(
+        pet__owner__branch=vet_branch,
+        is_active=True
+    ).select_related(
         'pet', 'pet__owner'
-    ).filter(is_active=True).order_by('-date_prescribed')
+    ).order_by('-date_prescribed')
     
     return render(request, 'vet_portal/prescriptions/list.html', {
         'prescriptions': prescriptions,
@@ -23,7 +32,10 @@ def prescription_list(request):
 @login_required
 @vet_required
 def prescription_create(request, pet_id):
-    pet = get_object_or_404(Pet, id=pet_id)
+    vet_branch = _get_vet_branch(request)
+    # Only allow access to pets in the vet's branch
+    pet = get_object_or_404(Pet.objects.filter(owner__branch=vet_branch), id=pet_id)
+    
     if request.method == 'POST':
         form = PrescriptionForm(request.POST)
         if form.is_valid():
@@ -53,7 +65,13 @@ def prescription_create(request, pet_id):
 @login_required
 @vet_required
 def prescription_update(request, pk):
-    rx = get_object_or_404(Prescription, pk=pk)
+    vet_branch = _get_vet_branch(request)
+    # Only allow access to prescriptions of pets in the vet's branch
+    rx = get_object_or_404(
+        Prescription.objects.filter(pet__owner__branch=vet_branch),
+        pk=pk
+    )
+    
     if request.method == 'POST':
         form = PrescriptionForm(request.POST, instance=rx)
         if form.is_valid():
@@ -78,7 +96,13 @@ def prescription_update(request, pk):
 @login_required
 @vet_required
 def prescription_delete(request, pk):
-    rx = get_object_or_404(Prescription, pk=pk)
+    vet_branch = _get_vet_branch(request)
+    # Only allow access to prescriptions of pets in the vet's branch
+    rx = get_object_or_404(
+        Prescription.objects.filter(pet__owner__branch=vet_branch),
+        pk=pk
+    )
+    
     pet_id = rx.pet.id
     if request.method == 'POST':
         rx.delete()

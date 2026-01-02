@@ -26,28 +26,42 @@ class IsVeterinarian(permissions.BasePermission):
         return request.user.is_authenticated and hasattr(request.user, 'vet_profile')
 
 
-class OwnerViewSet(viewsets.ReadOnlyModelViewSet):
+class BranchFilteredMixin:
+    """Mixin to filter querysets by the vet's branch"""
+    def get_vet_branch(self):
+        return self.request.user.vet_profile.branch
+
+
+class OwnerViewSet(BranchFilteredMixin, viewsets.ReadOnlyModelViewSet):
     """
     API endpoint for viewing owners.
-    Veterinarians can only view owners, not create/update/delete.
+    Veterinarians can only view owners in their branch.
     """
-    queryset = Owner.objects.all()
     serializer_class = OwnerSerializer
     permission_classes = [IsVeterinarian]
     filter_backends = [filters.SearchFilter]
     search_fields = ['full_name', 'email', 'phone']
+    
+    def get_queryset(self):
+        # Only show owners in the vet's branch
+        return Owner.objects.filter(branch=self.get_vet_branch())
 
 
-class PetViewSet(viewsets.ReadOnlyModelViewSet):
+class PetViewSet(BranchFilteredMixin, viewsets.ReadOnlyModelViewSet):
     """
     API endpoint for viewing pets.
-    Veterinarians can only view pets, not create/update/delete.
+    Veterinarians can only view pets in their branch.
     """
-    queryset = Pet.objects.select_related('owner').all()
     serializer_class = PetSerializer
     permission_classes = [IsVeterinarian]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'species', 'breed', 'owner__full_name']
+
+    def get_queryset(self):
+        # Only show pets whose owners are in the vet's branch
+        return Pet.objects.select_related('owner').filter(
+            owner__branch=self.get_vet_branch()
+        )
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -56,49 +70,65 @@ class PetViewSet(viewsets.ReadOnlyModelViewSet):
         return ctx
 
 
-class AppointmentViewSet(viewsets.ModelViewSet):
+class AppointmentViewSet(BranchFilteredMixin, viewsets.ModelViewSet):
     """
     API endpoint for managing appointments.
-    Veterinarians can view, create, update, and delete appointments.
+    Veterinarians can only manage appointments for pets in their branch.
     """
-    queryset = Appointment.objects.select_related('pet', 'pet__owner').all()
     serializer_class = AppointmentSerializer
     permission_classes = [IsVeterinarian]
     filter_backends = [filters.SearchFilter]
     search_fields = ['pet__name', 'pet__owner__full_name', 'reason', 'status']
 
+    def get_queryset(self):
+        # Only show appointments for pets in the vet's branch
+        return Appointment.objects.select_related('pet', 'pet__owner').filter(
+            pet__owner__branch=self.get_vet_branch()
+        )
+
     def perform_create(self, serializer):
         serializer.save()
 
 
-class MedicalRecordViewSet(viewsets.ModelViewSet):
+class MedicalRecordViewSet(BranchFilteredMixin, viewsets.ModelViewSet):
     """
     API endpoint for managing medical records.
-    Veterinarians can view, create, update, and delete medical records.
+    Veterinarians can only manage records for pets in their branch.
     """
-    queryset = MedicalRecord.objects.select_related('pet').all()
     serializer_class = MedicalRecordSerializer
     permission_classes = [IsVeterinarian]
     filter_backends = [filters.SearchFilter]
     search_fields = ['pet__name', 'condition', 'treatment']
 
+    def get_queryset(self):
+        # Only show records for pets in the vet's branch
+        return MedicalRecord.objects.select_related('pet').filter(
+            pet__owner__branch=self.get_vet_branch()
+        )
 
-class PrescriptionViewSet(viewsets.ModelViewSet):
+
+class PrescriptionViewSet(BranchFilteredMixin, viewsets.ModelViewSet):
     """
     API endpoint for managing prescriptions.
-    Veterinarians can view, create, update, and delete prescriptions.
+    Veterinarians can only manage prescriptions for pets in their branch.
     """
-    queryset = Prescription.objects.select_related('pet').all()
     serializer_class = PrescriptionSerializer
     permission_classes = [IsVeterinarian]
     filter_backends = [filters.SearchFilter]
     search_fields = ['pet__name', 'medication_name']
+
+    def get_queryset(self):
+        # Only show prescriptions for pets in the vet's branch
+        return Prescription.objects.select_related('pet').filter(
+            pet__owner__branch=self.get_vet_branch()
+        )
 
 
 class TreatmentViewSet(viewsets.ModelViewSet):
     """
     API endpoint for managing treatments.
     Veterinarians can view, create, update, and delete treatments.
+    Treatments are global (not branch-specific) as they're treatment types.
     """
     queryset = Treatment.objects.all()
     serializer_class = TreatmentSerializer
@@ -107,32 +137,40 @@ class TreatmentViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
 
 
-class TreatmentRecordViewSet(viewsets.ModelViewSet):
+class TreatmentRecordViewSet(BranchFilteredMixin, viewsets.ModelViewSet):
     """
     API endpoint for managing treatment records.
-    Veterinarians can view, create, update, and delete treatment records.
+    Veterinarians can only manage treatment records for pets in their branch.
     """
-    queryset = TreatmentRecord.objects.select_related('medical_record', 'treatment', 'performed_by').all()
     serializer_class = TreatmentRecordSerializer
     permission_classes = [IsVeterinarian]
+
+    def get_queryset(self):
+        # Only show treatment records for pets in the vet's branch
+        return TreatmentRecord.objects.select_related(
+            'medical_record', 'treatment', 'performed_by'
+        ).filter(
+            medical_record__pet__owner__branch=self.get_vet_branch()
+        )
 
     def perform_create(self, serializer):
         # Set the performed_by field to the current veterinarian
         serializer.save(performed_by=self.request.user.vet_profile)
 
 
-class VetScheduleViewSet(viewsets.ModelViewSet):
+class VetScheduleViewSet(BranchFilteredMixin, viewsets.ModelViewSet):
     """
     API endpoint for managing veterinarian schedules.
-    Veterinarians can view all schedules but only update their own.
+    Veterinarians can only view schedules of vets in their branch.
     """
-    queryset = VetSchedule.objects.select_related('veterinarian').all()
     serializer_class = VetScheduleSerializer
     permission_classes = [IsVeterinarian]
 
     def get_queryset(self):
-        # Filter by date range if provided
-        queryset = super().get_queryset()
+        # Only show schedules for vets in the same branch
+        queryset = VetSchedule.objects.select_related('veterinarian').filter(
+            veterinarian__branch=self.get_vet_branch()
+        )
         start_date = self.request.query_params.get('start_date', None)
         end_date = self.request.query_params.get('end_date', None)
 

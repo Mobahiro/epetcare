@@ -588,6 +588,37 @@
       <div style="font-size: 14px; font-weight: 600; color: var(--owner-primary);">
         📍 {{ request.user.owner_profile.get_branch_display }}
       </div>
+      {% if request.user.owner_profile.branch == 'taguig' %}
+      <a href="https://maps.app.goo.gl/6oXKJZePMk3kqCbT6" target="_blank" rel="noopener noreferrer" class="branch-address-link">
+        193-A 29th Ave, Taguig,<br>1217 Metro Manila
+        <span class="address-hint">📌 Tap to view on map</span>
+      </a>
+      <style>
+        .branch-address-link {
+          display: block;
+          margin-top: 8px;
+          padding: 6px 8px;
+          font-size: 11px;
+          color: var(--owner-text-secondary);
+          text-decoration: none;
+          line-height: 1.4;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+        }
+        .branch-address-link:hover {
+          background: rgba(212, 139, 62, 0.15);
+          color: var(--owner-primary);
+          transform: translateY(-1px);
+        }
+        .address-hint {
+          display: block;
+          margin-top: 5px;
+          font-size: 9px;
+          color: var(--owner-primary);
+          opacity: 0.8;
+        }
+      </style>
+      {% endif %}
     </div>
     {% endif %}
 

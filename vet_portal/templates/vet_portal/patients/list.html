@@ -37,7 +37,8 @@
       <div class="pet-card">
         <div class="pet-card-header">
           {% if p.image_url or p.image %}
-            <img src="{{ p.image_url|default:p.image.url }}" alt="{{ p.name }}" class="pet-image">
+            <img src="{{ p.image_url|default:p.image.url }}" alt="{{ p.name }}" class="pet-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="pet-image-placeholder" style="display:none;">{{ p.name|slice:':1'|upper }}</div>
           {% else %}
             <div class="pet-image-placeholder">{{ p.name|slice:':1'|upper }}</div>
           {% endif %}

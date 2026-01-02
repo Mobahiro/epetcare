@@ -12,33 +12,48 @@ from ..mixins import is_veterinarian
 
 @login_required
 def appointment_list(request):
-    """List all appointments"""
+    """List all appointments - filtered by vet's branch"""
     if not is_veterinarian(request.user):
         messages.error(request, "Access denied.")
         return redirect('home')
     
+    # Get the vet's branch
+    vet = request.user.vet_profile
+    vet_branch = vet.branch
+    
     # Auto-update missed appointments (past scheduled → missed)
     Appointment.update_missed_appointments()
     
-    appointments = Appointment.objects.select_related(
+    # Only show appointments for pets in the vet's branch
+    appointments = Appointment.objects.filter(
+        pet__owner__branch=vet_branch
+    ).select_related(
         'pet', 'pet__owner'
     ).order_by('-date_time')
     
     context = {
         'appointments': appointments,
+        'vet_branch': vet.get_branch_display(),
     }
     return render(request, 'vet_portal/appointments/list.html', context)
 
 
 @login_required
 def appointment_detail(request, pk):
-    """View appointment details"""
+    """View appointment details - must be in vet's branch"""
     if not is_veterinarian(request.user):
         messages.error(request, "Access denied.")
         return redirect('home')
     
+    # Get the vet's branch
+    vet = request.user.vet_profile
+    vet_branch = vet.branch
+    
+    # Only allow viewing appointments from the vet's branch
     appointment = get_object_or_404(
-        Appointment.objects.select_related('pet', 'pet__owner'), 
+        Appointment.objects.select_related('pet', 'pet__owner').filter(
+            pet__owner__branch=vet_branch
+        ), 
         pk=pk
     )
     
@@ -50,12 +65,20 @@ def appointment_detail(request, pk):
 
 @login_required
 def appointment_complete(request, pk):
-    """Mark an appointment as completed"""
+    """Mark an appointment as completed - must be in vet's branch"""
     if not is_veterinarian(request.user):
         messages.error(request, "Access denied.")
         return redirect('home')
     
-    appointment = get_object_or_404(Appointment, pk=pk)
+    # Get the vet's branch
+    vet = request.user.vet_profile
+    vet_branch = vet.branch
+    
+    # Only allow completing appointments from the vet's branch
+    appointment = get_object_or_404(
+        Appointment.objects.filter(pet__owner__branch=vet_branch),
+        pk=pk
+    )
     
     if request.method == 'POST':
         appointment.status = 'completed'
@@ -67,12 +90,20 @@ def appointment_complete(request, pk):
 
 @login_required
 def appointment_cancel(request, pk):
-    """Cancel an appointment"""
+    """Cancel an appointment - must be in vet's branch"""
     if not is_veterinarian(request.user):
         messages.error(request, "Access denied.")
         return redirect('home')
     
-    appointment = get_object_or_404(Appointment, pk=pk)
+    # Get the vet's branch
+    vet = request.user.vet_profile
+    vet_branch = vet.branch
+    
+    # Only allow cancelling appointments from the vet's branch
+    appointment = get_object_or_404(
+        Appointment.objects.filter(pet__owner__branch=vet_branch),
+        pk=pk
+    )
     
     if request.method == 'POST':
         appointment.status = 'cancelled'

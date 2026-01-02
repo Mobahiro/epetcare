@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView
 from django.urls import reverse
+from django.http import Http404
 
 from clinic.models import Pet, MedicalRecord, Prescription
 from .forms import MedicalRecordForm, PrescriptionForm
@@ -21,11 +22,26 @@ def _require_vet(request):
 	return True
 
 
+def _get_vet_branch(request):
+	"""Get the current vet's branch"""
+	return request.user.vet_profile.branch
+
+
+def _verify_pet_branch(pet, vet_branch):
+	"""Verify that a pet belongs to the vet's branch"""
+	if pet.owner.branch != vet_branch:
+		raise Http404("Pet not found in your branch")
+
+
 @login_required
 def medical_record_create(request, pet_id):
 	if not _require_vet(request):
 		return redirect('home')
-	pet = get_object_or_404(Pet, id=pet_id)
+	
+	vet_branch = _get_vet_branch(request)
+	# Only allow access to pets in the vet's branch
+	pet = get_object_or_404(Pet.objects.filter(owner__branch=vet_branch), id=pet_id)
+	
 	if request.method == 'POST':
 		form = MedicalRecordForm(request.POST)
 		if form.is_valid():
@@ -51,7 +67,14 @@ def medical_record_create(request, pet_id):
 def medical_record_update(request, pk):
 	if not _require_vet(request):
 		return redirect('home')
-	record = get_object_or_404(MedicalRecord, pk=pk)
+	
+	vet_branch = _get_vet_branch(request)
+	# Only allow access to records of pets in the vet's branch
+	record = get_object_or_404(
+		MedicalRecord.objects.filter(pet__owner__branch=vet_branch),
+		pk=pk
+	)
+	
 	if request.method == 'POST':
 		form = MedicalRecordForm(request.POST, instance=record)
 		if form.is_valid():
@@ -77,7 +100,14 @@ def medical_record_update(request, pk):
 def medical_record_delete(request, pk):
 	if not _require_vet(request):
 		return redirect('home')
-	record = get_object_or_404(MedicalRecord, pk=pk)
+	
+	vet_branch = _get_vet_branch(request)
+	# Only allow access to records of pets in the vet's branch
+	record = get_object_or_404(
+		MedicalRecord.objects.filter(pet__owner__branch=vet_branch),
+		pk=pk
+	)
+	
 	pet_id = record.pet.id
 	if request.method == 'POST':
 		record.delete()
@@ -90,7 +120,11 @@ def medical_record_delete(request, pk):
 def prescription_create(request, pet_id):
 	if not _require_vet(request):
 		return redirect('home')
-	pet = get_object_or_404(Pet, id=pet_id)
+	
+	vet_branch = _get_vet_branch(request)
+	# Only allow access to pets in the vet's branch
+	pet = get_object_or_404(Pet.objects.filter(owner__branch=vet_branch), id=pet_id)
+	
 	if request.method == 'POST':
 		form = PrescriptionForm(request.POST)
 		if form.is_valid():
@@ -116,7 +150,14 @@ def prescription_create(request, pet_id):
 def prescription_update(request, pk):
 	if not _require_vet(request):
 		return redirect('home')
-	rx = get_object_or_404(Prescription, pk=pk)
+	
+	vet_branch = _get_vet_branch(request)
+	# Only allow access to prescriptions of pets in the vet's branch
+	rx = get_object_or_404(
+		Prescription.objects.filter(pet__owner__branch=vet_branch),
+		pk=pk
+	)
+	
 	if request.method == 'POST':
 		form = PrescriptionForm(request.POST, instance=rx)
 		if form.is_valid():
@@ -142,7 +183,14 @@ def prescription_update(request, pk):
 def prescription_delete(request, pk):
 	if not _require_vet(request):
 		return redirect('home')
-	rx = get_object_or_404(Prescription, pk=pk)
+	
+	vet_branch = _get_vet_branch(request)
+	# Only allow access to prescriptions of pets in the vet's branch
+	rx = get_object_or_404(
+		Prescription.objects.filter(pet__owner__branch=vet_branch),
+		pk=pk
+	)
+	
 	pet_id = rx.pet.id
 	if request.method == 'POST':
 		rx.delete()

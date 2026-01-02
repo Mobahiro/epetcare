@@ -19,8 +19,8 @@ class VetRegisterForm(forms.Form):
     email = forms.CharField(
         max_length=254,
         label="Email",
-        widget=forms.TextInput(attrs={'placeholder': 'yourname_REMBO@vet'}),
-        help_text="Use format: yourname_REMBO@vet to register as veterinarian"
+        widget=forms.TextInput(attrs={'placeholder': 'yourname_pasig@vet'}),
+        help_text="Use format: yourname_BRANCH@vet (e.g., kiyo_pasig@vet, kiyo_taguig@vet, kiyo_makati@vet)"
     )
     personal_email = forms.EmailField(
         label="Personal Email (Gmail, Yahoo, etc.)",
@@ -61,11 +61,12 @@ class VetRegisterForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data.get("email", "").lower()
         
-        # Check if it has the vet keyword: _REMBO@vet
-        if "_rembo@vet" not in email:
+        # Check if it has a valid vet branch keyword
+        valid_keywords = ['taguig@vet', 'pasig@vet', 'makati@vet']
+        if not any(keyword in email for keyword in valid_keywords):
             raise forms.ValidationError(
-                "Email must contain '_REMBO@vet' to register as veterinarian. "
-                "Example: kiyo_REMBO@vet"
+                "Email must contain a branch keyword (taguig@vet, pasig@vet, or makati@vet). "
+                "Example: kiyo_pasig@vet"
             )
         
         # Check if this vet email is already used
@@ -118,7 +119,7 @@ class VetRegisterForm(forms.Form):
     
     def create_user_and_vet(self):
         username = self.cleaned_data["username"].lower()
-        email = self.cleaned_data["email"].lower()  # kiyo_REMBO@vet
+        email = self.cleaned_data["email"].lower()  # kiyo_pasig@vet or kiyo_taguig@vet
         personal_email = self.cleaned_data["personal_email"]  # real Gmail
         password = self.cleaned_data["password1"]
         full_name = self.cleaned_data["full_name"]
@@ -126,11 +127,19 @@ class VetRegisterForm(forms.Form):
         license_number = self.cleaned_data.get("license_number", "")
         phone = self.cleaned_data.get("phone", "")
         bio = self.cleaned_data.get("bio", "")
+        
+        # Extract branch from email
+        if 'pasig@vet' in email:
+            branch = 'pasig'
+        elif 'makati@vet' in email:
+            branch = 'makati'
+        else:
+            branch = 'taguig'  # default
 
-        # Create user with the vet email (kiyo_REMBO@vet)
+        # Create user with the vet email
         user = User.objects.create_user(
             username=username,
-            email=email,  # Use the _REMBO@vet email
+            email=email,
             password=password
         )
 
@@ -145,7 +154,8 @@ class VetRegisterForm(forms.Form):
             phone=phone,
             bio=bio,
             access_code=access_code,
-            personal_email=personal_email  # Real email for sending access code
+            personal_email=personal_email,
+            branch=branch  # Set branch from email
         )
 
         return user, vet, access_code

@@ -73,16 +73,26 @@ def send_vet_registration_otp(request, form):
     # Generate 6-digit OTP
     otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
     
+    # Extract branch from email
+    email = form.cleaned_data['email'].lower()
+    if 'pasig@vet' in email:
+        branch = 'pasig'
+    elif 'makati@vet' in email:
+        branch = 'makati'
+    else:
+        branch = 'taguig'  # default
+    
     # Store registration data and OTP
     registration_data = {
         'username': form.cleaned_data['username'].lower(),
-        'email': form.cleaned_data['email'].lower(),
+        'email': email,
         'personal_email': form.cleaned_data['personal_email'],
         'password': form.cleaned_data['password1'],
         'full_name': form.cleaned_data['full_name'],
         'specialization': form.cleaned_data.get('specialization', ''),
         'license_number': form.cleaned_data.get('license_number', ''),
         'phone': form.cleaned_data.get('phone', ''),
+        'branch': branch,
     }
     
     # Delete any existing OTP for this email
@@ -213,7 +223,8 @@ def verify_vet_registration_otp(request):
                 license_number=data.get('license_number', ''),
                 phone=data.get('phone', ''),
                 access_code=access_code,
-                personal_email=data['personal_email']
+                personal_email=data['personal_email'],
+                branch=data.get('branch', 'taguig')  # Use branch from registration data
             )
             
             # Mark OTP as used
@@ -451,17 +462,15 @@ def complete_owner_registration(request):
         del request.session['owner_otp_id']
         del request.session['owner_email']
         
-        # Auto-login
-        user.backend = 'django.contrib.auth.backends.ModelBackend'
-        login(request, user)
-        
+        # Redirect to login page instead of auto-login
         branch_display = {'taguig': 'Taguig', 'pasig': 'Pasig', 'makati': 'Makati'}.get(selected_branch, selected_branch)
         messages.success(
             request,
-            f"🎉 Registration successful! Welcome to ePetCare, {owner.full_name}! "
-            f"You are registered with the {branch_display} branch."
+            f"🎉 Successfully registered as a pet owner! "
+            f"You are registered with the {branch_display} branch. "
+            f"Please proceed to login with your credentials."
         )
-        return redirect('dashboard')
+        return redirect('login')
         
     except OwnerRegistrationOTP.DoesNotExist:
         messages.error(request, "Invalid verification session. Please register again.")
