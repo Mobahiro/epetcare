@@ -4,6 +4,8 @@
 
 {% block head_extra %}
 <link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<!-- Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <style>
   .form-card {
     background: var(--owner-surface, #fff);
@@ -149,6 +151,154 @@
     background: var(--owner-surface, #fff);
     border-color: var(--owner-text-secondary);
   }
+  /* Image upload with preview */
+  .file-upload-wrapper {
+    position: relative;
+  }
+  .file-upload {
+    border: 2px dashed var(--owner-border, #e8e4df);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background: var(--owner-bg, #FFF5E9);
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .file-upload:hover {
+    border-color: var(--owner-primary, #d48b3e);
+  }
+  .file-upload input[type="file"] {
+    display: none;
+  }
+  .file-upload-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .file-upload-text {
+    font-size: 14px;
+    color: var(--owner-text-secondary, #8B7355);
+  }
+  .file-upload.has-image {
+    padding: 0;
+    border-style: solid;
+    border-color: var(--owner-primary, #d48b3e);
+  }
+  .image-preview {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: none;
+  }
+  .file-upload.has-image .image-preview {
+    display: block;
+  }
+  .file-upload.has-image .file-upload-icon,
+  .file-upload.has-image .file-upload-text {
+    display: none;
+  }
+  .image-change-hint {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    padding: 8px;
+    font-size: 12px;
+    border-radius: 0 0 6px 6px;
+  }
+  .file-upload.has-image .image-change-hint {
+    display: block;
+  }
+  /* Crop modal styles */
+  .crop-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .crop-modal.active {
+    display: flex;
+  }
+  .crop-container {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+  }
+  .crop-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--owner-border, #e8e4df);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .crop-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--owner-text, #573D1C);
+  }
+  .crop-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--owner-text-secondary);
+  }
+  .crop-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow: hidden;
+  }
+  .crop-body img {
+    max-width: 100%;
+    display: block;
+  }
+  .crop-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--owner-border, #e8e4df);
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  .crop-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .crop-btn-cancel {
+    background: transparent;
+    border: 1px solid var(--owner-border, #e8e4df);
+    color: var(--owner-text-secondary);
+  }
+  .crop-btn-save {
+    background: var(--owner-primary, #d48b3e);
+    border: none;
+    color: #fff;
+  }
+  .crop-btn-save:hover {
+    background: var(--owner-text, #573D1C);
+  }
   @media (max-width: 600px) {
     .form-grid {
       grid-template-columns: 1fr;
@@ -238,12 +388,18 @@
           <div class="form-group full-width">
             <label>Pet Photo</label>
             {% if pet.image %}
-              <div class="current-image">
+              <div class="current-image" id="currentImage">
                 <img src="{{ pet.image_url }}" alt="{{ pet.name }}">
                 <p>Current photo: {{ pet.image.name|truncatechars:30 }}</p>
               </div>
             {% endif %}
-            {{ form.image }}
+            <div class="file-upload" id="fileUploadLabel">
+              <input type="file" id="imageInput" name="image" accept="image/*">
+              <img class="image-preview" id="imagePreview" src="" alt="Preview">
+              <div class="file-upload-icon">📷</div>
+              <div class="file-upload-text">Click to upload a new photo</div>
+              <div class="image-change-hint">Click to change photo</div>
+            </div>
             {% if form.image.errors %}<div class="error-message">{{ form.image.errors }}</div>{% endif %}
             <span class="help-text">Upload a new photo to replace the current one</span>
           </div>
@@ -257,4 +413,135 @@
     </div>
   </form>
 </div>
+
+<!-- Crop Modal -->
+<div class="crop-modal" id="cropModal">
+  <div class="crop-container">
+    <div class="crop-header">
+      <h3>✂️ Crop Your Pet Photo</h3>
+      <button type="button" class="crop-close" id="cropClose">&times;</button>
+    </div>
+    <div class="crop-body">
+      <img id="cropImage" src="" alt="Crop">
+    </div>
+    <div class="crop-footer">
+      <button type="button" class="crop-btn crop-btn-cancel" id="cropCancel">Cancel</button>
+      <button type="button" class="crop-btn crop-btn-save" id="cropSave">Save Crop</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cropper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script>
+(function() {
+  const fileUploadLabel = document.getElementById('fileUploadLabel');
+  const imageInput = document.getElementById('imageInput');
+  const imagePreview = document.getElementById('imagePreview');
+  const cropModal = document.getElementById('cropModal');
+  const cropImage = document.getElementById('cropImage');
+  const cropClose = document.getElementById('cropClose');
+  const cropCancel = document.getElementById('cropCancel');
+  const cropSave = document.getElementById('cropSave');
+  const currentImage = document.getElementById('currentImage');
+  
+  let cropper = null;
+  let selectedFile = null;
+  
+  // Click on upload area to trigger file input
+  fileUploadLabel.addEventListener('click', function(e) {
+    if (e.target !== imageInput) {
+      imageInput.click();
+    }
+  });
+  
+  // Handle file selection
+  imageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        cropImage.src = event.target.result;
+        cropModal.classList.add('active');
+        
+        // Initialize cropper after image loads
+        cropImage.onload = function() {
+          if (cropper) {
+            cropper.destroy();
+          }
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 2,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            responsive: true,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: true,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Close modal
+  function closeModal() {
+    cropModal.classList.remove('active');
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+  }
+  
+  cropClose.addEventListener('click', closeModal);
+  cropCancel.addEventListener('click', closeModal);
+  
+  // Save crop
+  cropSave.addEventListener('click', function() {
+    if (cropper) {
+      const canvas = cropper.getCroppedCanvas({
+        width: 400,
+        height: 400,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+      });
+      
+      // Show preview
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      imagePreview.src = croppedDataUrl;
+      fileUploadLabel.classList.add('has-image');
+      
+      // Hide current image if exists
+      if (currentImage) {
+        currentImage.style.display = 'none';
+      }
+      
+      // Convert to blob and create a new file for the Django form
+      canvas.toBlob(function(blob) {
+        const croppedFile = new File([blob], selectedFile.name.replace(/\.[^/.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+        
+        // Create a new DataTransfer and assign to the file input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(croppedFile);
+        imageInput.files = dataTransfer.files;
+        
+        closeModal();
+      }, 'image/jpeg', 0.9);
+    }
+  });
+  
+  // Close modal on backdrop click
+  cropModal.addEventListener('click', function(e) {
+    if (e.target === cropModal) {
+      closeModal();
+    }
+  });
+})();
+</script>
 {% endblock %}
