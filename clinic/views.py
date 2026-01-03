@@ -478,9 +478,18 @@ def complete_owner_registration(request):
 
 
 def logout_view(request):
+    # Clear session completely
     logout(request)
+    request.session.flush()  # Clear all session data
+    
     messages.success(request, "You have been logged out successfully.")
-    return redirect('home')
+    
+    # Create response with cache control headers to prevent back button access
+    response = redirect('home')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 
 @login_required
@@ -503,7 +512,13 @@ def dashboard(request):
         except Exception:
             pass
     pets = Pet.objects.filter(owner=owner).order_by('name') if owner else Pet.objects.none()
-    upcoming = Appointment.objects.filter(pet__owner=owner).order_by('date_time')[:10] if owner else Appointment.objects.none()
+    # Only show scheduled appointments (not completed/cancelled) and in the future
+    from django.utils import timezone
+    upcoming = Appointment.objects.filter(
+        pet__owner=owner,
+        status='scheduled',
+        date_time__gte=timezone.now()
+    ).order_by('date_time')[:10] if owner else Appointment.objects.none()
     notifications = Notification.objects.filter(owner=owner).order_by('-created_at')[:8] if owner else []
     unread_count = Notification.objects.filter(owner=owner, is_read=False).count() if owner else 0
     # Show a subtle toast for the latest unread notification (one-time per load)
@@ -529,7 +544,11 @@ def notifications_list(request):
         except Exception:
             pass
     items = Notification.objects.filter(owner=owner).order_by('-created_at') if owner else []
-    return render(request, 'clinic/notifications.html', {"notifications": items})
+    unread_count = Notification.objects.filter(owner=owner, is_read=False).count() if owner else 0
+    return render(request, 'clinic/notifications.html', {
+        "notifications": items,
+        "unread_count": unread_count,
+    })
 
 
 @login_required
@@ -1127,15 +1146,25 @@ def pet_create(request):
                 pet = form.save(commit=False)
                 pet.owner = owner
 
-                # Handle image upload - first save pet without image
+                # Handle image upload - check for file upload or base64 fallback
                 has_image = False
+                image_file = None
+                base64_image = None
+                
                 if 'image' in request.FILES:
                     image_file = request.FILES['image']
                     has_image = True
                     logger.info(f"Image upload detected: name={image_file.name}, size={image_file.size}, content_type={image_file.content_type}")
+                elif request.POST.get('cropped_image_data'):
+                    # Handle base64 fallback for cropped images
+                    base64_data = request.POST.get('cropped_image_data')
+                    if base64_data and base64_data.startswith('data:image/'):
+                        has_image = True
+                        base64_image = base64_data
+                        logger.info("Base64 cropped image detected (fallback)")
 
                 # Save pet first without image
-                if has_image:
+                if has_image and image_file:
                     # Temporarily remove image to save pet first
                     temp_image = image_file
                     form.cleaned_data['image'] = None
@@ -1153,21 +1182,42 @@ def pet_create(request):
                         os.makedirs(pet_images_dir, exist_ok=True)
                         logger.info("Verified pet_images directory exists")
 
-                        # Create a unique filename
                         import uuid
-                        file_extension = os.path.splitext(temp_image.name)[1].lower()
-                        unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_extension}"
-                        image_path = os.path.join('pet_images', unique_filename)
+                        
+                        if image_file:
+                            # Handle regular file upload
+                            file_extension = os.path.splitext(image_file.name)[1].lower()
+                            unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_extension}"
+                            image_path = os.path.join('pet_images', unique_filename)
 
-                        # Save the file manually
-                        full_path = os.path.join(settings.MEDIA_ROOT, 'pet_images', unique_filename)
-                        logger.info(f"Saving image to: {full_path}")
+                            # Save the file manually
+                            full_path = os.path.join(settings.MEDIA_ROOT, 'pet_images', unique_filename)
+                            logger.info(f"Saving image to: {full_path}")
 
-                        with open(full_path, 'wb+') as destination:
-                            for chunk in temp_image.chunks():
-                                destination.write(chunk)
+                            with open(full_path, 'wb+') as destination:
+                                for chunk in image_file.chunks():
+                                    destination.write(chunk)
 
-                        logger.info(f"Image saved successfully at {full_path}")
+                            logger.info(f"Image saved successfully at {full_path}")
+                            
+                        elif base64_image:
+                            # Handle base64 cropped image fallback
+                            import base64
+                            
+                            # Parse base64 data (format: data:image/jpeg;base64,...)
+                            header, data = base64_image.split(',', 1)
+                            image_data = base64.b64decode(data)
+                            
+                            unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
+                            image_path = os.path.join('pet_images', unique_filename)
+                            full_path = os.path.join(settings.MEDIA_ROOT, 'pet_images', unique_filename)
+                            
+                            logger.info(f"Saving base64 image to: {full_path}")
+                            
+                            with open(full_path, 'wb') as destination:
+                                destination.write(image_data)
+                            
+                            logger.info(f"Base64 image saved successfully at {full_path}")
 
                         # Update the pet with the image path
                         pet.image = image_path

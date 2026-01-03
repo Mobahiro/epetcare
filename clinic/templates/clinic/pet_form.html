@@ -319,7 +319,7 @@
         <div class="form-group">
           <label for="{{ form.birth_date.id_for_label }}">Birth Date</label>
           {{ form.birth_date }}
-          <span class="help-text">Approximate date is fine</span>
+          <span class="help-text">Approximate date is fine (max 30 years ago)</span>
         </div>
         
         <div class="form-group">
@@ -337,6 +337,7 @@
           <label>Pet Photo</label>
           <div class="file-upload" id="fileUploadLabel">
             <input type="file" id="imageInput" name="image" accept="image/*">
+            <input type="hidden" id="croppedImageData" name="cropped_image_data">
             <img class="image-preview" id="imagePreview" src="" alt="Preview">
             <div class="file-upload-icon">📷</div>
             <div class="file-upload-text">Click to upload a photo of your pet</div>
@@ -385,10 +386,15 @@
   
   let cropper = null;
   let selectedFile = null;
+  let hasCroppedImage = false; // Track if we have a cropped image ready for submission
   
   // Click on upload area to trigger file input
   fileUploadLabel.addEventListener('click', function(e) {
     if (e.target !== imageInput) {
+      // Reset file input before clicking to ensure change event fires for new selection
+      // This is safe because we only need to preserve the file when submitting the form
+      imageInput.value = '';
+      hasCroppedImage = false;
       imageInput.click();
     }
   });
@@ -398,47 +404,69 @@
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
       selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        cropImage.src = event.target.result;
-        cropModal.classList.add('active');
-        
-        // Initialize cropper after image loads
-        cropImage.onload = function() {
-          if (cropper) {
-            cropper.destroy();
-          }
-          cropper = new Cropper(cropImage, {
-            aspectRatio: 1,
-            viewMode: 2,
-            dragMode: 'move',
-            autoCropArea: 0.9,
-            responsive: true,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: true,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false,
-          });
-        };
-      };
-      reader.readAsDataURL(file);
+      openCropModal(file);
     }
   });
   
-  // Close modal
-  function closeModal() {
+  function openCropModal(file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      cropImage.src = event.target.result;
+      cropModal.classList.add('active');
+      
+      // Initialize cropper after image loads
+      cropImage.onload = function() {
+        if (cropper) {
+          cropper.destroy();
+        }
+        cropper = new Cropper(cropImage, {
+          aspectRatio: 1,
+          viewMode: 2,
+          dragMode: 'move',
+          autoCropArea: 0.9,
+          responsive: true,
+          restore: false,
+          guides: true,
+          center: true,
+          highlight: true,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
+          toggleDragModeOnDblclick: false,
+        });
+      };
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  // Close modal without saving - reset state
+  function closeModalCancel() {
     cropModal.classList.remove('active');
     if (cropper) {
       cropper.destroy();
       cropper = null;
     }
+    cropImage.src = '';
+    selectedFile = null;
+    hasCroppedImage = false;
+    // Reset file input value
+    imageInput.value = '';
+    // Clear base64 fallback
+    document.getElementById('croppedImageData').value = '';
   }
   
-  cropClose.addEventListener('click', closeModal);
-  cropCancel.addEventListener('click', closeModal);
+  // Close modal after saving - keep the cropped file
+  function closeModalSave() {
+    cropModal.classList.remove('active');
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+    cropImage.src = '';
+    hasCroppedImage = true;
+  }
+  
+  cropClose.addEventListener('click', closeModalCancel);
+  cropCancel.addEventListener('click', closeModalCancel);
   
   // Save crop
   cropSave.addEventListener('click', function() {
@@ -450,31 +478,65 @@
         imageSmoothingQuality: 'high',
       });
       
-      // Show preview
+      // Show preview immediately
       const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
       imagePreview.src = croppedDataUrl;
       fileUploadLabel.classList.add('has-image');
       
+      // Store base64 data as fallback for form submission
+      const croppedImageData = document.getElementById('croppedImageData');
+      croppedImageData.value = croppedDataUrl;
+      
       // Convert to blob and create a new file for the Django form
       canvas.toBlob(function(blob) {
-        const croppedFile = new File([blob], selectedFile.name.replace(/\.[^/.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+        const fileName = (selectedFile ? selectedFile.name.replace(/\.[^/.]+$/, '') : 'pet_photo') + '.jpg';
+        const croppedFile = new File([blob], fileName, { type: 'image/jpeg' });
         
         // Create a new DataTransfer and assign to the file input
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(croppedFile);
-        imageInput.files = dataTransfer.files;
+        try {
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(croppedFile);
+          imageInput.files = dataTransfer.files;
+          console.log('Cropped file set via DataTransfer:', imageInput.files[0]?.name, imageInput.files[0]?.size);
+        } catch (err) {
+          console.log('DataTransfer failed, using base64 fallback:', err);
+        }
         
-        closeModal();
+        closeModalSave();
       }, 'image/jpeg', 0.9);
     }
   });
   
-  // Close modal on backdrop click
+  // Close modal on backdrop click - cancel operation
   cropModal.addEventListener('click', function(e) {
     if (e.target === cropModal) {
-      closeModal();
+      closeModalCancel();
     }
   });
+  
+  // Set min/max date for birth_date field (max 30 years ago, min today)
+  const birthDateInput = document.getElementById('id_birth_date');
+  if (birthDateInput) {
+    const today = new Date();
+    const maxDate = today.toISOString().split('T')[0];
+    const minDate = new Date(today.getFullYear() - 30, today.getMonth(), today.getDate()).toISOString().split('T')[0];
+    birthDateInput.setAttribute('max', maxDate);
+    birthDateInput.setAttribute('min', minDate);
+  }
+  
+  // Debug: Log form submission
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      console.log('Form submitting...');
+      console.log('Image input files:', imageInput.files.length);
+      if (imageInput.files[0]) {
+        console.log('File name:', imageInput.files[0].name);
+        console.log('File size:', imageInput.files[0].size);
+        console.log('File type:', imageInput.files[0].type);
+      }
+    });
+  }
 })();
 </script>
 {% endblock %}

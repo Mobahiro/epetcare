@@ -1,5 +1,25 @@
 {% extends 'clinic/base_auth.html' %}
 {% block title %}Verify Email - ePetCare{% endblock %}
+{% block head %}
+<style>
+  /* Mobile-friendly OTP input */
+  @media (max-width: 480px) {
+    #id_otp_code {
+      font-size: 20px !important;
+      letter-spacing: 6px !important;
+      padding: 12px 10px;
+    }
+    .auth-submit {
+      font-size: 14px;
+      padding: 12px 16px;
+    }
+    .auth-alert {
+      font-size: 13px;
+      padding: 12px;
+    }
+  }
+</style>
+{% endblock %}
 {% block content %}
 <section class="auth-page">
   <div class="auth-split">

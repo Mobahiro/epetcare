@@ -72,11 +72,10 @@
     <aside class="auth-hero" aria-hidden="true">
       <div class="hero-media">
         {% load static %}
-        <img src="{% static 'clinic/images/picture2.jpeg' %}" alt="Pets illustration" />
+        <img src="{% static 'clinic/images/picture2.jpeg' %}" alt="Pet care" class="hero-img-animated" />
       </div>
       <div class="hero-overlay"></div>
       <div class="hero-caption">Create your ePetCare account</div>
-      <div class="dots"><span></span><span></span><span></span></div>
     </aside>
     <div class="auth-panel">
   <div class="auth-container">
@@ -120,13 +119,26 @@
   <div class="auth-field two-col">
     <div>
       <label for="id_password1">Password</label>
-      {{ form.password1 }}
+      <div class="password-input-wrapper" style="position: relative;">
+        {{ form.password1 }}
+        <button type="button" class="toggle-password" data-target="id_password1" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #8B7355; font-size: 14px; padding: 4px;">👁️</button>
+      </div>
+      <div class="password-requirements" style="margin-top: 6px; font-size: 12px; color: #6b7280; background: #f9fafb; padding: 10px 12px; border-radius: 6px; border: 1px solid #e5e7eb;">
+        <div style="font-weight: 600; margin-bottom: 6px; color: #374151;">Password must contain:</div>
+        <div id="req-length" style="margin: 3px 0;">❌ At least 8 characters</div>
+        <div id="req-uppercase" style="margin: 3px 0;">❌ At least 1 uppercase letter (A-Z)</div>
+        <div id="req-special" style="margin: 3px 0;">❌ At least 1 special character (!@#$%^&*)</div>
+      </div>
       <div id="password-strength" style="margin-top:6px; font-size:0.95rem; color:#6b7280;">&nbsp;</div>
       {% if form.password1.errors %}<div class="auth-error">{{ form.password1.errors.0 }}</div>{% endif %}
     </div>
     <div>
       <label for="id_password2">Confirm Password</label>
-      {{ form.password2 }}
+      <div class="password-input-wrapper" style="position: relative;">
+        {{ form.password2 }}
+        <button type="button" class="toggle-password" data-target="id_password2" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #8B7355; font-size: 14px; padding: 4px;">👁️</button>
+      </div>
+      <div id="password-match" style="margin-top:6px; font-size:0.95rem;">&nbsp;</div>
       {% if form.password2.errors %}<div class="auth-error">{{ form.password2.errors.0 }}</div>{% endif %}
     </div>
   </div>
@@ -213,7 +225,7 @@
 <div class="terms-overlay" id="termsOverlay">
   <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
     <div class="close-btn" id="closeTerms">&times;</div>
-  <h3 class="terms-header" id="termsTitle">Terms &amp; Privacy Notice <span class="terms-updated">Updated</span></h3>
+  <h3 class="terms-header" id="termsTitle" style="background: #8B5A2B; color: #ffffff;">Terms &amp; Privacy Notice <span class="terms-updated" style="background: #f2c98a; color: #3d2914;">Updated</span></h3>
 
     <div class="terms-content">
       <h4>1. Introduction</h4>
@@ -277,8 +289,142 @@
       }, 300);
     }
 
-    // Intercept form submit until terms are accepted
+    function showValidationError(message) {
+      // Show error toast/alert
+      const existingError = document.querySelector('.validation-toast');
+      if (existingError) existingError.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = 'validation-toast';
+      toast.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fee2e2; color: #991b1b; padding: 12px 24px; border-radius: 8px; border: 1px solid #fca5a5; z-index: 10000; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideDown 0.3s ease;';
+      toast.innerHTML = '❌ ' + message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(-10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function validateForm() {
+      // Check required fields
+      const username = document.querySelector('input[name="username"]').value.trim();
+      const email = document.querySelector('input[name="email"]').value.trim();
+      const password1 = document.querySelector('input[name="password1"]').value;
+      const password2 = document.querySelector('input[name="password2"]').value;
+      const fullName = document.querySelector('input[name="full_name"]').value.trim();
+      
+      if (!username) {
+        showValidationError('Please enter a username');
+        document.querySelector('input[name="username"]').focus();
+        return false;
+      }
+      
+      if (!email) {
+        showValidationError('Please enter an email address');
+        document.querySelector('input[name="email"]').focus();
+        return false;
+      }
+      
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showValidationError('Please enter a valid email address');
+        document.querySelector('input[name="email"]').focus();
+        return false;
+      }
+      
+      if (!password1) {
+        showValidationError('Please enter a password');
+        document.querySelector('input[name="password1"]').focus();
+        return false;
+      }
+      
+      // Password requirements
+      if (password1.length < 8) {
+        showValidationError('Password must be at least 8 characters');
+        document.querySelector('input[name="password1"]').focus();
+        return false;
+      }
+      
+      if (!/[A-Z]/.test(password1)) {
+        showValidationError('Password must contain at least 1 uppercase letter');
+        document.querySelector('input[name="password1"]').focus();
+        return false;
+      }
+      
+      if (!/[^A-Za-z0-9]/.test(password1)) {
+        showValidationError('Password must contain at least 1 special character');
+        document.querySelector('input[name="password1"]').focus();
+        return false;
+      }
+      
+      if (!password2) {
+        showValidationError('Please confirm your password');
+        document.querySelector('input[name="password2"]').focus();
+        return false;
+      }
+      
+      if (password1 !== password2) {
+        showValidationError('Passwords do not match');
+        document.querySelector('input[name="password2"]').focus();
+        return false;
+      }
+      
+      if (!fullName) {
+        showValidationError('Please enter your full name');
+        document.querySelector('input[name="full_name"]').focus();
+        return false;
+      }
+      
+      // Check if vet registration - validate vet-specific fields
+      const emailLower = email.toLowerCase();
+      const isVetEmail = emailLower.includes('taguig@vet') || emailLower.includes('pasig@vet') || emailLower.includes('makati@vet');
+      
+      if (isVetEmail) {
+        const personalEmail = document.querySelector('input[name="personal_email"]');
+        if (personalEmail && !personalEmail.value.trim()) {
+          showValidationError('Please enter your personal email');
+          personalEmail.focus();
+          return false;
+        }
+      } else {
+        // Pet owner - check phone format if provided
+        const phone = document.querySelector('input[name="phone"]');
+        if (phone && phone.value.trim()) {
+          const phoneVal = phone.value.trim();
+          if (!phoneVal.startsWith('09') && !phoneVal.startsWith('63')) {
+            showValidationError('Phone number must start with 09 or 63');
+            phone.focus();
+            return false;
+          }
+          if (phoneVal.startsWith('09') && phoneVal.length !== 11) {
+            showValidationError('Phone number must be 11 digits (09xxxxxxxxx)');
+            phone.focus();
+            return false;
+          }
+          if (phoneVal.startsWith('63') && phoneVal.length !== 12) {
+            showValidationError('Phone number must be 12 digits (63xxxxxxxxxx)');
+            phone.focus();
+            return false;
+          }
+        }
+      }
+      
+      return true;
+    }
+
+    // Intercept form submit - validate first, then show terms if not accepted
     form.addEventListener('submit', function(e) {
+      // First validate the form
+      if (!validateForm()) {
+        e.preventDefault();
+        return;
+      }
+      
+      // If validation passes but terms not accepted, show modal
       if (!acceptTerms.checked) {
         e.preventDefault();
         awaitingAgreement = true;
@@ -305,14 +451,50 @@
     termsOverlay.addEventListener('click', function(e){ if (e.target === termsOverlay) cancelAndClose(); });
   })();
 
-  // Password strength meter + client-side blocking for too-short passwords
+  // Password strength meter + validation + show/hide toggle
   (function(){
     const pwdInput = document.querySelector('input[name="password1"]');
     const pwdConfirm = document.querySelector('input[name="password2"]');
     const submitBtn = document.getElementById('register-submit');
     const strengthDiv = document.getElementById('password-strength');
+    const matchDiv = document.getElementById('password-match');
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqSpecial = document.getElementById('req-special');
 
     if (!pwdInput || !strengthDiv) return;
+
+    // Show/hide password toggle
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (input.type === 'password') {
+          input.type = 'text';
+          this.textContent = '🙈';
+        } else {
+          input.type = 'password';
+          this.textContent = '👁️';
+        }
+      });
+    });
+
+    function updateRequirements(pwd) {
+      const hasLength = pwd.length >= 8;
+      const hasUppercase = /[A-Z]/.test(pwd);
+      const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+      
+      reqLength.innerHTML = (hasLength ? '✅' : '❌') + ' At least 8 characters';
+      reqLength.style.color = hasLength ? '#16a34a' : '#6b7280';
+      
+      reqUppercase.innerHTML = (hasUppercase ? '✅' : '❌') + ' At least 1 uppercase letter (A-Z)';
+      reqUppercase.style.color = hasUppercase ? '#16a34a' : '#6b7280';
+      
+      reqSpecial.innerHTML = (hasSpecial ? '✅' : '❌') + ' At least 1 special character (!@#$%^&*)';
+      reqSpecial.style.color = hasSpecial ? '#16a34a' : '#6b7280';
+      
+      return hasLength && hasUppercase && hasSpecial;
+    }
 
     function scorePassword(pwd){
       if (!pwd) return 0;
@@ -325,30 +507,48 @@
       return score; // 0-5
     }
 
-    function strengthText(score, len){
+    function strengthText(score, len, meetsRequirements){
       if (len === 0) return '&nbsp;';
-      if (len < 8) return '<span style="color:#b91c1c">Too short (min 8 chars)</span>';
+      if (!meetsRequirements) return '<span style="color:#b91c1c">Does not meet requirements</span>';
       if (score <= 2) return '<span style="color:#f97316">Weak</span>';
       if (score <= 4) return '<span style="color:#d97706">Fair</span>';
-      return '<span style="color:#16a34a">Good</span>';
+      return '<span style="color:#16a34a">Strong</span>';
+    }
+
+    function checkMatch() {
+      if (!pwdConfirm || !matchDiv) return;
+      const pwd = pwdInput.value || '';
+      const confirm = pwdConfirm.value || '';
+      
+      if (confirm.length === 0) {
+        matchDiv.innerHTML = '&nbsp;';
+      } else if (pwd === confirm) {
+        matchDiv.innerHTML = '<span style="color:#16a34a">✅ Passwords match</span>';
+      } else {
+        matchDiv.innerHTML = '<span style="color:#b91c1c">❌ Passwords do not match</span>';
+      }
     }
 
     function update(){
       const val = pwdInput.value || '';
+      const meetsRequirements = updateRequirements(val);
       const sc = scorePassword(val);
-      strengthDiv.innerHTML = strengthText(sc, val.length);
+      strengthDiv.innerHTML = strengthText(sc, val.length, meetsRequirements);
 
-      // Disable submit if password too short
-      if (val.length > 0 && val.length < 8){
+      // Disable submit if password doesn't meet requirements
+      if (val.length > 0 && !meetsRequirements){
         submitBtn.disabled = true;
         submitBtn.classList.add('disabled');
       } else {
         submitBtn.disabled = false;
         submitBtn.classList.remove('disabled');
       }
+      
+      checkMatch();
     }
 
     pwdInput.addEventListener('input', update);
+    if (pwdConfirm) pwdConfirm.addEventListener('input', checkMatch);
     // also check on page load (when re-displaying form with errors)
     update();
   })();
@@ -369,6 +569,12 @@
       'pasig@vet': 'Pasig',
       'makati@vet': 'Makati'
     };
+    
+    // Create Gmail hint element
+    let gmailHint = document.createElement('div');
+    gmailHint.id = 'gmail-hint';
+    gmailHint.style.cssText = 'margin-top: 8px; padding: 10px 14px; border-radius: 8px; font-size: 13px; display: none;';
+    emailInput.parentElement.appendChild(gmailHint);
 
     function checkVetEmail() {
       const emailValue = (emailInput.value || '').toLowerCase();
@@ -392,6 +598,8 @@
         // Show branch indicator
         vetBranchIndicator.style.display = 'block';
         vetBranchName.textContent = '📍 You are registering at ' + detectedBranch + ' Branch';
+        // Hide Gmail hint for vets
+        gmailHint.style.display = 'none';
       } else {
         // Hide vet fields
         personalEmailField.style.display = 'none';
@@ -403,6 +611,27 @@
         // Hide branch indicator
         vetBranchIndicator.style.display = 'none';
         vetBranchName.textContent = '';
+        
+        // Show Gmail validation hint for pet owners
+        if (emailValue.length > 0) {
+          if (emailValue.endsWith('@gmail.com')) {
+            gmailHint.style.display = 'block';
+            gmailHint.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+            gmailHint.style.border = '1px solid #86efac';
+            gmailHint.style.color = '#166534';
+            gmailHint.innerHTML = '✅ Valid Gmail address';
+          } else if (emailValue.includes('@')) {
+            gmailHint.style.display = 'block';
+            gmailHint.style.background = 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
+            gmailHint.style.border = '1px solid #fca5a5';
+            gmailHint.style.color = '#991b1b';
+            gmailHint.innerHTML = '⚠️ Only Gmail addresses (@gmail.com) are allowed for pet owner registration';
+          } else {
+            gmailHint.style.display = 'none';
+          }
+        } else {
+          gmailHint.style.display = 'none';
+        }
       }
     }
 
@@ -492,6 +721,29 @@
       
       // Validate on page load
       validatePhoneFormat();
+    }
+  })();
+  
+  // Form submission validation - ensure Gmail for pet owners
+  (function(){
+    const form = document.querySelector('.auth-form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        const emailInput = document.querySelector('input[name="email"]');
+        const emailValue = (emailInput.value || '').toLowerCase().trim();
+        
+        // Check if it's a vet registration
+        const vetKeywords = ['taguig@vet', 'pasig@vet', 'makati@vet'];
+        const isVet = vetKeywords.some(keyword => emailValue.includes(keyword));
+        
+        // If not vet, must be Gmail
+        if (!isVet && !emailValue.endsWith('@gmail.com')) {
+          e.preventDefault();
+          alert('Only Gmail addresses (@gmail.com) are allowed for pet owner registration.');
+          emailInput.focus();
+          return false;
+        }
+      });
     }
   })();
 </script>

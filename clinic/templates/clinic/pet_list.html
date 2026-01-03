@@ -5,6 +5,7 @@
 {% block head_extra %}
 <link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
 <link rel="stylesheet" href="{% static 'clinic/dashboard-components.css' %}?v={% now 'U' %}">
+<link rel="stylesheet" href="{% static 'clinic/dashboard-modern.css' %}?v={% now 'U' %}">
 {% endblock %}
 
 {% block dash_content %}
@@ -65,21 +66,48 @@
       </div>
     </div>
     
-    <div class="pets-grid" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;">
+    {% if pets %}
+    <div class="pet-cards-grid">
       {% for pet in pets %}
-        <a class="pet-card" href="{% url 'pet_detail' pet.pk %}" style="display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--dash-divider); border-radius: var(--dash-radius); padding: 16px; text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease;">
-          <div class="avatar" style="width: 48px; height: 48px; border-radius: 50%; background: var(--dash-primary); color: var(--dash-text); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600;">{{ pet.name|slice:":1"|upper }}</div>
-          <div class="meta">
-            <div class="name" style="font-size: 16px; font-weight: 600; color: var(--dash-text);">{{ pet.name }}</div>
-            <div class="spec" style="font-size: 13px; color: var(--dash-text-muted);">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+      <div class="pet-card-modern">
+        <div class="pet-header">
+          <div class="pet-avatar">
+            {% if pet.image %}
+            <img src="{{ pet.image_url }}" alt="{{ pet.name }}">
+            {% else %}
+            {{ pet.name|slice:":1"|upper }}
+            {% endif %}
           </div>
-        </a>
-      {% empty %}
-        <div class="empty-message">
-          No pets registered yet. <a class="btn-link" href="{% url 'pet_create' %}">Add your first pet</a>
+          <div class="pet-info">
+            <div class="pet-name">{{ pet.name }}</div>
+            <div class="pet-breed">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+          </div>
         </div>
+        <div class="pet-details">
+          <div class="pet-detail">
+            <div class="detail-label">Sex</div>
+            <div class="detail-value">{{ pet.get_sex_display|default:"—" }}</div>
+          </div>
+          <div class="pet-detail">
+            <div class="detail-label">Weight</div>
+            <div class="detail-value">{% if pet.weight_kg %}{{ pet.weight_kg }} kg{% else %}—{% endif %}</div>
+          </div>
+        </div>
+        <div class="pet-actions">
+          <a href="{% url 'pet_detail' pet.id %}" class="btn-modern btn-secondary btn-sm" style="flex:1;">View Profile</a>
+          <a href="{% url 'appointment_create' %}?pet={{ pet.id }}" class="btn-modern btn-primary btn-sm" style="flex:1;">Book Visit</a>
+        </div>
+      </div>
       {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state" style="padding: 48px 24px; text-align: center;">
+      <div class="empty-icon" style="font-size: 48px; margin-bottom: 16px;">🐾</div>
+      <div class="empty-title" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">No pets registered yet</div>
+      <div class="empty-desc" style="color: var(--dash-text-muted); margin-bottom: 16px;">Add your first pet to start managing their health records.</div>
+      <a href="{% url 'pet_create' %}" class="btn-modern btn-primary">Add Your First Pet</a>
+    </div>
+    {% endif %}
   </div>
   
   <aside class="col-right">

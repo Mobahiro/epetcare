@@ -9,6 +9,15 @@
   --good:#6B8E23;
   --warn:#FFC045; /* Yellow */
 
+  /* Fluid Typography - auto-scales based on screen size */
+  --fs-xs: clamp(0.625rem, 0.58rem + 0.2vw, 0.75rem);     /* 10-12px */
+  --fs-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);     /* 12-14px */
+  --fs-base: clamp(0.875rem, 0.8rem + 0.3vw, 1rem);       /* 14-16px */
+  --fs-md: clamp(1rem, 0.9rem + 0.4vw, 1.125rem);         /* 16-18px */
+  --fs-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);       /* 18-22px */
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);      /* 22-28px */
+  --fs-2xl: clamp(1.75rem, 1.5rem + 1.2vw, 2.5rem);       /* 28-40px */
+
 /* Global rule to remove white backgrounds from all logo images */
 img.logo-icon, img.footer-logo-icon {
   background-color: transparent !important;
@@ -25,6 +34,13 @@ img.logo-icon, img.footer-logo-icon {
   --hover-effect:#FFDFB8; /* Light Beige */
 }
 *{box-sizing:border-box}
+
+/* Prevent horizontal overflow globally */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Modal / overlay for Terms of Service acceptance */
 /* Terms & Conditions Styles */
 .terms-container {

@@ -73,6 +73,8 @@ class UserProfileForm(forms.ModelForm):
     
     def clean_email(self):
         email = self.cleaned_data.get('email')
+        if email:
+            email = email.lower()
         if self.owner and self.instance:
             # Check if email is actually being changed
             if email != self.instance.email:
@@ -82,6 +84,9 @@ class UserProfileForm(forms.ModelForm):
                         f"You can only change your email once per month. "
                         f"Next allowed change: {next_date.strftime('%B %d, %Y')}"
                     )
+                # Pet owners must use Gmail only
+                if not email.endswith('@gmail.com'):
+                    raise forms.ValidationError("Only Gmail addresses (@gmail.com) are allowed.")
                 # Check if email is already taken
                 if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
                     raise forms.ValidationError("This email is already registered to another account.")
@@ -309,7 +314,8 @@ class RegisterForm(forms.Form):
     email = forms.CharField(
         max_length=254,
         label="Email",
-        widget=forms.TextInput(attrs={'class': 'auth-input', 'type': 'email', 'placeholder': 'your@email.com', 'maxlength': '254'})
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'type': 'email', 'placeholder': 'your@gmail.com', 'maxlength': '254'}),
+        help_text="Pet owners: Gmail addresses only (@gmail.com)"
     )
     personal_email = forms.EmailField(
         label="Personal Email (for Vets only)",
@@ -458,6 +464,10 @@ class RegisterForm(forms.Form):
                 validate_email(email)
             except DjangoValidationError:
                 raise forms.ValidationError("Enter a valid email address.")
+            
+            # Pet owners must use Gmail only
+            if not email.endswith('@gmail.com'):
+                raise forms.ValidationError("Only Gmail addresses (@gmail.com) are allowed for pet owner registration.")
         
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Email already exists")

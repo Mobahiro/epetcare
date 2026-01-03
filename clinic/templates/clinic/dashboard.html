@@ -214,35 +214,8 @@
 
   <!-- Side Column -->
   <div class="side-column">
-    <!-- Quick Actions Card -->
-    <div class="modern-card animate-fade-in stagger-3">
-      <div class="card-header">
-        <h3><span class="card-icon">⚡</span> Quick Actions</h3>
-      </div>
-      <div class="card-body">
-        <div class="quick-actions" style="flex-direction: column;">
-          <a href="{% url 'pet_create' %}" class="quick-action-btn">
-            <div class="action-icon">🐾</div>
-            <span>Register New Pet</span>
-          </a>
-          <a href="{% url 'appointment_create' %}" class="quick-action-btn">
-            <div class="action-icon">📅</div>
-            <span>Schedule Appointment</span>
-          </a>
-          <a href="{% url 'pet_list' %}" class="quick-action-btn">
-            <div class="action-icon">📋</div>
-            <span>View All Pets</span>
-          </a>
-          <a href="{% url 'profile' %}" class="quick-action-btn">
-            <div class="action-icon">👤</div>
-            <span>Edit Profile</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
     <!-- Next Appointment Card -->
-    <div class="modern-card animate-fade-in stagger-4">
+    <div class="modern-card animate-fade-in stagger-3">
       <div class="card-header">
         <h3><span class="card-icon">🗓️</span> Next Appointment</h3>
       </div>
@@ -271,15 +244,15 @@
       </div>
     </div>
 
-    <!-- Pet Count Summary -->
+    <!-- Your Pets Card (moved from Quick Actions) -->
     {% if pets %}
-    <div class="modern-card animate-fade-in stagger-5">
+    <div class="modern-card animate-fade-in stagger-4">
       <div class="card-header">
         <h3><span class="card-icon">🐾</span> Your Pets</h3>
         <a href="{% url 'pet_list' %}" class="btn-modern btn-ghost btn-sm">View All</a>
       </div>
       <div class="card-body no-padding">
-        {% for pet in pets|slice:":3" %}
+        {% for pet in pets|slice:":5" %}
         <div class="modern-list-item" onclick="window.location='{% url 'pet_detail' pet.id %}'">
           <div class="item-icon" style="background: linear-gradient(135deg, var(--color-brand-light), var(--color-brand)); border-radius: var(--radius-md); color: white; font-size: 14px; font-weight: 700;">
             {% if pet.image %}<img src="{{ pet.image_url }}" alt="{{ pet.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md);">{% else %}{{ pet.name|slice:":1"|upper }}{% endif %}
@@ -290,6 +263,21 @@
           </div>
         </div>
         {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <!-- No pets yet - show prompt -->
+    <div class="modern-card animate-fade-in stagger-4">
+      <div class="card-header">
+        <h3><span class="card-icon">🐾</span> Your Pets</h3>
+      </div>
+      <div class="card-body">
+        <div class="empty-state" style="padding: var(--space-4);">
+          <div class="empty-icon" style="width: 48px; height: 48px; font-size: 24px;">🐾</div>
+          <div class="empty-title" style="font-size: var(--font-size-base);">No pets yet</div>
+          <div class="empty-desc" style="font-size: var(--font-size-sm);">Register your first pet to get started.</div>
+          <a href="{% url 'pet_create' %}" class="btn-modern btn-primary btn-sm" style="margin-top: var(--space-3);">Add Pet</a>
+        </div>
       </div>
     </div>
     {% endif %}

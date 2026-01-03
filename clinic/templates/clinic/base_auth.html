@@ -57,6 +57,7 @@
         align-items: center;
         justify-content: center;
         padding: 40px 24px;
+        box-sizing: border-box;
       }
 
       .auth-split {
@@ -87,6 +88,46 @@
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+      
+      /* Ken Burns animation effect for hero images */
+      .auth-hero .hero-media .hero-img-animated {
+        width: 110%;
+        height: 110%;
+        object-fit: cover;
+        display: block;
+        animation: kenBurns 20s ease-in-out infinite alternate;
+      }
+      
+      @keyframes kenBurns {
+        0% {
+          transform: scale(1) translate(0, 0);
+        }
+        50% {
+          transform: scale(1.08) translate(-2%, -1%);
+        }
+        100% {
+          transform: scale(1.05) translate(-3%, -2%);
+        }
+      }
+      
+      /* Video styles for animated hero */
+      .auth-hero .hero-media video,
+      .auth-hero .hero-media .hero-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      
+      /* GIF-specific styles for animated hero */
+      .auth-hero .hero-media img.hero-gif,
+      .auth-hero .hero-media .hero-gif {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        animation: none; /* Disable any conflicting animations */
       }
 
       .auth-hero .hero-overlay {
@@ -610,7 +651,7 @@
         }
 
         .auth-hero {
-          min-height: 300px;
+          min-height: 280px;
           order: -1;
         }
 
@@ -621,25 +662,44 @@
 
       @media (max-width: 640px) {
         .auth-page {
-          padding: 24px 16px;
+          padding: 16px 12px;
+          min-height: auto;
+          align-items: flex-start;
         }
 
         .auth-split {
-          gap: 20px;
+          gap: 16px;
         }
 
         .auth-hero {
-          min-height: 240px;
+          min-height: 180px;
           border-radius: 16px;
+        }
+        
+        .auth-hero .hero-media img,
+        .auth-hero .hero-media .hero-gif {
+          object-position: center center;
+        }
+
+        .auth-hero .hero-caption {
+          font-size: 0.95rem;
+          left: 16px;
+          right: 16px;
+          bottom: 16px;
         }
 
         .auth-container {
-          padding: 32px 24px;
+          padding: 24px 20px;
           border-radius: 16px;
+          min-height: auto;
+        }
+        
+        .auth-panel {
+          align-items: flex-start;
         }
 
         .auth-title {
-          font-size: 1.75rem;
+          font-size: 1.5rem;
         }
 
         .auth-form .two-col {
@@ -648,14 +708,60 @@
 
         .auth-alt-action {
           position: static;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
 
         .auth-fab {
-          top: 12px;
+          top: 10px;
+          right: 10px;
+          width: 42px;
+          height: 42px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .auth-page {
+          padding: 10px 8px;
+          min-height: auto;
+        }
+        
+        .auth-hero {
+          min-height: 160px;
+          border-radius: 12px;
+        }
+        
+        .auth-hero .hero-caption {
+          font-size: 0.8rem;
+          left: 12px;
           right: 12px;
-          width: 44px;
-          height: 44px;
+          bottom: 10px;
+        }
+        
+        .auth-container {
+          padding: 20px 16px;
+          border-radius: 12px;
+        }
+        
+        .auth-title {
+          font-size: 1.3rem;
+        }
+        
+        .auth-header {
+          margin-bottom: 16px;
+        }
+        
+        .auth-field label {
+          font-size: 0.85rem;
+        }
+        
+        .auth-field input {
+          padding: 12px 14px;
+          font-size: 0.95rem;
+        }
+        
+        .auth-submit {
+          padding: 14px;
+          font-size: 0.95rem;
         }
       }
 
@@ -739,8 +845,7 @@
       </div>
       <nav class="auth-drawer-nav">
         <a class="auth-drawer-link" href="{% url 'home' %}">🏠 Home</a>
-        <a class="auth-drawer-link" href="{% url 'about_us' %}">ℹ️ About</a>
-        <a class="auth-drawer-link" href="{% url 'terms' %}">📋 Terms</a>
+        <a class="auth-drawer-link" href="{% url 'about_us' %}">ℹ️ About Us</a>
         <hr>
         <a class="auth-drawer-link" href="{% url 'login' %}">🔑 Log in</a>
         {% url 'register' as register_url %}

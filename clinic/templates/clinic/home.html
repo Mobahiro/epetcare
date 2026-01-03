@@ -6,7 +6,35 @@
 <link rel="stylesheet" href="{% static 'clinic/home.css' %}?v={% now "U" %}">
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="{% static 'clinic/home.js' %}?v={% now "U" %}" defer></script>
+<style>
+  /* Ensure content is visible even before AOS loads */
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .aos-animate {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  /* Fallback for sections */
+  .feature-card, .step-card, .section-header {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+<script>
+  // Initialize AOS immediately when script loads
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        disable: 'mobile' // Disable on mobile for better performance
+      });
+    }
+  });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -20,8 +48,7 @@
             </h1>
             <p class="hero-subtitle">Manage your pet's health records, appointments, and medications in one secure, easy-to-use platform.</p>
             <div class="hero-actions">
-                <a href="{% url 'register' %}" class="btn btn-primary">Get Started Free</a>
-                <a href="{% url 'login' %}" class="btn btn-outline">Sign In</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Schedule Appointment</a>
             </div>
         </div>
         <div class="hero-image">
