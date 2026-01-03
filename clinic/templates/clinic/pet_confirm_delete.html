@@ -126,7 +126,7 @@
       <div class="pet-avatar">{{ pet.name|slice:":1"|upper }}</div>
       <div>
         <div class="pet-name">{{ pet.name }}</div>
-        <div class="pet-species">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+        <div class="pet-species">{{ pet.get_species_display_full }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
       </div>
     </div>
     

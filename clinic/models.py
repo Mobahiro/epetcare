@@ -71,6 +71,9 @@ class Pet(models.Model):
         CAT = 'cat', 'Cat'
         BIRD = 'bird', 'Bird'
         RABBIT = 'rabbit', 'Rabbit'
+        HAMSTER = 'hamster', 'Hamster'
+        FISH = 'fish', 'Fish'
+        TURTLE = 'turtle', 'Turtle'
         OTHER = 'other', 'Other'
 
     class Sex(models.TextChoices):
@@ -81,6 +84,7 @@ class Pet(models.Model):
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='pets')
     name = models.CharField(max_length=80)
     species = models.CharField(max_length=20, choices=Species.choices, default=Species.DOG)
+    custom_species = models.CharField(max_length=50, blank=True, help_text="Specify if 'Other' is selected")
     breed = models.CharField(max_length=80, blank=True)
     sex = models.CharField(max_length=20, choices=Sex.choices, default=Sex.UNKNOWN)
     birth_date = models.DateField(null=True, blank=True)
@@ -89,7 +93,13 @@ class Pet(models.Model):
     image = models.ImageField(upload_to='pet_images/', null=True, blank=True)
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.get_species_display()})"
+        return f"{self.name} ({self.get_species_display_full()})"
+    
+    def get_species_display_full(self):
+        """Return species display, using custom_species if 'other' is selected"""
+        if self.species == 'other' and self.custom_species:
+            return self.custom_species.title()
+        return self.get_species_display()
 
     def clean_image_path(self, path):
         """Helper method to clean image paths."""

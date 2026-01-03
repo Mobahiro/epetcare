@@ -15,7 +15,7 @@
     <div class="hero-meta-line">
       <span class="meta-item">Owner: <strong>{{ pet.owner.full_name }}</strong></span>
       <span class="meta-dot">•</span>
-      <span class="meta-item">{{ pet.get_species_display }}{% if pet.breed %} – {{ pet.breed }}{% endif %}</span>
+      <span class="meta-item">{{ pet.get_species_display_full }}{% if pet.breed %} – {{ pet.breed }}{% endif %}</span>
       <span class="meta-dot">•</span>
       <span class="meta-item">{{ pet.get_sex_display }}</span>
       {% if pet.weight_kg %}

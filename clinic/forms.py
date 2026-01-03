@@ -99,6 +99,7 @@ class PetForm(forms.ModelForm):
         fields = [
             "name",
             "species",
+            "custom_species",
             "breed",
             "sex",
             "birth_date",
@@ -108,6 +109,7 @@ class PetForm(forms.ModelForm):
         ]
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
+            "custom_species": forms.TextInput(attrs={"placeholder": "Specify your pet's species"}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -118,6 +120,8 @@ class PetForm(forms.ModelForm):
         # Set maxlength for name and breed
         self.fields['name'].widget.attrs['maxlength'] = '25'
         self.fields['breed'].widget.attrs['maxlength'] = '35'
+        self.fields['custom_species'].widget.attrs['maxlength'] = '50'
+        self.fields['custom_species'].required = False
     
     def clean_name(self):
         name = self.cleaned_data.get('name', '').strip()
@@ -139,6 +143,17 @@ class PetForm(forms.ModelForm):
         if birth_date and birth_date > date.today():
             raise forms.ValidationError("Birth date cannot be in the future.")
         return birth_date
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        species = cleaned_data.get('species')
+        custom_species = cleaned_data.get('custom_species', '').strip()
+        
+        # If species is "other", require custom_species
+        if species == 'other' and not custom_species:
+            self.add_error('custom_species', 'Please specify the species of your pet.')
+        
+        return cleaned_data
 
 
 class PetCreateForm(forms.ModelForm):
@@ -153,6 +168,7 @@ class PetCreateForm(forms.ModelForm):
         exclude = ["owner"]
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
+            "custom_species": forms.TextInput(attrs={"placeholder": "Specify your pet's species"}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -163,6 +179,8 @@ class PetCreateForm(forms.ModelForm):
         # Set maxlength for name and breed
         self.fields['name'].widget.attrs['maxlength'] = '25'
         self.fields['breed'].widget.attrs['maxlength'] = '35'
+        self.fields['custom_species'].widget.attrs['maxlength'] = '50'
+        self.fields['custom_species'].required = False
     
     def clean_name(self):
         name = self.cleaned_data.get('name', '').strip()
@@ -177,6 +195,17 @@ class PetCreateForm(forms.ModelForm):
         if len(breed) > 35:
             raise forms.ValidationError("Breed cannot exceed 35 characters.")
         return breed
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        species = cleaned_data.get('species')
+        custom_species = cleaned_data.get('custom_species', '').strip()
+        
+        # If species is "other", require custom_species
+        if species == 'other' and not custom_species:
+            self.add_error('custom_species', 'Please specify the species of your pet.')
+        
+        return cleaned_data
     
     def clean_birth_date(self):
         from datetime import date

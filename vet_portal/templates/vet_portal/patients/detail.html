@@ -164,7 +164,7 @@
     <h2 class="patient-name">{{ patient.name }}</h2>
     <div class="patient-meta">
       <span class="patient-meta-item">👤 {{ patient.owner.full_name }}</span>
-      <span class="patient-meta-item">🐾 {{ patient.get_species_display }}</span>
+      <span class="patient-meta-item">🐾 {{ patient.get_species_display_full }}</span>
       {% if patient.breed %}<span class="patient-meta-item">{{ patient.breed }}</span>{% endif %}
       <span class="patient-meta-item">{{ patient.get_sex_display }}</span>
       {% if patient.weight_kg %}<span class="patient-meta-item">⚖️ {{ patient.weight_kg }} kg</span>{% endif %}

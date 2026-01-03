@@ -305,6 +305,12 @@
           {{ form.species }}
         </div>
         
+        <div class="form-group" id="customSpeciesGroup" style="display: none;">
+          <label for="{{ form.custom_species.id_for_label }}">Specify Species *</label>
+          {{ form.custom_species }}
+          <span class="help-text">Please enter the type of pet</span>
+        </div>
+        
         <div class="form-group">
           <label for="{{ form.breed.id_for_label }}">Breed</label>
           {{ form.breed }}
@@ -536,6 +542,30 @@
         console.log('File type:', imageInput.files[0].type);
       }
     });
+  }
+  
+  // Show/Hide custom species field based on species selection
+  const speciesSelect = document.getElementById('id_species');
+  const customSpeciesGroup = document.getElementById('customSpeciesGroup');
+  const customSpeciesInput = document.getElementById('id_custom_species');
+  
+  function toggleCustomSpecies() {
+    if (speciesSelect && customSpeciesGroup && customSpeciesInput) {
+      if (speciesSelect.value === 'other') {
+        customSpeciesGroup.style.display = 'block';
+        customSpeciesInput.setAttribute('required', 'required');
+      } else {
+        customSpeciesGroup.style.display = 'none';
+        customSpeciesInput.removeAttribute('required');
+        customSpeciesInput.value = ''; // Clear value when not "other"
+      }
+    }
+  }
+  
+  // Run on page load (for edit form with existing data)
+  if (speciesSelect) {
+    toggleCustomSpecies();
+    speciesSelect.addEventListener('change', toggleCustomSpecies);
   }
 })();
 </script>

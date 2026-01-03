@@ -2,6 +2,20 @@
 {% block title %}Register - ePetCare{% endblock %}
 {% block extra_css %}
 <style>
+  /* Ensure form doesn't overflow */
+  .auth-form {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .auth-field input,
+  .auth-field textarea,
+  .auth-field select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
   /* Branch selection cards */
   .branch-cards {
     display: grid;
@@ -64,6 +78,19 @@
       grid-template-columns: 1fr;
     }
   }
+  
+  /* Mobile form fixes */
+  @media (max-width: 640px) {
+    .auth-container {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+    
+    #gmail-requirement-hint {
+      font-size: 12px;
+      padding: 8px 10px;
+    }
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -102,6 +129,9 @@
   <div class="auth-field">
     <label for="id_email">Email</label>
     {{ form.email }}
+    <div id="gmail-requirement-hint" style="display: none; margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 1px solid #fca5a5; font-size: 13px; color: #991b1b; font-weight: 500;">
+      ⚠️ Only Gmail addresses (@gmail.com) are allowed for pet owner accounts
+    </div>
     <div id="vet-branch-indicator" style="display: none; margin-top: 8px; padding: 10px 14px; border-radius: 8px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; font-size: 14px; color: #166534;">
       <span style="font-weight: 600;">🏥 Registering as Veterinarian</span>
       <span id="vet-branch-name" style="display: block; margin-top: 4px; font-size: 13px; color: #15803d;"></span>
@@ -127,6 +157,7 @@
         <div style="font-weight: 600; margin-bottom: 6px; color: #374151;">Password must contain:</div>
         <div id="req-length" style="margin: 3px 0;">❌ At least 8 characters</div>
         <div id="req-uppercase" style="margin: 3px 0;">❌ At least 1 uppercase letter (A-Z)</div>
+        <div id="req-number" style="margin: 3px 0;">❌ At least 1 number (0-9)</div>
         <div id="req-special" style="margin: 3px 0;">❌ At least 1 special character (!@#$%^&*)</div>
       </div>
       <div id="password-strength" style="margin-top:6px; font-size:0.95rem; color:#6b7280;">&nbsp;</div>
@@ -355,6 +386,12 @@
         return false;
       }
       
+      if (!/[0-9]/.test(password1)) {
+        showValidationError('Password must contain at least 1 number');
+        document.querySelector('input[name="password1"]').focus();
+        return false;
+      }
+      
       if (!/[^A-Za-z0-9]/.test(password1)) {
         showValidationError('Password must contain at least 1 special character');
         document.querySelector('input[name="password1"]').focus();
@@ -460,6 +497,7 @@
     const matchDiv = document.getElementById('password-match');
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
+    const reqNumber = document.getElementById('req-number');
     const reqSpecial = document.getElementById('req-special');
 
     if (!pwdInput || !strengthDiv) return;
@@ -482,6 +520,7 @@
     function updateRequirements(pwd) {
       const hasLength = pwd.length >= 8;
       const hasUppercase = /[A-Z]/.test(pwd);
+      const hasNumber = /[0-9]/.test(pwd);
       const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
       
       reqLength.innerHTML = (hasLength ? '✅' : '❌') + ' At least 8 characters';
@@ -490,10 +529,13 @@
       reqUppercase.innerHTML = (hasUppercase ? '✅' : '❌') + ' At least 1 uppercase letter (A-Z)';
       reqUppercase.style.color = hasUppercase ? '#16a34a' : '#6b7280';
       
+      reqNumber.innerHTML = (hasNumber ? '✅' : '❌') + ' At least 1 number (0-9)';
+      reqNumber.style.color = hasNumber ? '#16a34a' : '#6b7280';
+      
       reqSpecial.innerHTML = (hasSpecial ? '✅' : '❌') + ' At least 1 special character (!@#$%^&*)';
       reqSpecial.style.color = hasSpecial ? '#16a34a' : '#6b7280';
       
-      return hasLength && hasUppercase && hasSpecial;
+      return hasLength && hasUppercase && hasNumber && hasSpecial;
     }
 
     function scorePassword(pwd){
@@ -562,6 +604,7 @@
     const branchSelectionField = document.getElementById('branch-selection-field');
     const vetBranchIndicator = document.getElementById('vet-branch-indicator');
     const vetBranchName = document.getElementById('vet-branch-name');
+    const gmailRequirementHint = document.getElementById('gmail-requirement-hint');
     
     // Branch keywords for vet registration with display names
     const vetBranches = {
@@ -569,12 +612,6 @@
       'pasig@vet': 'Pasig',
       'makati@vet': 'Makati'
     };
-    
-    // Create Gmail hint element
-    let gmailHint = document.createElement('div');
-    gmailHint.id = 'gmail-hint';
-    gmailHint.style.cssText = 'margin-top: 8px; padding: 10px 14px; border-radius: 8px; font-size: 13px; display: none;';
-    emailInput.parentElement.appendChild(gmailHint);
 
     function checkVetEmail() {
       const emailValue = (emailInput.value || '').toLowerCase();
@@ -598,8 +635,8 @@
         // Show branch indicator
         vetBranchIndicator.style.display = 'block';
         vetBranchName.textContent = '📍 You are registering at ' + detectedBranch + ' Branch';
-        // Hide Gmail hint for vets
-        gmailHint.style.display = 'none';
+        // Hide Gmail requirement hint for vets
+        gmailRequirementHint.style.display = 'none';
       } else {
         // Hide vet fields
         personalEmailField.style.display = 'none';
@@ -612,25 +649,12 @@
         vetBranchIndicator.style.display = 'none';
         vetBranchName.textContent = '';
         
-        // Show Gmail validation hint for pet owners
-        if (emailValue.length > 0) {
-          if (emailValue.endsWith('@gmail.com')) {
-            gmailHint.style.display = 'block';
-            gmailHint.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
-            gmailHint.style.border = '1px solid #86efac';
-            gmailHint.style.color = '#166534';
-            gmailHint.innerHTML = '✅ Valid Gmail address';
-          } else if (emailValue.includes('@')) {
-            gmailHint.style.display = 'block';
-            gmailHint.style.background = 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
-            gmailHint.style.border = '1px solid #fca5a5';
-            gmailHint.style.color = '#991b1b';
-            gmailHint.innerHTML = '⚠️ Only Gmail addresses (@gmail.com) are allowed for pet owner registration';
-          } else {
-            gmailHint.style.display = 'none';
-          }
+        // Show Gmail requirement only when user types a non-Gmail email
+        const emailValue = emailInput.value.trim().toLowerCase();
+        if (emailValue.length > 0 && emailValue.includes('@') && !emailValue.endsWith('@gmail.com')) {
+          gmailRequirementHint.style.display = 'block';
         } else {
-          gmailHint.style.display = 'none';
+          gmailRequirementHint.style.display = 'none';
         }
       }
     }

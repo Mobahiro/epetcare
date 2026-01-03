@@ -44,7 +44,7 @@
           {% endif %}
           <div class="pet-info">
             <div class="pet-name">{{ p.name }}</div>
-            <div class="pet-species">{{ p.get_species_display|default:"Unknown" }}{% if p.breed %} • {{ p.breed }}{% endif %}</div>
+            <div class="pet-species">{{ p.get_species_display_full|default:"Unknown" }}{% if p.breed %} • {{ p.breed }}{% endif %}</div>
           </div>
         </div>
         <div class="pet-card-body" style="padding: 12px 16px; border-top: 1px solid var(--dash-divider);">

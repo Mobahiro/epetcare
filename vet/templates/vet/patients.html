@@ -237,7 +237,7 @@
           <div class="patient-avatar">{{ pet.name|slice:":1"|upper }}</div>
           <div>
             <div class="patient-name">{{ pet.name }}</div>
-            <div class="patient-species">{{ pet.get_species_display }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
+            <div class="patient-species">{{ pet.get_species_display_full }}{% if pet.breed %} • {{ pet.breed }}{% endif %}</div>
           </div>
         </div>
         <div class="patient-details">

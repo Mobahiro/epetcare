@@ -86,7 +86,10 @@
   padding: clamp(8px, 2vw, 12px);
   box-shadow: var(--dash-shadow);
   min-width: 0;
+  max-width: 100%;
   overflow: hidden;
+  word-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .tile-head {
@@ -114,17 +117,23 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .tile-sub {
   font-size: clamp(10px, 2vw, 12px);
   color: #a08361;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tile-metric {
   font-size: clamp(16px, 4vw, 20px);
   font-weight: 700;
   color: var(--dash-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Card with tabs */

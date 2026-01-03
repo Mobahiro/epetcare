@@ -98,7 +98,7 @@
         <select name="pet" id="pet" required>
           <option value="">-- Select a pet --</option>
           {% for pet in pets %}
-            <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.get_species_display }}) - Owner: {{ pet.owner.full_name }}</option>
+            <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.get_species_display_full }}) - Owner: {{ pet.owner.full_name }}</option>
           {% endfor %}
         </select>
       </div>
