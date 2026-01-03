@@ -4,6 +4,34 @@
 
 {% block head_extra %}
 <link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  /* Mobile fixes for patient list */
+  @media (max-width: 640px) {
+    .card-head {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 12px !important;
+    }
+    .card-head h2 {
+      margin-bottom: 0;
+    }
+    .head-actions {
+      width: 100%;
+    }
+    .head-actions form {
+      flex-direction: column !important;
+      width: 100%;
+    }
+    .head-actions input[type="search"] {
+      min-width: unset !important;
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+    .head-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block dash_content %}

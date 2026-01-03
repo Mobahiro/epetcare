@@ -1,9 +1,49 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import Owner, Pet, Appointment, Vaccination, MedicalRecord, Prescription
+import re
+
+
+class StrongPasswordChangeForm(PasswordChangeForm):
+    """Custom password change form with strong password requirements.
+    
+    Requirements:
+    - At least 8 characters
+    - At least 1 uppercase letter (A-Z)
+    - At least 1 number (0-9)  
+    - At least 1 special character (!@#$%^&* etc.)
+    - Must be different from current password
+    """
+    
+    def clean_new_password1(self):
+        old_password = self.cleaned_data.get('old_password')
+        new_password = self.cleaned_data.get('new_password1')
+        
+        if new_password:
+            # Check length
+            if len(new_password) < 8:
+                raise forms.ValidationError('Password must be at least 8 characters long.')
+            
+            # Check uppercase
+            if not re.search(r'[A-Z]', new_password):
+                raise forms.ValidationError('Password must contain at least one uppercase letter (A-Z).')
+            
+            # Check number
+            if not re.search(r'[0-9]', new_password):
+                raise forms.ValidationError('Password must contain at least one number (0-9).')
+            
+            # Check special character
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/`~]', new_password):
+                raise forms.ValidationError('Password must contain at least one special character (!@#$%^&*).')
+            
+            # Check different from old password
+            if old_password and new_password == old_password:
+                raise forms.ValidationError('New password must be different from your current password.')
+        
+        return new_password
 
 
 class OwnerForm(forms.ModelForm):
@@ -343,7 +383,7 @@ class RegisterForm(forms.Form):
     email = forms.CharField(
         max_length=254,
         label="Email",
-        widget=forms.TextInput(attrs={'class': 'auth-input', 'type': 'email', 'placeholder': 'your@gmail.com', 'maxlength': '254'}),
+        widget=forms.TextInput(attrs={'class': 'auth-input', 'type': 'text', 'placeholder': 'your@gmail.com', 'maxlength': '254'}),
         help_text="Pet owners: Gmail addresses only (@gmail.com)"
     )
     personal_email = forms.EmailField(

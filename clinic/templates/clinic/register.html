@@ -255,39 +255,90 @@
 <!-- Terms Modal Overlay (placed after section so it overlays full page) -->
 <div class="terms-overlay" id="termsOverlay">
   <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
-    <div class="close-btn" id="closeTerms">&times;</div>
-  <h3 class="terms-header" id="termsTitle" style="background: #8B5A2B; color: #ffffff;">Terms &amp; Privacy Notice <span class="terms-updated" style="background: #f2c98a; color: #3d2914;">Updated</span></h3>
-
-    <div class="terms-content">
-      <h4>1. Introduction</h4>
-      <p>These Terms &amp; Conditions ("Terms") and Privacy Notice explain how we collect, use and protect personal data in the ePetCare system (web portal, vet portal, and desktop application). By creating an account you agree to these Terms.</p>
-
-      <h4>2. Data We Collect</h4>
-      <ul>
-        <li>Account data (name, email, username)</li>
-        <li>Pet &amp; owner data (medical records, prescriptions, appointments)</li>
-        <li>Veterinarian profile data</li>
-        <li>Operational &amp; security logs</li>
-      </ul>
-
-      <h4>3. Purpose of Processing</h4>
-      <p>Deliver core functionality: scheduling, records, prescriptions, secure sync.</p>
-
-      <h4>4. Legal Basis</h4>
-      <p>Contractual necessity &amp; legitimate interests; consent for optional features.</p>
-
-      <h4>5. Security</h4>
-      <p>Role-based access, encrypted transport, controlled backups.</p>
-
-      <h4>6. Your Rights</h4>
-      <p>Access, correction, export, deletion (subject to medical retention laws).</p>
-
-      <h4>7. Acceptance</h4>
-      <p>By checking the box above, you agree to these Terms &amp; Conditions.</p>
+    <button type="button" class="terms-close-btn" id="closeTerms" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <div class="terms-header-section">
+      <div class="terms-icon">📋</div>
+      <h3 class="terms-title" id="termsTitle">Terms & Privacy Notice</h3>
+      <span class="terms-badge">Updated</span>
     </div>
-    <div class="terms-actions" style="display:flex; gap:12px; justify-content:flex-end; margin-top:14px;">
-      <button type="button" class="btn" id="termsCancel">Cancel</button>
-      <button type="button" class="btn btn-primary" id="termsAgree">I Agree &amp; Continue</button>
+    
+    <div class="terms-content">
+      <div class="terms-section">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">📖</span>
+          <h4>1. Introduction</h4>
+        </div>
+        <p>These Terms & Conditions ("Terms") and Privacy Notice explain how we collect, use and protect personal data in the ePetCare system (web portal, vet portal, and desktop application). By creating an account you agree to these Terms.</p>
+      </div>
+
+      <div class="terms-section">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">📊</span>
+          <h4>2. Data We Collect</h4>
+        </div>
+        <ul>
+          <li>Account data (name, email, username)</li>
+          <li>Pet & owner data (medical records, prescriptions, appointments)</li>
+          <li>Veterinarian profile data</li>
+          <li>Operational & security logs</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">⚙️</span>
+          <h4>3. Purpose of Processing</h4>
+        </div>
+        <p>Deliver core functionality: scheduling, records, prescriptions, secure sync.</p>
+      </div>
+
+      <div class="terms-section">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">⚖️</span>
+          <h4>4. Legal Basis</h4>
+        </div>
+        <p>Contractual necessity & legitimate interests; consent for optional features.</p>
+      </div>
+
+      <div class="terms-section">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">🔒</span>
+          <h4>5. Security</h4>
+        </div>
+        <p>Role-based access, encrypted transport, controlled backups.</p>
+      </div>
+
+      <div class="terms-section">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">✅</span>
+          <h4>6. Your Rights</h4>
+        </div>
+        <p>Access, correction, export, deletion (subject to medical retention laws).</p>
+      </div>
+
+      <div class="terms-section terms-acceptance">
+        <div class="terms-section-header">
+          <span class="terms-section-icon">🤝</span>
+          <h4>7. Acceptance</h4>
+        </div>
+        <p>By clicking "I Agree & Continue" below, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.</p>
+      </div>
+    </div>
+    
+    <div class="terms-footer">
+      <button type="button" class="terms-btn terms-btn-cancel" id="termsCancel">Cancel</button>
+      <button type="button" class="terms-btn terms-btn-agree" id="termsAgree">
+        <span>I Agree & Continue</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
@@ -359,12 +410,20 @@
         return false;
       }
       
-      // Email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showValidationError('Please enter a valid email address');
-        document.querySelector('input[name="email"]').focus();
-        return false;
+      // Check if it's a vet email (skip normal email format validation)
+      const emailLowerForCheck = email.toLowerCase();
+      const isVetEmailRegistration = emailLowerForCheck.includes('taguig@vet') || 
+                                      emailLowerForCheck.includes('pasig@vet') || 
+                                      emailLowerForCheck.includes('makati@vet');
+      
+      // Email format validation (only for non-vet emails)
+      if (!isVetEmailRegistration) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showValidationError('Please enter a valid email address');
+          document.querySelector('input[name="email"]').focus();
+          return false;
+        }
       }
       
       if (!password1) {
@@ -428,6 +487,13 @@
           return false;
         }
       } else {
+        // Pet owner - must use Gmail
+        if (!emailLower.endsWith('@gmail.com')) {
+          showValidationError('Only Gmail addresses (@gmail.com) are allowed for pet owner accounts');
+          document.querySelector('input[name="email"]').focus();
+          return false;
+        }
+        
         // Pet owner - check phone format if provided
         const phone = document.querySelector('input[name="phone"]');
         if (phone && phone.value.trim()) {

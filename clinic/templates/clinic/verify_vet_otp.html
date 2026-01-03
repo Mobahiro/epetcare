@@ -2,6 +2,21 @@
 {% block title %}Verify Email - ePetCare{% endblock %}
 {% block head %}
 <style>
+  /* Fix header overlap */
+  .auth-header {
+    text-align: center;
+  }
+  .auth-header .auth-alt-action {
+    position: static !important;
+    display: block;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #8B7355;
+  }
+  .auth-title {
+    margin-bottom: 4px !important;
+  }
+  
   /* Mobile-friendly OTP input */
   @media (max-width: 480px) {
     #id_otp_code {

@@ -38,6 +38,11 @@ urlpatterns = [
     # Profile
     path('profile/', views.vet_profile, name='profile'),
     path('profile/update-field/', views.profile_update_field, name='profile_update_field'),
+    path('profile/request-field-otp/', views.profile_request_field_otp, name='profile_request_field_otp'),
+    path('profile/verify-field-otp/', views.profile_verify_field_otp, name='profile_verify_field_otp'),
+    path('profile/password/request-otp/', views.change_password_request_otp, name='profile_request_password_otp'),
+    path('profile/password/verify-otp/', views.change_password_verify_otp, name='profile_verify_password_otp'),
+    path('profile/password/set-new/', views.change_password_set_new, name='profile_set_new_password'),
     
     # Medical Records
     path('records/', views.medical_record_list, name='medical_record_list'),

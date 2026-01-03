@@ -27,6 +27,14 @@ from .notification_views import (
 	mark_all_notifications_read,
 )
 from .schedule_views import schedule_list
-from .profile_views import vet_profile, profile_update_field
+from .profile_views import (
+	vet_profile, 
+	profile_update_field,
+	profile_request_field_otp,
+	profile_verify_field_otp,
+	change_password_request_otp,
+	change_password_verify_otp,
+	change_password_set_new,
+)
 
 # Helper function moved to mixins.py

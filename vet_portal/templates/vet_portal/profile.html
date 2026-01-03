@@ -263,6 +263,16 @@
     color: #6b7280;
   }
   
+  .badge-success {
+    background: #d1fae5;
+    color: #059669;
+  }
+  
+  .badge-cooldown {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  
   /* Info text under field */
   .field-hint {
     font-size: 12px;
@@ -516,7 +526,7 @@
           <div class="field-value">{{ request.user.username }}</div>
         </div>
         <div class="field-edit-form">
-          <form method="post" action="{% url 'vet_portal:profile_update_field' %}" class="ajax-form" data-field="username" data-confirm="true">
+          <form method="post" class="otp-protected-form" data-field="username">
             {% csrf_token %}
             <input type="hidden" name="field" value="username">
             <input type="text" name="value" class="edit-input" value="{{ request.user.username }}" required minlength="3" maxlength="150">
@@ -530,6 +540,30 @@
           <button class="btn-edit" onclick="startEdit('username')" {% if not can_change_username %}disabled{% endif %}>
             ✏️ Edit
           </button>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="profile-field">
+        <div class="field-info">
+          <div class="field-label">
+            Password
+            {% if not can_change_password %}
+            <span class="badge badge-locked">🔒 Locked until {{ next_password_date|date:"M d, Y" }}</span>
+            {% else %}
+            <span class="badge badge-security">30-day cooldown</span>
+            {% endif %}
+          </div>
+          <div class="field-value">••••••••</div>
+          <div class="field-hint">Verification code will be sent to your personal email</div>
+        </div>
+        <div class="field-action">
+          <form method="post" action="{% url 'vet_portal:profile_request_password_otp' %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-edit" {% if not can_change_password %}disabled{% endif %}>
+              🔑 Change
+            </button>
+          </form>
         </div>
       </div>
 
@@ -707,6 +741,38 @@
   </div>
 </div>
 
+<!-- OTP Verification Modal -->
+<div class="modal-overlay" id="otpModal">
+  <div class="modal-box" style="max-width: 400px;">
+    <div class="modal-icon" style="background: #dbeafe;">🔐</div>
+    <div class="modal-title">Verify Your Identity</div>
+    <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 16px;">
+      Enter the code sent to your personal email to confirm the <strong id="otpFieldName">username</strong> change.
+    </p>
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center;">
+      <small style="color: #666;">New value:</small><br>
+      <strong id="otpNewValueText" style="color: #6b705c;"></strong>
+    </div>
+    <form id="otpVerifyForm">
+      <input type="text" id="otpCodeInput" class="edit-input" placeholder="000000" 
+             maxlength="6" pattern="[0-9]{6}" required autocomplete="off"
+             style="text-align: center; font-size: 24px; letter-spacing: 8px; font-weight: bold; margin-bottom: 12px;">
+      <small style="color: #666; display: block; text-align: center; margin-bottom: 16px;">
+        Code expires in <span id="otpTimer" style="color: #6b705c; font-weight: 600;">10:00</span>
+      </small>
+      <div class="modal-actions" style="flex-direction: column; gap: 8px;">
+        <button type="submit" class="btn-modal-confirm" id="otpVerifyBtn" style="width: 100%;">Verify & Apply Change</button>
+        <button type="button" class="btn-modal-cancel" onclick="closeOtpModal()" style="width: 100%;">Cancel</button>
+      </div>
+    </form>
+    <div style="text-align: center; margin-top: 12px;">
+      <button type="button" id="resendOtpBtn" style="background: none; border: none; color: #6b705c; cursor: pointer; font-size: 13px;" disabled>
+        Resend available in <strong>2:00</strong>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification -->
 <div class="toast-notification" id="toast"></div>
 
@@ -718,6 +784,13 @@ const originalValues = {
   specialization: "{{ vet.specialization|default:''|escapejs }}",
   bio: "{{ vet.bio|default:''|escapejs }}"
 };
+
+// OTP state
+let otpPendingField = null;
+let otpPendingValue = null;
+let otpTimerInterval = null;
+let resendCooldownInterval = null;
+let resendCooldownRemaining = 0;
 
 // Start editing a field
 function startEdit(field) {
@@ -875,6 +948,245 @@ document.addEventListener('keydown', function(e) {
       cancelEdit(field);
     });
     closeModal();
+    closeOtpModal();
+  }
+});
+
+// OTP Modal Functions
+function showOtpModal(fieldName, newValue) {
+  otpPendingField = fieldName;
+  otpPendingValue = newValue;
+  document.getElementById('otpFieldName').textContent = fieldName;
+  document.getElementById('otpNewValueText').textContent = newValue;
+  document.getElementById('otpCodeInput').value = '';
+  document.getElementById('otpModal').classList.add('show');
+  document.getElementById('otpCodeInput').focus();
+  startOtpTimer();
+  startResendCooldown();
+}
+
+function closeOtpModal() {
+  document.getElementById('otpModal').classList.remove('show');
+  otpPendingField = null;
+  otpPendingValue = null;
+  if (otpTimerInterval) clearInterval(otpTimerInterval);
+  if (resendCooldownInterval) clearInterval(resendCooldownInterval);
+}
+
+function startOtpTimer() {
+  let seconds = 600; // 10 minutes
+  const timerEl = document.getElementById('otpTimer');
+  if (otpTimerInterval) clearInterval(otpTimerInterval);
+  
+  otpTimerInterval = setInterval(() => {
+    seconds--;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    
+    if (seconds <= 60) {
+      timerEl.style.color = '#dc3545';
+    }
+    
+    if (seconds <= 0) {
+      clearInterval(otpTimerInterval);
+      showToast('OTP expired. Please request a new code.', 'error');
+      closeOtpModal();
+    }
+  }, 1000);
+}
+
+function startResendCooldown() {
+  resendCooldownRemaining = 120; // 2 minutes
+  const resendBtn = document.getElementById('resendOtpBtn');
+  resendBtn.disabled = true;
+  
+  if (resendCooldownInterval) clearInterval(resendCooldownInterval);
+  
+  resendCooldownInterval = setInterval(() => {
+    resendCooldownRemaining--;
+    const mins = Math.floor(resendCooldownRemaining / 60);
+    const secs = resendCooldownRemaining % 60;
+    
+    if (resendCooldownRemaining > 0) {
+      resendBtn.innerHTML = `Resend available in <strong>${mins}:${secs.toString().padStart(2, '0')}</strong>`;
+    } else {
+      clearInterval(resendCooldownInterval);
+      resendBtn.disabled = false;
+      resendBtn.innerHTML = `<strong>Resend Code</strong>`;
+    }
+  }, 1000);
+}
+
+// Handle OTP verification form
+document.getElementById('otpVerifyForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const code = document.getElementById('otpCodeInput').value;
+  const btn = document.getElementById('otpVerifyBtn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Verifying...';
+  btn.disabled = true;
+  
+  fetch("{% url 'vet_portal:profile_verify_field_otp' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: `code=${encodeURIComponent(code)}&field=${encodeURIComponent(otpPendingField)}&value=${encodeURIComponent(otpPendingValue)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast(data.message || 'Change applied successfully!', 'success');
+      closeOtpModal();
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      showToast(data.error || 'Verification failed', 'error');
+    }
+  })
+  .catch(error => {
+    showToast('An error occurred. Please try again.', 'error');
+  })
+  .finally(() => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  });
+});
+
+// Resend OTP button
+document.getElementById('resendOtpBtn').addEventListener('click', function() {
+  if (this.disabled || !otpPendingField) return;
+  
+  this.disabled = true;
+  this.textContent = 'Sending...';
+  
+  fetch("{% url 'vet_portal:profile_request_field_otp' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: `field=${encodeURIComponent(otpPendingField)}&value=${encodeURIComponent(otpPendingValue)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('New code sent to your email!', 'success');
+      startOtpTimer();
+      startResendCooldown();
+    } else {
+      showToast(data.error || 'Failed to resend code', 'error');
+      this.disabled = false;
+      this.innerHTML = '<strong>Resend Code</strong>';
+    }
+  })
+  .catch(error => {
+    showToast('An error occurred', 'error');
+    this.disabled = false;
+    this.innerHTML = '<strong>Resend Code</strong>';
+  });
+});
+
+// Handle OTP-protected form submissions (username)
+document.querySelectorAll('.otp-protected-form').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const field = this.dataset.field;
+    const input = this.querySelector('.edit-input');
+    const newValue = input.value.trim();
+    
+    // Check if value changed
+    if (newValue === originalValues[field]) {
+      cancelEdit(field);
+      return;
+    }
+    
+    // Request OTP
+    const saveBtn = this.querySelector('.btn-save');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Sending...';
+    saveBtn.disabled = true;
+    
+    fetch("{% url 'vet_portal:profile_request_field_otp' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: `field=${encodeURIComponent(field)}&value=${encodeURIComponent(newValue)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showOtpModal(field, newValue);
+      } else {
+        showToast(data.error || 'Failed to send verification code', 'error');
+      }
+    })
+    .catch(error => {
+      showToast('An error occurred. Please try again.', 'error');
+    })
+    .finally(() => {
+      saveBtn.textContent = originalText;
+      saveBtn.disabled = false;
+    });
+  });
+});
+
+// Handle password change form
+document.querySelector('.profile-field form[action*="password"]')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const btn = this.querySelector('button[type="submit"]');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = 'Sending...';
+  btn.disabled = true;
+  
+  fetch("{% url 'vet_portal:profile_request_password_otp' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    redirect: 'manual'
+  })
+  .then(response => {
+    // Handle redirect (302) - means server didn't detect AJAX header, but still succeeded
+    if (response.type === 'opaqueredirect' || response.redirected) {
+      showToast('Verification code sent to your email!', 'success');
+      setTimeout(() => {
+        window.location.href = "{% url 'vet_portal:profile_verify_password_otp' %}";
+      }, 1000);
+      return null;
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (!data) return; // Already handled redirect
+    if (data.success) {
+      showToast('Verification code sent to your email!', 'success');
+      setTimeout(() => {
+        window.location.href = "{% url 'vet_portal:profile_verify_password_otp' %}";
+      }, 1000);
+    } else {
+      showToast(data.error || 'Failed to send code', 'error');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  })
+  .catch(error => {
+    showToast('An error occurred. Please try again.', 'error');
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  });
+});
+
+// Close OTP modal on overlay click
+document.getElementById('otpModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeOtpModal();
   }
 });
 </script>

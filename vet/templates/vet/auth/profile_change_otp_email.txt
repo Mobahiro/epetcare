@@ -1,0 +1,16 @@
+ePetCare - Profile Change Verification
+
+Hi {{ name }},
+
+You requested to change your {{ field }} to: {{ new_value }}
+
+Your verification code is: {{ code }}
+
+This code expires in 10 minutes.
+
+If you didn't request this change, please ignore this email or contact support immediately.
+
+Best regards,
+The {{ BRAND_NAME }} Team
+
+© {{ year }} {{ BRAND_NAME }}. All rights reserved.

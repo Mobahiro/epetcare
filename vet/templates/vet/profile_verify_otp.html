@@ -1,26 +1,133 @@
-{% extends 'clinic/base_auth.html' %}
+{% extends 'vet/base.html' %}
 {% load static %}
-{% block title %}Verify Email - ePetCare{% endblock %}
+{% block title %}Verify Email - Vet Portal{% endblock %}
 
-{% block head %}
-<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+{% block extra_css %}
 <style>
+  .verify-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+  
+  .verify-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 30px;
+  }
+  
+  .verify-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .verify-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+  
+  .verify-header p {
+    color: #666;
+    margin: 0;
+    font-size: 14px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .otp-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 8px;
+    font-family: monospace;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+  
+  .otp-input:focus {
+    outline: none;
+    border-color: #6b705c;
+    box-shadow: 0 0 0 3px rgba(107, 112, 92, 0.15);
+  }
+  
+  .form-hint {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+  }
+  
+  .btn-verify {
+    width: 100%;
+    padding: 14px;
+    background: #6b705c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+  
+  .btn-verify:hover {
+    background: #545845;
+  }
+  
+  .btn-cancel {
+    width: 100%;
+    padding: 14px;
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+  }
+  
+  .btn-cancel:hover {
+    background: #eee;
+  }
+  
+  .resend-section {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
   .btn-resend {
     background: none;
     border: none;
-    color: #d48b3e;
+    color: #6b705c;
     cursor: pointer;
     font-size: 14px;
     padding: 8px 16px;
     transition: opacity 0.2s;
   }
+  
   .btn-resend:hover:not(:disabled) {
     opacity: 0.8;
   }
+  
   .btn-resend:disabled {
     color: #9ca3af;
     cursor: not-allowed;
   }
+  
   .toast-notification {
     position: fixed;
     bottom: 30px;
@@ -35,62 +142,72 @@
     transition: opacity 0.3s ease;
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   }
+  
   .toast-notification.show {
     opacity: 1;
   }
+  
   .toast-notification.success {
     background: linear-gradient(135deg, #22c55e, #16a34a);
   }
+  
   .toast-notification.error {
     background: linear-gradient(135deg, #ef4444, #dc2626);
+  }
+  
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  
+  .alert-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="dash-hero">
-  <div class="hero-main">
-    <div class="hero-title-row">
-      <h1 class="hero-title">Verify Your Email</h1>
+<div class="verify-container">
+  <div class="verify-card">
+    <div class="verify-header">
+      <h1>Verify Your Email</h1>
+      <p>Enter the verification code sent to {{ email }}</p>
     </div>
-    <div class="hero-meta-line">
-      <span class="meta-item">Enter the verification code sent to {{ email }}</span>
-    </div>
-  </div>
-  <div class="hero-divider"></div>
-</section>
-
-<div class="main-card" style="max-width: 500px; margin: 40px auto;">
-  <div style="padding: 30px;">
+    
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    
     <form method="post">
       {% csrf_token %}
-
+      
       <div class="form-group">
-        <label for="otp">Verification Code:</label>
-        <input
-          type="text"
-          name="otp"
-          id="otp"
-          class="form-control"
-          placeholder="Enter 6-digit code"
+        <label for="otp">Verification Code</label>
+        <input 
+          type="text" 
+          name="otp" 
+          id="otp" 
+          class="otp-input"
+          placeholder="000000"
           maxlength="6"
           pattern="[0-9]{6}"
           required
           autofocus
-          style="font-size: 24px; text-align: center; letter-spacing: 8px; font-family: monospace;"
         >
-        <small style="display: block; margin-top: 8px; color: #666;">
-          Check your email inbox for the verification code
-        </small>
+        <div class="form-hint">Check your email inbox for the 6-digit code</div>
       </div>
-
-      <div class="form-actions" style="margin-top: 30px;">
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Verify Code</button>
-        <a href="{% url 'profile' %}" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">Cancel</a>
-      </div>
+      
+      <button type="submit" class="btn-verify">Verify Code</button>
+      <a href="{% url 'vet:profile' %}" class="btn-cancel">Cancel</a>
     </form>
-
-    <div style="margin-top: 20px; text-align: center;">
+    
+    <div class="resend-section">
       <button type="button" id="resendOtpBtn" class="btn-resend" disabled>
         Resend available in <strong id="resendTimer">2:00</strong>
       </button>
@@ -102,12 +219,12 @@
 <div class="toast-notification" id="toast"></div>
 
 <script>
-// Auto-submit when 6 digits entered
+// Only allow digits in OTP input
 document.getElementById('otp').addEventListener('input', function(e) {
-  // Only allow digits
   this.value = this.value.replace(/[^0-9]/g, '');
-  if (e.target.value.length === 6 && /^\d{6}$/.test(e.target.value)) {
-    e.target.form.submit();
+  // Auto-submit when 6 digits entered
+  if (this.value.length === 6 && /^\d{6}$/.test(this.value)) {
+    this.form.submit();
   }
 });
 
@@ -120,7 +237,7 @@ function showToast(message, type = 'success') {
 }
 
 // Resend cooldown timer
-let resendCooldownRemaining = 120; // Start with 2 minutes
+let resendCooldownRemaining = 120;
 let resendCooldownInterval = null;
 
 function startResendCooldown(seconds) {
@@ -128,7 +245,6 @@ function startResendCooldown(seconds) {
   
   resendCooldownRemaining = seconds;
   const resendBtn = document.getElementById('resendOtpBtn');
-  const timerSpan = document.getElementById('resendTimer');
   resendBtn.disabled = true;
   
   function updateResendTimer() {
@@ -159,7 +275,7 @@ document.getElementById('resendOtpBtn').addEventListener('click', function() {
   this.disabled = true;
   this.textContent = 'Sending...';
   
-  fetch('{% url "profile_request_password_otp" %}', {
+  fetch('{% url "vet:profile_request_password_otp" %}', {
     method: 'POST',
     headers: {
       'X-CSRFToken': '{{ csrf_token }}',

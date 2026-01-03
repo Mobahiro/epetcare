@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import login, logout, update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
+from django.http import JsonResponse
 from .models import MedicalRecord, Owner, Pet, Appointment, Notification
 from .forms import (
     OwnerForm, PetForm, PetCreateForm, AppointmentForm,
     RegisterForm, UserProfileForm,
     PasswordResetRequestForm, PasswordResetOTPForm, PasswordResetSetNewForm,
+    StrongPasswordChangeForm,
 )
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -869,6 +870,240 @@ def profile_update_field(request):
 
 
 @login_required
+def profile_request_field_otp(request):
+    """Request OTP for changing username or email.
+    
+    Sends OTP to current email to verify identity before allowing change.
+    Returns JSON response.
+    """
+    from django.http import JsonResponse
+    import logging
+    logger = logging.getLogger('clinic')
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    
+    owner = getattr(request.user, 'owner_profile', None)
+    if not owner:
+        return JsonResponse({'success': False, 'error': 'Owner profile not found'}, status=404)
+    
+    field = request.POST.get('field')
+    new_value = request.POST.get('value', '').strip()
+    
+    if field not in ['username', 'email']:
+        return JsonResponse({'success': False, 'error': 'OTP verification only required for username and email'}, status=400)
+    
+    # Validate the new value first
+    if field == 'username':
+        # Check rate limit
+        can_change, next_date = owner.can_change_username()
+        if not can_change:
+            return JsonResponse({
+                'success': False,
+                'error': f'Username can only be changed once per month. Try again after {next_date.strftime("%B %d, %Y")}.'
+            }, status=403)
+        
+        # Validate username format
+        if len(new_value) < 3:
+            return JsonResponse({'success': False, 'error': 'Username must be at least 3 characters'}, status=400)
+        
+        if len(new_value) > 30:
+            return JsonResponse({'success': False, 'error': 'Username cannot exceed 30 characters'}, status=400)
+        
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', new_value):
+            return JsonResponse({'success': False, 'error': 'Username can only contain letters, numbers, and underscores'}, status=400)
+        
+        # Check uniqueness
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if User.objects.filter(username__iexact=new_value).exclude(pk=request.user.pk).exists():
+            return JsonResponse({'success': False, 'error': 'This username is already taken'}, status=400)
+        
+        # Check if same as current
+        if new_value.lower() == request.user.username.lower():
+            return JsonResponse({'success': False, 'error': 'New username is the same as current'}, status=400)
+    
+    elif field == 'email':
+        # Check rate limit
+        can_change, next_date = owner.can_change_email()
+        if not can_change:
+            return JsonResponse({
+                'success': False,
+                'error': f'Email can only be changed once per month. Try again after {next_date.strftime("%B %d, %Y")}.'
+            }, status=403)
+        
+        # Validate email format
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError as DjangoValidationError
+        try:
+            validate_email(new_value)
+        except DjangoValidationError:
+            return JsonResponse({'success': False, 'error': 'Please enter a valid email address'}, status=400)
+        
+        # Must be Gmail
+        if not new_value.lower().endswith('@gmail.com'):
+            return JsonResponse({'success': False, 'error': 'Only Gmail addresses (@gmail.com) are allowed'}, status=400)
+        
+        # Check uniqueness
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if User.objects.filter(email__iexact=new_value).exclude(pk=request.user.pk).exists():
+            return JsonResponse({'success': False, 'error': 'This email is already in use'}, status=400)
+        
+        # Check if same as current
+        if new_value.lower() == request.user.email.lower():
+            return JsonResponse({'success': False, 'error': 'New email is the same as current'}, status=400)
+    
+    # Generate 6-digit OTP
+    code = f"{random.randint(0, 999999):06d}"
+    from .models import PasswordResetOTP
+    expires = timezone.now() + timedelta(minutes=10)
+    
+    # Remove old unused OTPs
+    PasswordResetOTP.objects.filter(user=request.user, is_used=False).delete()
+    
+    # Create new OTP
+    otp_obj = PasswordResetOTP.objects.create(user=request.user, code=code, expires_at=expires)
+    logger.info(f"Created profile change OTP for user {request.user.id}: field={field}")
+    
+    # Store pending change in session
+    request.session['pending_profile_change'] = {
+        'field': field,
+        'new_value': new_value,
+        'otp_id': otp_obj.id,
+        'created_at': timezone.now().isoformat()
+    }
+    
+    # Send email to CURRENT email
+    subject = f"Verify your {field} change - ePetCare"
+    ctx = {
+        "code": code,
+        "name": owner.full_name or request.user.username,
+        "field": field,
+        "new_value": new_value,
+        "year": timezone.now().year,
+        "BRAND_NAME": getattr(settings, 'BRAND_NAME', 'ePetCare'),
+    }
+    message = f"Your verification code to change your {field} is: {code}\n\nThis code will expire in 10 minutes."
+    html_message = render_to_string('clinic/auth/profile_change_otp_email.html', ctx)
+    
+    try:
+        from clinic.utils.emailing import send_mail_http
+        success = send_mail_http(
+            subject=subject,
+            message=message,
+            recipient_list=[request.user.email],  # Send to CURRENT email
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            html_message=html_message
+        )
+        if success:
+            logger.info(f"OTP email sent to {request.user.email} for {field} change")
+            return JsonResponse({
+                'success': True,
+                'message': f'Verification code sent to {request.user.email}',
+                'masked_email': mask_email(request.user.email)
+            })
+        else:
+            logger.error(f"Failed to send profile change OTP email via HTTP provider")
+            return JsonResponse({'success': False, 'error': 'Failed to send verification code. Please try again.'}, status=500)
+    except Exception as e:
+        logger.error(f"Failed to send profile change OTP email: {e}")
+        return JsonResponse({'success': False, 'error': 'Failed to send verification code. Please try again.'}, status=500)
+
+
+def mask_email(email):
+    """Mask email for display: j***n@gmail.com"""
+    if not email or '@' not in email:
+        return email
+    local, domain = email.rsplit('@', 1)
+    if len(local) <= 2:
+        masked_local = local[0] + '***'
+    else:
+        masked_local = local[0] + '***' + local[-1]
+    return f"{masked_local}@{domain}"
+
+
+@login_required
+def profile_verify_field_otp(request):
+    """Verify OTP and apply the profile field change.
+    
+    Returns JSON response.
+    """
+    from django.http import JsonResponse
+    import logging
+    logger = logging.getLogger('clinic')
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    
+    owner = getattr(request.user, 'owner_profile', None)
+    if not owner:
+        return JsonResponse({'success': False, 'error': 'Owner profile not found'}, status=404)
+    
+    otp_code = request.POST.get('otp_code', '').strip()
+    
+    if not otp_code or len(otp_code) != 6:
+        return JsonResponse({'success': False, 'error': 'Please enter a valid 6-digit code'}, status=400)
+    
+    # Get pending change from session
+    pending = request.session.get('pending_profile_change')
+    if not pending:
+        return JsonResponse({'success': False, 'error': 'No pending change found. Please start over.'}, status=400)
+    
+    field = pending.get('field')
+    new_value = pending.get('new_value')
+    
+    # Verify OTP
+    from .models import PasswordResetOTP
+    try:
+        otp_obj = PasswordResetOTP.objects.get(
+            user=request.user,
+            code=otp_code,
+            is_used=False,
+            expires_at__gt=timezone.now()
+        )
+    except PasswordResetOTP.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Invalid or expired verification code'}, status=400)
+    
+    # Mark OTP as used
+    otp_obj.is_used = True
+    otp_obj.save()
+    
+    # Apply the change
+    try:
+        if field == 'username':
+            old_value = request.user.username
+            request.user.username = new_value.lower()
+            request.user.save(update_fields=['username'])
+            owner.last_username_change = timezone.now()
+            owner.save(update_fields=['last_username_change'])
+            logger.info(f"Username changed for user {request.user.id}: {old_value} -> {new_value}")
+            
+        elif field == 'email':
+            old_value = request.user.email
+            request.user.email = new_value.lower()
+            request.user.save(update_fields=['email'])
+            owner.email = new_value.lower()
+            owner.last_email_change = timezone.now()
+            owner.save(update_fields=['email', 'last_email_change'])
+            logger.info(f"Email changed for user {request.user.id}: {old_value} -> {new_value}")
+        
+        # Clear pending change from session
+        del request.session['pending_profile_change']
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{field.title()} updated successfully!',
+            'new_value': new_value
+        })
+    
+    except Exception as e:
+        logger.error(f"Error applying profile change: {e}")
+        return JsonResponse({'success': False, 'error': 'Failed to apply change. Please try again.'}, status=500)
+
+
+@login_required
 def change_password_request_otp(request):
     """Request OTP for password change from profile page.
     
@@ -927,17 +1162,26 @@ def change_password_request_otp(request):
                 logger.info(f'Password change OTP email sent successfully to {user.email}')
             else:
                 logger.error(f'Password change OTP email failed via HTTP provider')
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'Failed to send verification code'})
                 messages.error(request, 'Failed to send verification code. Please try again.')
                 return redirect('profile')
         except Exception as e:
             logger.error(f'Password change OTP email failed: {e}')
             import traceback
             logger.error(f'Traceback: {traceback.format_exc()}')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': 'Failed to send verification code'})
             messages.error(request, 'Failed to send verification code. Please try again.')
             return redirect('profile')
 
         # Store user ID in session
         request.session['pw_change_user_id'] = user.id
+        
+        # Check if AJAX request (for resend functionality)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Verification code sent'})
+        
         # Don't add messages.info here - template already shows "Enter the verification code sent to {{ email }}"
         return redirect('profile_verify_password_otp')
 
@@ -1015,6 +1259,7 @@ def change_password_set_new(request):
     """Set new password after OTP verification.
     
     Security: Updates last_password_change timestamp for rate limiting.
+    Uses StrongPasswordChangeForm for enhanced password requirements.
     """
 
     if not request.session.get('pw_change_verified'):
@@ -1022,7 +1267,7 @@ def change_password_set_new(request):
         return redirect('profile')
 
     if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
+        form = StrongPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
             
@@ -1043,7 +1288,7 @@ def change_password_set_new(request):
             messages.success(request, 'Your password has been changed successfully!')
             return redirect('profile')
     else:
-        form = PasswordChangeForm(request.user)
+        form = StrongPasswordChangeForm(request.user)
 
     # Clear any existing messages to prevent notification bleed on GET
     storage = messages.get_messages(request)
@@ -1105,7 +1350,14 @@ def pet_list(request):
 
 @login_required
 def pet_create(request):
+    """Create a new pet with image upload support."""
     import logging
+    import os
+    import uuid
+    import base64
+    from django.conf import settings
+    from django.core.files.base import ContentFile
+    
     logger = logging.getLogger(__name__)
 
     owner = getattr(request.user, 'owner_profile', None)
@@ -1113,136 +1365,79 @@ def pet_create(request):
         messages.error(request, "Owner profile not found for your account.")
         return redirect('dashboard')
 
-    # Log environment information for debugging
-    from django.conf import settings
-    logger.info(f"MEDIA_ROOT: {settings.MEDIA_ROOT}")
-    logger.info(f"MEDIA_URL: {settings.MEDIA_URL}")
-    import os
-    logger.info(f"MEDIA_ROOT exists: {os.path.exists(settings.MEDIA_ROOT)}")
-    logger.info(f"MEDIA_ROOT permissions: {oct(os.stat(settings.MEDIA_ROOT).st_mode & 0o777)}")
+    # Ensure pet_images directory exists
     pet_images_dir = os.path.join(settings.MEDIA_ROOT, 'pet_images')
-    if not os.path.exists(pet_images_dir):
-        try:
-            os.makedirs(pet_images_dir, exist_ok=True)
-            logger.info(f"Created pet_images directory: {pet_images_dir}")
-        except Exception as e:
-            logger.error(f"Failed to create pet_images directory: {e}")
-    else:
-        logger.info(f"pet_images directory exists: {pet_images_dir}")
-        logger.info(f"pet_images permissions: {oct(os.stat(pet_images_dir).st_mode & 0o777)}")
+    os.makedirs(pet_images_dir, exist_ok=True)
 
     if request.method == 'POST':
-        logger.info("Processing POST request for pet creation")
-        logger.info(f"Files in request: {request.FILES}")
-        logger.info(f"POST data: {request.POST}")
-
-        # Create a clean form instance
         form = PetCreateForm(request.POST, request.FILES)
 
         if form.is_valid():
-            logger.info("Form is valid, proceeding with pet creation")
             try:
-                # Create the pet object but don't save to DB yet
+                # Create the pet without saving to DB yet
                 pet = form.save(commit=False)
                 pet.owner = owner
-
-                # Handle image upload - check for file upload or base64 fallback
-                has_image = False
-                image_file = None
-                base64_image = None
+                pet.image = None  # Clear image initially
+                pet.save()  # Save to get the pet ID
                 
+                logger.info(f"Pet saved with ID: {pet.id}")
+                
+                # Handle image: prefer file upload, fall back to base64
+                image_saved = False
+                
+                # Check for file upload (from DataTransfer API)
                 if 'image' in request.FILES:
                     image_file = request.FILES['image']
-                    has_image = True
-                    logger.info(f"Image upload detected: name={image_file.name}, size={image_file.size}, content_type={image_file.content_type}")
+                    logger.info(f"Image file received: {image_file.name}, size={image_file.size}")
+                    
+                    # Generate unique filename
+                    file_ext = os.path.splitext(image_file.name)[1].lower() or '.jpg'
+                    unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_ext}"
+                    
+                    # Save file to disk
+                    full_path = os.path.join(pet_images_dir, unique_filename)
+                    with open(full_path, 'wb+') as destination:
+                        for chunk in image_file.chunks():
+                            destination.write(chunk)
+                    
+                    pet.image = f"pet_images/{unique_filename}"
+                    image_saved = True
+                    logger.info(f"Image saved to: {full_path}")
+                
+                # Fall back to base64 data (from cropper.js fallback)
                 elif request.POST.get('cropped_image_data'):
-                    # Handle base64 fallback for cropped images
                     base64_data = request.POST.get('cropped_image_data')
-                    if base64_data and base64_data.startswith('data:image/'):
-                        has_image = True
-                        base64_image = base64_data
-                        logger.info("Base64 cropped image detected (fallback)")
-
-                # Save pet first without image
-                if has_image and image_file:
-                    # Temporarily remove image to save pet first
-                    temp_image = image_file
-                    form.cleaned_data['image'] = None
-                    pet.image = None
-
-                # Initial save
-                logger.info("Saving pet without image first")
-                pet.save()
-                logger.info(f"Pet saved with ID: {pet.id}")
-
-                # Now handle the image if present
-                if has_image:
-                    try:
-                        # Check/create directory
-                        os.makedirs(pet_images_dir, exist_ok=True)
-                        logger.info("Verified pet_images directory exists")
-
-                        import uuid
+                    if base64_data.startswith('data:image/'):
+                        logger.info("Using base64 fallback for image")
                         
-                        if image_file:
-                            # Handle regular file upload
-                            file_extension = os.path.splitext(image_file.name)[1].lower()
-                            unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_extension}"
-                            image_path = os.path.join('pet_images', unique_filename)
-
-                            # Save the file manually
-                            full_path = os.path.join(settings.MEDIA_ROOT, 'pet_images', unique_filename)
-                            logger.info(f"Saving image to: {full_path}")
-
-                            with open(full_path, 'wb+') as destination:
-                                for chunk in image_file.chunks():
-                                    destination.write(chunk)
-
-                            logger.info(f"Image saved successfully at {full_path}")
-                            
-                        elif base64_image:
-                            # Handle base64 cropped image fallback
-                            import base64
-                            
-                            # Parse base64 data (format: data:image/jpeg;base64,...)
-                            header, data = base64_image.split(',', 1)
-                            image_data = base64.b64decode(data)
-                            
-                            unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
-                            image_path = os.path.join('pet_images', unique_filename)
-                            full_path = os.path.join(settings.MEDIA_ROOT, 'pet_images', unique_filename)
-                            
-                            logger.info(f"Saving base64 image to: {full_path}")
-                            
-                            with open(full_path, 'wb') as destination:
-                                destination.write(image_data)
-                            
-                            logger.info(f"Base64 image saved successfully at {full_path}")
-
-                        # Update the pet with the image path
-                        pet.image = image_path
-                        pet.save(update_fields=['image'])
-                        logger.info(f"Pet updated with image path: {pet.image}")
-
-                    except Exception as img_error:
-                        import traceback
-                        logger.error(f"Error saving image: {img_error}\n{traceback.format_exc()}")
-                        # Continue with pet creation even if image fails
+                        # Parse the base64 data
+                        header, data = base64_data.split(',', 1)
+                        image_bytes = base64.b64decode(data)
+                        
+                        # Generate unique filename
+                        unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
+                        
+                        # Save file to disk
+                        full_path = os.path.join(pet_images_dir, unique_filename)
+                        with open(full_path, 'wb') as destination:
+                            destination.write(image_bytes)
+                        
+                        pet.image = f"pet_images/{unique_filename}"
+                        image_saved = True
+                        logger.info(f"Base64 image saved to: {full_path}")
+                
+                # Update pet with image path if saved
+                if image_saved:
+                    pet.save(update_fields=['image'])
+                    logger.info(f"Pet image updated: {pet.image}")
 
                 messages.success(request, f"Pet {pet.name} has been successfully added.")
-
-                if pet.image:
-                    image_url = pet.image_url or f"/media/{pet.image}"
-                    messages.info(request, f"Pet image saved at: {image_url}")
-
                 return redirect('pet_detail', pk=pet.pk)
 
             except Exception as e:
                 import traceback
-                error_msg = str(e)
-                error_details = traceback.format_exc()
-                logger.error(f"Error saving pet: {error_msg}\n{error_details}")
-                messages.error(request, f"Error saving pet: {error_msg}")
+                logger.error(f"Error saving pet: {e}\n{traceback.format_exc()}")
+                messages.error(request, f"Error saving pet: {e}")
         else:
             logger.error(f"Pet form validation errors: {form.errors}")
             messages.error(request, f"There were errors in your form. Please check and try again.")
@@ -1271,13 +1466,77 @@ def pet_detail(request, pk: int):
 
 @login_required
 def pet_edit(request, pk: int):
+    """Edit a pet with image upload support."""
+    import logging
+    import os
+    import uuid
+    import base64
+    from django.conf import settings
+    
+    logger = logging.getLogger(__name__)
+    
     owner = getattr(request.user, 'owner_profile', None)
     pet = get_object_or_404(Pet, pk=pk, owner=owner)
+
+    # Ensure pet_images directory exists
+    pet_images_dir = os.path.join(settings.MEDIA_ROOT, 'pet_images')
+    os.makedirs(pet_images_dir, exist_ok=True)
 
     if request.method == 'POST':
         form = PetForm(request.POST, request.FILES, instance=pet)
         if form.is_valid():
-            form.save()
+            # Save form data first (without committing image changes from form)
+            updated_pet = form.save(commit=False)
+            
+            # Handle image: prefer file upload, fall back to base64
+            image_saved = False
+            
+            # Check for file upload (from DataTransfer API)
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']
+                logger.info(f"Image file received: {image_file.name}, size={image_file.size}")
+                
+                # Generate unique filename
+                file_ext = os.path.splitext(image_file.name)[1].lower() or '.jpg'
+                unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_ext}"
+                
+                # Save file to disk
+                full_path = os.path.join(pet_images_dir, unique_filename)
+                with open(full_path, 'wb+') as destination:
+                    for chunk in image_file.chunks():
+                        destination.write(chunk)
+                
+                updated_pet.image = f"pet_images/{unique_filename}"
+                image_saved = True
+                logger.info(f"Image saved to: {full_path}")
+            
+            # Fall back to base64 data (from cropper.js fallback)
+            elif request.POST.get('cropped_image_data'):
+                base64_data = request.POST.get('cropped_image_data')
+                if base64_data.startswith('data:image/'):
+                    logger.info("Using base64 fallback for image")
+                    
+                    # Parse the base64 data
+                    header, data = base64_data.split(',', 1)
+                    image_bytes = base64.b64decode(data)
+                    
+                    # Generate unique filename
+                    unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
+                    
+                    # Save file to disk
+                    full_path = os.path.join(pet_images_dir, unique_filename)
+                    with open(full_path, 'wb') as destination:
+                        destination.write(image_bytes)
+                    
+                    updated_pet.image = f"pet_images/{unique_filename}"
+                    image_saved = True
+                    logger.info(f"Base64 image saved to: {full_path}")
+            
+            updated_pet.save()
+            
+            if image_saved:
+                logger.info(f"Pet {pet.id} image updated to: {updated_pet.image}")
+            
             messages.success(request, f"{pet.name}'s information has been updated successfully.")
             return redirect('pet_detail', pk=pet.pk)
     else:
