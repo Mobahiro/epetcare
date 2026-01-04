@@ -20,7 +20,12 @@ if extra_csrf:
     CSRF_TRUSTED_ORIGINS += [o.strip() for o in extra_csrf.split(',') if o.strip()]
 
 # Static files configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Use CompressedStaticFilesStorage instead of CompressedManifestStaticFilesStorage
+# to avoid errors with DRF's CSS referencing missing image files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# WhiteNoise settings - don't fail on missing files referenced in CSS
+WHITENOISE_MANIFEST_STRICT = False
 
 # Cloudinary configuration for persistent media storage
 # Render has ephemeral storage - files are lost on restart
@@ -41,7 +46,7 @@ if CLOUDINARY_STORAGE['CLOUD_NAME'] and CLOUDINARY_STORAGE['API_KEY'] and CLOUDI
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
     MEDIA_URL = '/media/'  # Cloudinary will handle the actual URL
