@@ -20,11 +20,11 @@ if extra_csrf:
     CSRF_TRUSTED_ORIGINS += [o.strip() for o in extra_csrf.split(',') if o.strip()]
 
 # Static files configuration
-# Use CompressedStaticFilesStorage instead of CompressedManifestStaticFilesStorage
-# to avoid errors with DRF's CSS referencing missing image files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Use basic StaticFilesStorage - WhiteNoise middleware will handle compression at runtime
+# This avoids race conditions during collectstatic with CompressedStaticFilesStorage
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-# WhiteNoise settings - don't fail on missing files referenced in CSS
+# WhiteNoise settings
 WHITENOISE_MANIFEST_STRICT = False
 
 # Cloudinary configuration for persistent media storage
@@ -46,7 +46,7 @@ if CLOUDINARY_STORAGE['CLOUD_NAME'] and CLOUDINARY_STORAGE['API_KEY'] and CLOUDI
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
     MEDIA_URL = '/media/'  # Cloudinary will handle the actual URL
