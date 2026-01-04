@@ -11,8 +11,24 @@ mkdir -p staticfiles
 # Set proper permissions
 chmod -R 755 media
 
-# Collect static files for WhiteNoise (prod settings)
-echo "Collecting static files..."
-python manage.py collectstatic --noinput --settings=config.settings.prod
-echo "Static files collected to staticfiles/"
-ls -la staticfiles/ | head -20
+# Debug: Show what apps are installed
+echo "=== Debug: Checking static file locations ==="
+python -c "
+import django
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.prod')
+django.setup()
+from django.conf import settings
+print('INSTALLED_APPS:', settings.INSTALLED_APPS)
+print('STATIC_ROOT:', settings.STATIC_ROOT)
+print('STATICFILES_STORAGE:', settings.STATICFILES_STORAGE)
+from django.contrib.staticfiles import finders
+print('Static file finders:', [f.__class__.__name__ for f in finders.get_finders()])
+"
+
+# Collect static files
+echo "=== Collecting static files ==="
+python manage.py collectstatic --noinput -v 2 --settings=config.settings.prod
+
+echo "=== Static files collected ==="
+ls -la staticfiles/ | head -30

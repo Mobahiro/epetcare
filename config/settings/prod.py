@@ -24,9 +24,9 @@ if extra_csrf:
 STATIC_ROOT = '/opt/render/project/src/staticfiles'
 STATIC_URL = '/static/'
 
-# Use ManifestStaticFilesStorage for cache busting (Django built-in, no WhiteNoise storage issues)
-# WhiteNoise middleware will serve these files efficiently
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+# Use basic StaticFilesStorage - WhiteNoise middleware handles serving efficiently
+# ManifestStaticFilesStorage requires existing manifest and can cause issues
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Cloudinary configuration for persistent media storage
 # Render has ephemeral storage - files are lost on restart
@@ -39,8 +39,8 @@ CLOUDINARY_STORAGE = {
 
 # Use Cloudinary for media files if configured, otherwise fall back to local storage
 if CLOUDINARY_STORAGE['CLOUD_NAME'] and CLOUDINARY_STORAGE['API_KEY'] and CLOUDINARY_STORAGE['API_SECRET']:
-    # Add cloudinary_storage to installed apps
-    INSTALLED_APPS = ['cloudinary_storage', 'cloudinary'] + INSTALLED_APPS
+    # Add cloudinary apps to INSTALLED_APPS (append, don't replace)
+    INSTALLED_APPS = INSTALLED_APPS + ['cloudinary_storage', 'cloudinary']
     # Only set default storage for media files - let STATICFILES_STORAGE handle static
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'  # Cloudinary will handle the actual URL
