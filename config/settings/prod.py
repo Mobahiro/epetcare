@@ -20,15 +20,9 @@ if extra_csrf:
     CSRF_TRUSTED_ORIGINS += [o.strip() for o in extra_csrf.split(',') if o.strip()]
 
 # Static files configuration
-# WhiteNoise serves static files efficiently in production
-# Using basic storage to avoid manifest/compression issues during collectstatic
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-
-# WhiteNoise settings
-WHITENOISE_MANIFEST_STRICT = False
-# Disable concurrent compression to avoid race conditions
-WHITENOISE_USE_FINDERS = False
-WHITENOISE_AUTOREFRESH = False
+# Use Django's basic storage - WhiteNoise middleware handles serving efficiently
+# Avoid WhiteNoise storage backends as they have race conditions during collectstatic
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Cloudinary configuration for persistent media storage
 # Render has ephemeral storage - files are lost on restart
@@ -49,7 +43,7 @@ if CLOUDINARY_STORAGE['CLOUD_NAME'] and CLOUDINARY_STORAGE['API_KEY'] and CLOUDI
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
     MEDIA_URL = '/media/'  # Cloudinary will handle the actual URL
