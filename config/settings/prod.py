@@ -19,10 +19,14 @@ extra_csrf = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 if extra_csrf:
     CSRF_TRUSTED_ORIGINS += [o.strip() for o in extra_csrf.split(',') if o.strip()]
 
-# Static files configuration
-# Use Django's basic storage - WhiteNoise middleware handles serving efficiently
-# Avoid WhiteNoise storage backends as they have race conditions during collectstatic
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# Static files configuration for Render
+# Explicitly set STATIC_ROOT for production
+STATIC_ROOT = '/opt/render/project/src/staticfiles'
+STATIC_URL = '/static/'
+
+# Use ManifestStaticFilesStorage for cache busting (Django built-in, no WhiteNoise storage issues)
+# WhiteNoise middleware will serve these files efficiently
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Cloudinary configuration for persistent media storage
 # Render has ephemeral storage - files are lost on restart
@@ -37,15 +41,8 @@ CLOUDINARY_STORAGE = {
 if CLOUDINARY_STORAGE['CLOUD_NAME'] and CLOUDINARY_STORAGE['API_KEY'] and CLOUDINARY_STORAGE['API_SECRET']:
     # Add cloudinary_storage to installed apps
     INSTALLED_APPS = ['cloudinary_storage', 'cloudinary'] + INSTALLED_APPS
-    # Django 6.0+ uses STORAGES instead of DEFAULT_FILE_STORAGE
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+    # Only set default storage for media files - let STATICFILES_STORAGE handle static
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'  # Cloudinary will handle the actual URL
     print("Cloudinary storage enabled for media files")
 else:
