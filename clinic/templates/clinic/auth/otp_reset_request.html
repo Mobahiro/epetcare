@@ -6,12 +6,12 @@
     <div class="auth-container">
       <div class="auth-header">
         <h1 class="auth-title">Forgot your password?</h1>
-        <div class="auth-subtitle">Enter your email or username and we'll send you a 6-digit code.</div>
+        <div class="auth-subtitle">Enter your email and we'll send you a 6-digit code.</div>
       </div>
       <form method="post" class="auth-form" novalidate>
         {% csrf_token %}
         <div class="auth-field">
-          <label for="id_email">Email or Username</label>
+          <label for="id_email">Email</label>
           {{ form.email }}
           {% if form.email.errors %}
             <div class="auth-error">{{ form.email.errors.0 }}</div>

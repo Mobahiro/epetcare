@@ -40,10 +40,13 @@ def prescription_create(request, pet_id):
         form = PrescriptionForm(request.POST)
         if form.is_valid():
             import logging
+            from datetime import date
             logger = logging.getLogger('clinic')
             logger.info(f'[VET_PORTAL] About to save prescription for pet: {pet.name} (id={pet.id})')
             rx = form.save(commit=False)
             rx.pet = pet  # enforce correct pet
+            rx.date_prescribed = date.today()  # Auto-set to today
+            rx.is_active = True  # Auto-set to active
             logger.info(f'[VET_PORTAL] Calling rx.save() - this should trigger signal')
             rx.save()
             logger.info(f'[VET_PORTAL] Prescription saved with id={rx.id}')

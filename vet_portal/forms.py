@@ -134,11 +134,8 @@ class PrescriptionForm(forms.ModelForm):
         model = Prescription
         fields = [
             'pet', 'medication_name', 'dosage', 'instructions',
-            'date_prescribed', 'duration_days', 'is_active'
+            'duration_days'
         ]
-        widgets = {
-            'date_prescribed': forms.DateInput(attrs={'type': 'date'}),
-        }
 
 
 class TreatmentForm(forms.ModelForm):
