@@ -1357,6 +1357,7 @@ def pet_create(request):
     import base64
     from django.conf import settings
     from django.core.files.base import ContentFile
+    from django.db import transaction
     
     logger = logging.getLogger(__name__)
 
@@ -1365,20 +1366,36 @@ def pet_create(request):
         messages.error(request, "Owner profile not found for your account.")
         return redirect('dashboard')
 
-    # Ensure pet_images directory exists
-    pet_images_dir = os.path.join(settings.MEDIA_ROOT, 'pet_images')
-    os.makedirs(pet_images_dir, exist_ok=True)
-
     if request.method == 'POST':
+        # Double-submit protection: check submission token
+        submission_token = request.POST.get('submission_token', '')
+        session_key = f'pet_create_token_{submission_token}'
+        
+        if submission_token and request.session.get(session_key):
+            # Token already used - this is a duplicate submission
+            logger.warning(f"Duplicate pet creation attempt blocked (token: {submission_token})")
+            messages.info(request, "Your pet has already been registered.")
+            return redirect('pet_list')
+        
         form = PetCreateForm(request.POST, request.FILES)
 
         if form.is_valid():
             try:
-                # Create the pet without saving to DB yet
-                pet = form.save(commit=False)
-                pet.owner = owner
-                pet.image = None  # Clear image initially
-                pet.save()  # Save to get the pet ID
+                from django.core.files.base import ContentFile
+                from django.core.files.storage import default_storage
+                
+                # Mark token as used BEFORE creating pet (prevents race condition)
+                if submission_token:
+                    request.session[session_key] = True
+                    request.session.modified = True
+                
+                # Use transaction to ensure atomicity
+                with transaction.atomic():
+                    # Create the pet without saving to DB yet
+                    pet = form.save(commit=False)
+                    pet.owner = owner
+                    pet.image = None  # Clear image initially
+                    pet.save()  # Save to get the pet ID
                 
                 logger.info(f"Pet saved with ID: {pet.id}")
                 
@@ -1394,15 +1411,11 @@ def pet_create(request):
                     file_ext = os.path.splitext(image_file.name)[1].lower() or '.jpg'
                     unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_ext}"
                     
-                    # Save file to disk
-                    full_path = os.path.join(pet_images_dir, unique_filename)
-                    with open(full_path, 'wb+') as destination:
-                        for chunk in image_file.chunks():
-                            destination.write(chunk)
-                    
-                    pet.image = f"pet_images/{unique_filename}"
+                    # Save using Django's storage (Cloudinary when configured)
+                    saved_path = default_storage.save(f"pet_images/{unique_filename}", image_file)
+                    pet.image = saved_path
                     image_saved = True
-                    logger.info(f"Image saved to: {full_path}")
+                    logger.info(f"Image saved to storage: {saved_path}")
                 
                 # Fall back to base64 data (from cropper.js fallback)
                 elif request.POST.get('cropped_image_data'):
@@ -1417,14 +1430,14 @@ def pet_create(request):
                         # Generate unique filename
                         unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
                         
-                        # Save file to disk
-                        full_path = os.path.join(pet_images_dir, unique_filename)
-                        with open(full_path, 'wb') as destination:
-                            destination.write(image_bytes)
-                        
-                        pet.image = f"pet_images/{unique_filename}"
+                        # Save using Django's storage (Cloudinary when configured)
+                        saved_path = default_storage.save(
+                            f"pet_images/{unique_filename}", 
+                            ContentFile(image_bytes)
+                        )
+                        pet.image = saved_path
                         image_saved = True
-                        logger.info(f"Base64 image saved to: {full_path}")
+                        logger.info(f"Base64 image saved to storage: {saved_path}")
                 
                 # Update pet with image path if saved
                 if image_saved:
@@ -1472,79 +1485,97 @@ def pet_edit(request, pk: int):
     import uuid
     import base64
     from django.conf import settings
+    from django.db import transaction
     
     logger = logging.getLogger(__name__)
     
     owner = getattr(request.user, 'owner_profile', None)
     pet = get_object_or_404(Pet, pk=pk, owner=owner)
 
-    # Ensure pet_images directory exists
-    pet_images_dir = os.path.join(settings.MEDIA_ROOT, 'pet_images')
-    os.makedirs(pet_images_dir, exist_ok=True)
-
     if request.method == 'POST':
+        # Double-submit protection: check submission token
+        submission_token = request.POST.get('submission_token', '')
+        session_key = f'pet_edit_token_{pk}_{submission_token}'
+        
+        if submission_token and request.session.get(session_key):
+            # Token already used - this is a duplicate submission
+            logger.warning(f"Duplicate pet edit attempt blocked (pet: {pk}, token: {submission_token})")
+            messages.info(request, "Your changes have already been saved.")
+            return redirect('pet_detail', pk=pk)
+        
         form = PetForm(request.POST, request.FILES, instance=pet)
         if form.is_valid():
-            # Save form data first (without committing image changes from form)
-            updated_pet = form.save(commit=False)
+            from django.core.files.base import ContentFile
+            from django.core.files.storage import default_storage
             
-            # Handle image: prefer file upload, fall back to base64
-            image_saved = False
+            # Mark token as used BEFORE saving (prevents race condition)
+            if submission_token:
+                request.session[session_key] = True
+                request.session.modified = True
             
-            # Check for file upload (from DataTransfer API)
-            if 'image' in request.FILES:
-                image_file = request.FILES['image']
-                logger.info(f"Image file received: {image_file.name}, size={image_file.size}")
+            # Use transaction to ensure atomicity
+            with transaction.atomic():
+                # Save form data first (without committing image changes from form)
+                updated_pet = form.save(commit=False)
                 
-                # Generate unique filename
-                file_ext = os.path.splitext(image_file.name)[1].lower() or '.jpg'
-                unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_ext}"
+                # Handle image: prefer file upload, fall back to base64
+                image_saved = False
                 
-                # Save file to disk
-                full_path = os.path.join(pet_images_dir, unique_filename)
-                with open(full_path, 'wb+') as destination:
-                    for chunk in image_file.chunks():
-                        destination.write(chunk)
-                
-                updated_pet.image = f"pet_images/{unique_filename}"
-                image_saved = True
-                logger.info(f"Image saved to: {full_path}")
-            
-            # Fall back to base64 data (from cropper.js fallback)
-            elif request.POST.get('cropped_image_data'):
-                base64_data = request.POST.get('cropped_image_data')
-                if base64_data.startswith('data:image/'):
-                    logger.info("Using base64 fallback for image")
-                    
-                    # Parse the base64 data
-                    header, data = base64_data.split(',', 1)
-                    image_bytes = base64.b64decode(data)
+                # Check for file upload (from DataTransfer API)
+                if 'image' in request.FILES:
+                    image_file = request.FILES['image']
+                    logger.info(f"Image file received: {image_file.name}, size={image_file.size}")
                     
                     # Generate unique filename
-                    unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
+                    file_ext = os.path.splitext(image_file.name)[1].lower() or '.jpg'
+                    unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}{file_ext}"
                     
-                    # Save file to disk
-                    full_path = os.path.join(pet_images_dir, unique_filename)
-                    with open(full_path, 'wb') as destination:
-                        destination.write(image_bytes)
-                    
-                    updated_pet.image = f"pet_images/{unique_filename}"
+                    # Save using Django's storage (Cloudinary when configured)
+                    saved_path = default_storage.save(f"pet_images/{unique_filename}", image_file)
+                    updated_pet.image = saved_path
                     image_saved = True
-                    logger.info(f"Base64 image saved to: {full_path}")
-            
-            updated_pet.save()
-            
-            if image_saved:
-                logger.info(f"Pet {pet.id} image updated to: {updated_pet.image}")
+                    logger.info(f"Image saved to storage: {saved_path}")
+                
+                # Fall back to base64 data (from cropper.js fallback)
+                elif request.POST.get('cropped_image_data'):
+                    base64_data = request.POST.get('cropped_image_data')
+                    if base64_data.startswith('data:image/'):
+                        logger.info("Using base64 fallback for image")
+                        
+                        # Parse the base64 data
+                        header, data = base64_data.split(',', 1)
+                        image_bytes = base64.b64decode(data)
+                        
+                        # Generate unique filename
+                        unique_filename = f"pet_{pet.id}_{uuid.uuid4().hex[:8]}.jpg"
+                        
+                        # Save using Django's storage (Cloudinary when configured)
+                        saved_path = default_storage.save(
+                            f"pet_images/{unique_filename}", 
+                            ContentFile(image_bytes)
+                        )
+                        updated_pet.image = saved_path
+                        image_saved = True
+                        logger.info(f"Base64 image saved to storage: {saved_path}")
+                
+                updated_pet.save()
+                
+                if image_saved:
+                    logger.info(f"Pet {pet.id} image updated to: {updated_pet.image}")
             
             messages.success(request, f"{pet.name}'s information has been updated successfully.")
             return redirect('pet_detail', pk=pet.pk)
     else:
         form = PetForm(instance=pet)
 
+    # Generate a unique submission token for double-submit protection
+    import uuid
+    submission_token = uuid.uuid4().hex
+    
     return render(request, 'clinic/pet_edit.html', {
         "form": form,
-        "pet": pet
+        "pet": pet,
+        "submission_token": submission_token
     })
 
 
@@ -1612,19 +1643,37 @@ def appointment_list(request):
 
 @login_required
 def appointment_create(request):
+    import uuid as uuid_module
+    
     owner = getattr(request.user, 'owner_profile', None)
     if not owner:
         messages.error(request, "Owner profile not found for your account.")
         return redirect('dashboard')
     if request.method == 'POST':
+        # Double-submit protection
+        submission_token = request.POST.get('submission_token', '')
+        session_key = f'appt_create_token_{submission_token}'
+        
+        if submission_token and request.session.get(session_key):
+            messages.info(request, "Your appointment has already been booked.")
+            return redirect('appointment_list')
+        
         form = AppointmentForm(request.POST)
         # Limit pet choices to current owner's pets even on POST
         form.fields['pet'].queryset = Pet.objects.filter(owner=owner)
         if form.is_valid():
+            # Mark token as used before saving
+            if submission_token:
+                request.session[session_key] = True
+                request.session.modified = True
+            
             appt = form.save(commit=False)
             # Safety: ensure selected pet belongs to current owner
             if appt.pet.owner_id != owner.id:
                 messages.error(request, "Invalid pet selection.")
+                # Clear token on error
+                if submission_token:
+                    request.session.pop(session_key, None)
             else:
                 appt.save()
                 return redirect('appointment_list')
@@ -1632,4 +1681,131 @@ def appointment_create(request):
         form = AppointmentForm()
         # Limit pet choices to current owner's pets
         form.fields['pet'].queryset = Pet.objects.filter(owner=owner)
-    return render(request, 'clinic/appointment_form.html', {"form": form})
+    
+    # Generate submission token
+    submission_token = uuid_module.uuid4().hex
+    return render(request, 'clinic/appointment_form.html', {"form": form, "submission_token": submission_token})
+
+
+@login_required
+def appointment_reschedule(request, pk):
+    """Allow pet owner to reschedule their appointment"""
+    from vet.models import Veterinarian, VetNotification
+    
+    owner = getattr(request.user, 'owner_profile', None)
+    if not owner:
+        messages.error(request, "Owner profile not found.")
+        return redirect('dashboard')
+    
+    # Get the appointment and verify ownership
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if appointment.pet.owner_id != owner.id:
+        messages.error(request, "You don't have permission to modify this appointment.")
+        return redirect('appointment_list')
+    
+    # Can only reschedule scheduled appointments
+    if appointment.status != Appointment.Status.SCHEDULED:
+        messages.error(request, "Only scheduled appointments can be rescheduled.")
+        return redirect('appointment_list')
+    
+    old_datetime = appointment.date_time
+    
+    if request.method == 'POST':
+        # Create a form instance with the appointment instance for validation
+        form = AppointmentForm(request.POST, instance=appointment)
+        form.fields['pet'].queryset = Pet.objects.filter(owner=owner)
+        # Only allow changing date_time and notes, not pet or reason
+        form.fields['pet'].disabled = True
+        form.fields['reason'].disabled = True
+        
+        if form.is_valid():
+            new_datetime = form.cleaned_data['date_time']
+            
+            # Save the reschedule
+            appointment.date_time = new_datetime
+            appointment.notes = form.cleaned_data.get('notes', appointment.notes)
+            appointment.save()
+            
+            # Create notification for pet owner
+            Notification.objects.create(
+                owner=owner,
+                appointment=appointment,
+                notif_type=Notification.Type.APPOINTMENT_UPDATED,
+                title="Appointment Rescheduled",
+                message=f"Your appointment for {appointment.pet.name} has been rescheduled from {old_datetime.strftime('%b %d at %I:%M %p')} to {new_datetime.strftime('%b %d at %I:%M %p')}.",
+            )
+            
+            # Notify all vets in the same branch
+            vets_in_branch = Veterinarian.objects.filter(branch=owner.branch)
+            for vet in vets_in_branch:
+                VetNotification.objects.create(
+                    veterinarian=vet,
+                    title="Appointment Rescheduled by Owner",
+                    message=f"{owner.full_name} rescheduled {appointment.pet.name}'s appointment from {old_datetime.strftime('%b %d at %I:%M %p')} to {new_datetime.strftime('%b %d at %I:%M %p')}. Reason: {appointment.reason}",
+                )
+            
+            messages.success(request, f"Appointment successfully rescheduled to {new_datetime.strftime('%B %d, %Y at %I:%M %p')}.")
+            return redirect('appointment_list')
+    else:
+        form = AppointmentForm(instance=appointment)
+        form.fields['pet'].queryset = Pet.objects.filter(owner=owner)
+        # Disable pet and reason - only allow changing date/time and notes
+        form.fields['pet'].disabled = True
+        form.fields['reason'].disabled = True
+    
+    return render(request, 'clinic/appointment_reschedule.html', {
+        "form": form,
+        "appointment": appointment,
+    })
+
+
+@login_required
+def appointment_cancel(request, pk):
+    """Allow pet owner to cancel their appointment"""
+    from vet.models import Veterinarian, VetNotification
+    
+    owner = getattr(request.user, 'owner_profile', None)
+    if not owner:
+        messages.error(request, "Owner profile not found.")
+        return redirect('dashboard')
+    
+    # Get the appointment and verify ownership
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if appointment.pet.owner_id != owner.id:
+        messages.error(request, "You don't have permission to modify this appointment.")
+        return redirect('appointment_list')
+    
+    # Can only cancel scheduled appointments
+    if appointment.status != Appointment.Status.SCHEDULED:
+        messages.error(request, "Only scheduled appointments can be cancelled.")
+        return redirect('appointment_list')
+    
+    if request.method == 'POST':
+        # Cancel the appointment
+        appointment.status = Appointment.Status.CANCELLED
+        appointment.save()
+        
+        # Create notification for pet owner (confirm cancellation)
+        Notification.objects.create(
+            owner=owner,
+            appointment=appointment,
+            notif_type=Notification.Type.APPOINTMENT_CANCELLED,
+            title="Appointment Cancelled",
+            message=f"Your appointment for {appointment.pet.name} on {appointment.date_time.strftime('%b %d at %I:%M %p')} has been cancelled.",
+        )
+        
+        # Notify all vets in the same branch
+        vets_in_branch = Veterinarian.objects.filter(branch=owner.branch)
+        for vet in vets_in_branch:
+            VetNotification.objects.create(
+                veterinarian=vet,
+                title="Appointment Cancelled by Owner",
+                message=f"{owner.full_name} cancelled their appointment for {appointment.pet.name} on {appointment.date_time.strftime('%b %d at %I:%M %p')}. Original reason: {appointment.reason}",
+            )
+        
+        messages.success(request, f"Appointment for {appointment.pet.name} has been cancelled.")
+        return redirect('appointment_list')
+    
+    return render(request, 'clinic/appointment_cancel_confirm.html', {
+        "appointment": appointment,
+    })

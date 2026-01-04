@@ -1,6 +1,9 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+
+from .models import Notification
 
 
 # Branch keywords for vet registration
@@ -32,3 +35,15 @@ def branch_vet_counts(request):
     
     counts = Veterinarian.get_branch_vet_counts()
     return JsonResponse(counts)
+
+
+@login_required
+@require_http_methods(["GET"])
+def notification_count(request):
+    """Return unread notification count for logged-in pet owner"""
+    try:
+        owner = request.user.owner_profile
+        count = Notification.objects.filter(owner=owner, is_read=False).count()
+        return JsonResponse({'unread_count': count})
+    except Exception:
+        return JsonResponse({'unread_count': 0})

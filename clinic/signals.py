@@ -1,7 +1,7 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
-from .models import Appointment, Prescription, MedicalRecord, Notification, Owner
+from .models import Appointment, Prescription, MedicalRecord, Notification, Owner, Pet
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -11,6 +11,25 @@ from django.db import transaction
 import logging
 logger = logging.getLogger('clinic')
 logger.info('[SIGNALS MODULE] clinic.signals module loaded - registering signal handlers')
+
+
+# --- Delete old pet image when image is changed ---
+@receiver(pre_save, sender=Pet)
+def delete_old_pet_image(sender, instance: Pet, **kwargs):
+    """Delete old image from storage when pet image is updated."""
+    if not instance.pk:
+        return  # New pet, nothing to delete
+    
+    try:
+        old_pet = Pet.objects.get(pk=instance.pk)
+        if old_pet.image and old_pet.image != instance.image:
+            # Image has changed, delete the old one
+            old_pet.image.delete(save=False)
+            logger.info(f'[SIGNAL] Deleted old image for pet {instance.name} (replaced with new image)')
+    except Pet.DoesNotExist:
+        pass
+    except Exception as e:
+        logger.warning(f'[SIGNAL] Failed to delete old image for pet {instance.name}: {e}')
 
 
 # --- Appointment notifications ---
@@ -202,5 +221,20 @@ def sync_user_email(sender, instance: Owner, **kwargs):
         pass
 
 
+# --- Delete pet image from storage when pet is deleted ---
+@receiver(post_delete, sender=Pet)
+def delete_pet_image(sender, instance: Pet, **kwargs):
+    """Delete the pet's image file from storage (Cloudinary or local) when pet is deleted."""
+    try:
+        if instance.image:
+            # This works for both local storage and Cloudinary
+            # Cloudinary's storage backend handles the cloud deletion
+            instance.image.delete(save=False)
+            logger.info(f'[SIGNAL] Deleted image for pet {instance.name} (id={instance.pk})')
+    except Exception as e:
+        # Don't block pet deletion if image deletion fails
+        logger.warning(f'[SIGNAL] Failed to delete image for pet {instance.name}: {e}')
+
+
 # Log that all signal handlers have been registered
-logger.info('[SIGNALS MODULE] All signal handlers registered: appointment_notify, prescription_notify, medical_record_notify, email_owner_on_notification, sync_owner_email, sync_user_email')
+logger.info('[SIGNALS MODULE] All signal handlers registered: appointment_notify, prescription_notify, medical_record_notify, email_owner_on_notification, sync_owner_email, sync_user_email, delete_pet_image')

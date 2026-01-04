@@ -3,7 +3,7 @@ from django.contrib.auth import views as auth_views
 from . import views
 from .auth_views import unified_login
 from .forms import PasswordResetRequestForm
-from .api_views import check_user_type, branch_vet_counts
+from .api_views import check_user_type, branch_vet_counts, notification_count
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -15,6 +15,7 @@ urlpatterns = [
     # API endpoints
     path('check-user-type/', check_user_type, name='check_user_type'),
     path('api/branch-vet-counts/', branch_vet_counts, name='branch_vet_counts'),
+    path('api/notification-count/', notification_count, name='notification_count'),
     path('profile/', views.edit_profile, name='profile'),
     path('profile/update-field/', views.profile_update_field, name='profile_update_field'),
     path('profile/request-field-otp/', views.profile_request_field_otp, name='profile_request_field_otp'),
@@ -66,6 +67,8 @@ urlpatterns = [
 
     path('appointments/', views.appointment_list, name='appointment_list'),
     path('appointments/new/', views.appointment_create, name='appointment_create'),
+    path('appointments/<int:pk>/reschedule/', views.appointment_reschedule, name='appointment_reschedule'),
+    path('appointments/<int:pk>/cancel/', views.appointment_cancel, name='appointment_cancel'),
 
     # Notifications
     path('notifications/', views.notifications_list, name='notifications'),

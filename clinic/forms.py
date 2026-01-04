@@ -492,6 +492,16 @@ class RegisterForm(forms.Form):
         else:
             raise forms.ValidationError("Phone number must start with 09 or 63")
         
+        # Check phone uniqueness across Owner accounts
+        from clinic.models import Owner
+        if Owner.objects.filter(phone=phone).exists():
+            raise forms.ValidationError("This phone number is already registered by another pet owner")
+        
+        # Check phone uniqueness across Veterinarian accounts
+        from vet.models import Veterinarian
+        if Veterinarian.objects.filter(phone=phone).exists():
+            raise forms.ValidationError("This phone number is already registered by a veterinarian")
+        
         return phone
 
     def clean_password1(self):
@@ -537,10 +547,35 @@ class RegisterForm(forms.Form):
             # Pet owners must use Gmail only
             if not email.endswith('@gmail.com'):
                 raise forms.ValidationError("Only Gmail addresses (@gmail.com) are allowed for pet owner registration.")
+            
+            # For pet owners: also check if email is used as vet's personal_email
+            from vet.models import Veterinarian
+            if Veterinarian.objects.filter(personal_email__iexact=email).exists():
+                raise forms.ValidationError("This email is already registered by a veterinarian")
         
-        if User.objects.filter(email=email).exists():
+        if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Email already exists")
         return email
+    
+    def clean_personal_email(self):
+        """Validate personal email is unique across all users and vets (for vet registration)"""
+        personal_email = self.cleaned_data.get("personal_email", "")
+        
+        if not personal_email:
+            return personal_email
+        
+        personal_email = personal_email.strip().lower()
+        
+        # Check if personal email is used by any User account
+        if User.objects.filter(email__iexact=personal_email).exists():
+            raise forms.ValidationError("This email is already registered to another account")
+        
+        # Check if personal email is used by another veterinarian
+        from vet.models import Veterinarian
+        if Veterinarian.objects.filter(personal_email__iexact=personal_email).exists():
+            raise forms.ValidationError("This personal email is already registered by another veterinarian")
+        
+        return personal_email
     
     def clean(self):
         cleaned_data = super().clean()

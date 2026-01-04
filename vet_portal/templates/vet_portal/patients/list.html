@@ -31,6 +31,11 @@
       width: 100%;
     }
   }
+  
+  /* Hide cards that don't match search */
+  .pet-card.hidden {
+    display: none !important;
+  }
 </style>
 {% endblock %}
 
@@ -42,7 +47,7 @@
       <h1 class="hero-title">Patients</h1>
     </div>
     <div class="hero-meta-line">
-      <span class="meta-item">{{ patients.count }} patient{{ patients.count|pluralize }} under your care</span>
+      <span class="meta-item patient-count-text">{{ patients.count }} patient{{ patients.count|pluralize }} under your care</span>
     </div>
   </div>
   <div class="hero-divider"></div>
@@ -53,16 +58,15 @@
   <div class="card-head">
     <h2>All Patients</h2>
     <div class="head-actions">
-      <form method="get" style="display: flex; gap: 8px; align-items: center;">
-        <input type="search" name="search" placeholder="Search by name, owner, species, breed..." value="{{ request.GET.search }}" style="padding: 8px 12px; border: 1px solid var(--dash-divider); border-radius: 8px; min-width: 300px;">
-        <button class="btn btn-primary" type="submit">Search</button>
-      </form>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <input type="search" id="patient-search" placeholder="Search by name, owner, species, breed..." value="{{ request.GET.search }}" style="padding: 8px 12px; border: 1px solid var(--dash-divider); border-radius: 8px; min-width: 300px;">
+      </div>
     </div>
   </div>
   
-  <div class="pet-grid">
+  <div class="pet-grid" id="patient-grid">
     {% for p in patients %}
-      <div class="pet-card">
+      <div class="pet-card" data-name="{{ p.name|lower }}" data-owner="{{ p.owner.full_name|lower }}" data-species="{{ p.get_species_display_full|lower|default:'' }}" data-breed="{{ p.breed|lower|default:'' }}">
         <div class="pet-card-header">
           {% if p.image_url or p.image %}
             <img src="{{ p.image_url|default:p.image.url }}" alt="{{ p.name }}" class="pet-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -92,5 +96,73 @@
       </div>
     {% endfor %}
   </div>
+  
+  <!-- No results message (shown when all cards are filtered out) -->
+  <div id="no-results" class="empty-message" style="display: none; grid-column: 1/-1;">
+    <p style="margin: 40px 0; font-size: 15px;">No patients found matching your search.</p>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const searchInput = document.getElementById('patient-search');
+  const patientGrid = document.getElementById('patient-grid');
+  const noResults = document.getElementById('no-results');
+  const countText = document.querySelector('.patient-count-text');
+  const allCards = patientGrid ? patientGrid.querySelectorAll('.pet-card[data-name]') : [];
+  const totalCount = allCards.length;
+  
+  if (!searchInput || !patientGrid || allCards.length === 0) return;
+  
+  function filterPatients() {
+    const query = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+    
+    allCards.forEach(card => {
+      const name = card.dataset.name || '';
+      const owner = card.dataset.owner || '';
+      const species = card.dataset.species || '';
+      const breed = card.dataset.breed || '';
+      
+      // Check if any field contains the search term
+      const matches = !query || 
+        name.includes(query) || 
+        owner.includes(query) || 
+        species.includes(query) || 
+        breed.includes(query);
+      
+      if (matches) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+    
+    // Show/hide no results message
+    if (noResults) {
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+    
+    // Update count text
+    if (countText) {
+      if (query) {
+        countText.textContent = `${visibleCount} of ${totalCount} patient${totalCount !== 1 ? 's' : ''} matching "${searchInput.value}"`;
+      } else {
+        countText.textContent = `${totalCount} patient${totalCount !== 1 ? 's' : ''} under your care`;
+      }
+    }
+  }
+  
+  // Listen for input changes (real-time filtering)
+  searchInput.addEventListener('input', filterPatients);
+  
+  // Also filter on page load if there's a search value
+  if (searchInput.value) {
+    filterPatients();
+  }
+})();
+</script>
 {% endblock %}

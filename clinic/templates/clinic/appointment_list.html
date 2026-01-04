@@ -123,9 +123,8 @@
               {% endif %}
             </div>
             <div class="appointment-card-footer">
-              <a href="#" class="card-action">Change Status</a>
-              <a href="#" class="card-action">Reschedule</a>
-              <a href="#" class="card-action danger">Cancel</a>
+              <a href="{% url 'appointment_reschedule' a.pk %}" class="card-action">Reschedule</a>
+              <a href="{% url 'appointment_cancel' a.pk %}" class="card-action danger">Cancel</a>
             </div>
           </div>
         {% endif %}
@@ -151,9 +150,6 @@
           </div>
           <div>
             <span class="pill scheduled">{{ next_appointment.reason|truncatechars:30 }}</span>
-          </div>
-          <div class="rail-actions" style="margin-top:8px">
-            <a class="btn btn-sm" href="#">View Details</a>
           </div>
         {% else %}
           <div class="empty-message">No upcoming appointments.</div>

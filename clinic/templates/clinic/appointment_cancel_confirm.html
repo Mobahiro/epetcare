@@ -1,0 +1,142 @@
+{% extends 'clinic/dashboard_base.html' %}
+{% load static %}
+{% block title %}Cancel Appointment - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<style>
+  .cancel-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 32px;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .cancel-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  .cancel-card h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  .cancel-card p {
+    color: #666;
+    margin-bottom: 24px;
+  }
+  .appointment-details {
+    background: #fef2f2;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #fee2e2;
+  }
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  .detail-label {
+    color: #888;
+  }
+  .detail-value {
+    font-weight: 600;
+    color: #333;
+  }
+  .warning-text {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #9a3412;
+    font-size: 14px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 12px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    border: none;
+    font-size: 14px;
+  }
+  .btn-danger {
+    background: #dc2626;
+    color: white;
+  }
+  .btn-danger:hover {
+    background: #b91c1c;
+  }
+  .btn-secondary {
+    background: #e5e5e5;
+    color: #333;
+  }
+  .btn-secondary:hover {
+    background: #ddd;
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Cancel Appointment</h1>
+    </div>
+  </div>
+</section>
+
+<div class="cancel-card">
+  <div class="cancel-icon">⚠️</div>
+  <h1>Cancel This Appointment?</h1>
+  <p>Are you sure you want to cancel this appointment? This action cannot be undone.</p>
+  
+  <div class="appointment-details">
+    <div class="detail-row">
+      <span class="detail-label">Pet</span>
+      <span class="detail-value">{{ appointment.pet.name }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Date</span>
+      <span class="detail-value">{{ appointment.date_time|date:"F d, Y" }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Time</span>
+      <span class="detail-value">{{ appointment.date_time|date:"g:i A" }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Reason</span>
+      <span class="detail-value">{{ appointment.reason }}</span>
+    </div>
+  </div>
+  
+  <div class="warning-text">
+    <strong>⚡ Note:</strong> The veterinary clinic will be notified of this cancellation. 
+    If you need to reschedule instead, please go back and use the "Reschedule" option.
+  </div>
+  
+  <form method="post">
+    {% csrf_token %}
+    <div class="btn-row">
+      <a href="{% url 'appointment_list' %}" class="btn btn-secondary">Keep Appointment</a>
+      <button type="submit" class="btn btn-danger">Yes, Cancel Appointment</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

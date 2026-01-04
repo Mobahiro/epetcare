@@ -1,0 +1,303 @@
+{% extends 'clinic/dashboard_base.html' %}
+{% load static %}
+{% block title %}Reschedule Appointment - ePetCare{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'clinic/dashboard-common.css' %}?v={% now 'U' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+  .reschedule-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .reschedule-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .reschedule-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  .reschedule-header p {
+    color: #666;
+    font-size: 14px;
+  }
+  .current-info {
+    background: #FFF5E9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  .current-info-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .current-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .current-info-row:last-child {
+    margin-bottom: 0;
+  }
+  .info-label {
+    color: #666;
+  }
+  .info-value {
+    font-weight: 600;
+    color: #333;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #d48b3e;
+  }
+  .form-group input:disabled,
+  .form-group select:disabled {
+    background: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+  }
+  .form-help {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .time-picker-container {
+    display: flex;
+    gap: 12px;
+  }
+  .time-picker-container > div {
+    flex: 1;
+  }
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .btn {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    border: none;
+    font-size: 14px;
+  }
+  .btn-primary {
+    background: #d48b3e;
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #c07a30;
+  }
+  .btn-secondary {
+    background: #e5e5e5;
+    color: #333;
+  }
+  .btn-secondary:hover {
+    background: #ddd;
+  }
+  .business-hours-note {
+    background: #e8f4fd;
+    border-left: 4px solid #3b82f6;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #1e40af;
+  }
+  .errorlist {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    list-style: none;
+  }
+  .errorlist li {
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
+{% block dash_content %}
+<section class="dash-hero">
+  <div class="hero-main">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Reschedule Appointment</h1>
+    </div>
+  </div>
+</section>
+
+<div class="reschedule-card">
+  <div class="reschedule-header">
+    <h1>📅 Change Appointment Time</h1>
+    <p>Select a new date and time for your appointment</p>
+  </div>
+  
+  <div class="current-info">
+    <div class="current-info-label">Current Appointment</div>
+    <div class="current-info-row">
+      <span class="info-label">Pet:</span>
+      <span class="info-value">{{ appointment.pet.name }}</span>
+    </div>
+    <div class="current-info-row">
+      <span class="info-label">Date & Time:</span>
+      <span class="info-value">{{ appointment.date_time|date:"F d, Y" }} at {{ appointment.date_time|date:"g:i A" }}</span>
+    </div>
+    <div class="current-info-row">
+      <span class="info-label">Reason:</span>
+      <span class="info-value">{{ appointment.reason }}</span>
+    </div>
+  </div>
+  
+  <div class="business-hours-note">
+    <strong>📋 Scheduling Rules:</strong><br>
+    • Clinic hours: <strong>8:00 AM - 6:00 PM</strong><br>
+    • Appointments must be booked at least <strong>2 hours in advance</strong>
+  </div>
+  
+  <form method="post">
+    {% csrf_token %}
+    
+    {% if form.errors %}
+      <ul class="errorlist">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    
+    <div class="form-group">
+      <label for="id_date">New Date</label>
+      <input type="text" id="id_date" name="appointment_date" placeholder="Select date" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="id_time">New Time</label>
+      <div class="time-picker-container">
+        <div>
+          <select id="id_hour" name="appointment_hour" required>
+            <option value="">Hour</option>
+            {% for h in "8,9,10,11,12,13,14,15,16,17"|make_list %}
+            {% endfor %}
+            <option value="8">8 AM</option>
+            <option value="9">9 AM</option>
+            <option value="10">10 AM</option>
+            <option value="11">11 AM</option>
+            <option value="12">12 PM</option>
+            <option value="13">1 PM</option>
+            <option value="14">2 PM</option>
+            <option value="15">3 PM</option>
+            <option value="16">4 PM</option>
+            <option value="17">5 PM</option>
+          </select>
+        </div>
+        <div>
+          <select id="id_minute" name="appointment_minute" required>
+            <option value="00">:00</option>
+            <option value="05">:05</option>
+            <option value="10">:10</option>
+            <option value="15">:15</option>
+            <option value="20">:20</option>
+            <option value="25">:25</option>
+            <option value="30">:30</option>
+            <option value="35">:35</option>
+            <option value="40">:40</option>
+            <option value="45">:45</option>
+            <option value="50">:50</option>
+            <option value="55">:55</option>
+          </select>
+        </div>
+      </div>
+      <p class="form-help">Select a time between 8:00 AM and 5:55 PM</p>
+    </div>
+    
+    <!-- Hidden field for the actual datetime -->
+    <input type="hidden" id="id_date_time" name="date_time">
+    
+    <!-- Keep pet and reason as hidden -->
+    <input type="hidden" name="pet" value="{{ appointment.pet.id }}">
+    <input type="hidden" name="reason" value="{{ appointment.reason }}">
+    
+    <div class="form-group">
+      <label for="id_notes">Notes (optional)</label>
+      <textarea id="id_notes" name="notes" rows="3" placeholder="Any additional notes...">{{ appointment.notes }}</textarea>
+    </div>
+    
+    <div class="btn-row">
+      <a href="{% url 'appointment_list' %}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary">Reschedule Appointment</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize date picker
+  const datePicker = flatpickr('#id_date', {
+    minDate: 'today',
+    maxDate: new Date().fp_incr(180), // 6 months
+    dateFormat: 'Y-m-d',
+    altInput: true,
+    altFormat: 'F j, Y',
+    disableMobile: true
+  });
+  
+  // Combine date and time into hidden field before submit
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const date = document.getElementById('id_date').value;
+    const hour = document.getElementById('id_hour').value;
+    const minute = document.getElementById('id_minute').value;
+    
+    if (!date || !hour) {
+      e.preventDefault();
+      alert('Please select both date and time.');
+      return;
+    }
+    
+    // Format: YYYY-MM-DDTHH:MM
+    const datetime = `${date}T${hour.padStart(2, '0')}:${minute}`;
+    document.getElementById('id_date_time').value = datetime;
+  });
+});
+</script>
+{% endblock %}

@@ -52,8 +52,8 @@ class VetRegisterForm(forms.Form):
     def clean_username(self):
         username = self.cleaned_data.get("username", "").lower()
         
-        # Check if username already exists
-        if User.objects.filter(username=username).exists():
+        # Check if username already exists (case-insensitive)
+        if User.objects.filter(username__iexact=username).exists():
             raise forms.ValidationError("Username already exists")
         
         return username
@@ -69,39 +69,62 @@ class VetRegisterForm(forms.Form):
                 "Example: kiyo_pasig@vet"
             )
         
-        # Check if this vet email is already used
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("This email is already registered")
+        # Check if this vet email is already used (case-insensitive)
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("This vet email is already registered by another veterinarian")
         
         return email
+    
+    def clean_phone(self):
+        """Validate phone number is unique across all owners and vets"""
+        phone = self.cleaned_data.get("phone", "").strip()
+        
+        if not phone:
+            return phone
+        
+        # Remove any non-digit characters
+        phone = ''.join(filter(str.isdigit, phone))
+        
+        # Check phone uniqueness across Owner accounts
+        from clinic.models import Owner
+        if Owner.objects.filter(phone=phone).exists():
+            raise forms.ValidationError("This phone number is already registered by a pet owner")
+        
+        # Check phone uniqueness across Veterinarian accounts
+        if Veterinarian.objects.filter(phone=phone).exists():
+            raise forms.ValidationError("This phone number is already registered by another veterinarian")
+        
+        return phone
+    
+    def clean_personal_email(self):
+        """Validate personal email is unique across all users and vets"""
+        personal_email = self.cleaned_data.get("personal_email", "").strip().lower()
+        
+        if not personal_email:
+            return personal_email
+        
+        # Check if personal email is used by any User account
+        if User.objects.filter(email__iexact=personal_email).exists():
+            raise forms.ValidationError("This email is already registered to another account")
+        
+        # Check if personal email is used by another veterinarian
+        if Veterinarian.objects.filter(personal_email__iexact=personal_email).exists():
+            raise forms.ValidationError("This personal email is already registered by another veterinarian")
+        
+        return personal_email
     
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
-        email = cleaned_data.get("email", "")
         personal_email = cleaned_data.get("personal_email", "")
 
         if password1 and password2 and password1 != password2:
             self.add_error("password2", "Passwords do not match")
         
-        # If email contains _REMBO@vet, personal email is required
-        if "_rembo@vet" in email.lower() and not personal_email:
+        # Personal email is always required for vet registration
+        if not personal_email:
             self.add_error("personal_email", "Personal email is required for veterinarian registration to send your access code")
-        
-        # Check if personal email is already used by another vet
-        if personal_email and Veterinarian.objects.filter(personal_email=personal_email).exists():
-            self.add_error("personal_email", "This personal email is already registered")
-
-        return cleaned_data
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-
-        if password1 and password2 and password1 != password2:
-            self.add_error("password2", "Passwords do not match")
 
         return cleaned_data
 

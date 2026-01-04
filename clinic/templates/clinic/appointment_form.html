@@ -128,6 +128,21 @@
     background: #ccc;
     cursor: not-allowed;
   }
+  /* Loading spinner styles */
+  .spinner {
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .btn-cancel {
     background: transparent;
     color: var(--owner-text-secondary, #8B7355);
@@ -289,6 +304,7 @@
   
   <form method="post" id="appointmentForm">
     {% csrf_token %}
+    <input type="hidden" name="submission_token" value="{{ submission_token }}">
     <div class="form-card-body">
       {% if form.non_field_errors %}
       <div class="form-errors">
@@ -357,7 +373,16 @@
     </div>
     
     <div class="form-actions">
-      <button class="btn-save" type="submit" id="submitBtn">{% if form.instance.pk %}Save Changes{% else %}Schedule Appointment{% endif %}</button>
+      <button class="btn-save" type="submit" id="submitBtn">
+        <span class="btn-text">{% if form.instance.pk %}Save Changes{% else %}Schedule Appointment{% endif %}</span>
+        <span class="btn-loading" style="display: none;">
+          <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+          </svg>
+          Scheduling...
+        </span>
+      </button>
       <a class="btn-cancel" href="{% url 'appointment_list' %}">Cancel</a>
     </div>
   </form>
@@ -514,8 +539,19 @@
     errorSpan.textContent = message;
   }
   
+  // Double-submit prevention
+  let formSubmitting = false;
+  const submitBtn = document.getElementById('submitBtn');
+  
   // Form submit validation
   form.addEventListener('submit', function(e) {
+    // Prevent double submission
+    if (formSubmitting) {
+      e.preventDefault();
+      console.log('Form already submitting - blocked duplicate');
+      return false;
+    }
+    
     if (!hiddenInput.value) {
       e.preventDefault();
       showError(hiddenInput.closest('.form-group'), 'Please select a date and time.');
@@ -525,6 +561,16 @@
     if (!validateDateTime()) {
       e.preventDefault();
       return false;
+    }
+    
+    // Mark as submitting and disable button
+    formSubmitting = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      const btnText = submitBtn.querySelector('.btn-text');
+      const btnLoading = submitBtn.querySelector('.btn-loading');
+      if (btnText) btnText.style.display = 'none';
+      if (btnLoading) btnLoading.style.display = 'flex';
     }
   });
   

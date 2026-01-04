@@ -38,6 +38,31 @@ class VetRegistrationForm(UserCreationForm):
         model = User
         fields = ("username", "email", "first_name", "last_name", "password1", "password2")
 
+    def clean_username(self):
+        """Validate username is unique"""
+        username = self.cleaned_data.get("username", "").lower()
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError("This username is already taken")
+        return username
+
+    def clean_email(self):
+        """Validate email is unique across all users"""
+        email = self.cleaned_data.get("email", "").lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("This email is already registered")
+        # Also check if used as personal_email by a vet
+        if Veterinarian.objects.filter(personal_email__iexact=email).exists():
+            raise forms.ValidationError("This email is already registered by another veterinarian")
+        return email
+
+    def clean_license_number(self):
+        """Validate license number is unique if provided"""
+        license_number = self.cleaned_data.get("license_number", "").strip()
+        if license_number:
+            if Veterinarian.objects.filter(license_number=license_number).exists():
+                raise forms.ValidationError("This license number is already registered")
+        return license_number
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"]

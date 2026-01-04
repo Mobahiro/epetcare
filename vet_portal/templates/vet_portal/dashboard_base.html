@@ -749,6 +749,41 @@
       dropdown.classList.remove('open');
     }
   });
+
+  // Real-time notification polling for vets
+  (function() {
+    const POLL_INTERVAL = 15000; // 15 seconds
+    const notifBtn = document.querySelector('.topbar-btn[title="Notifications"]');
+    if (!notifBtn) return;
+    
+    function updateNotificationDot(hasUnread) {
+      let dot = notifBtn.querySelector('.notif-dot');
+      if (hasUnread) {
+        if (!dot) {
+          dot = document.createElement('span');
+          dot.className = 'notif-dot';
+          notifBtn.appendChild(dot);
+        }
+      } else if (dot) {
+        dot.remove();
+      }
+    }
+    
+    function checkNotifications() {
+      fetch('{% url "vet_portal:notification-count" %}', { 
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(r => r.json())
+        .then(data => {
+          updateNotificationDot(data.unread_count > 0);
+        })
+        .catch(() => {});  // Silent fail
+    }
+    
+    // Start polling
+    setInterval(checkNotifications, POLL_INTERVAL);
+  })();
 </script>
 {% block extra_js %}{% endblock %}
 </body>

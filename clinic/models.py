@@ -140,6 +140,18 @@ class Pet(models.Model):
         # Log the raw image name for debugging
         logger.debug(f"Pet {self.id} image name: {image_name}")
 
+        # Check if using Cloudinary (image.url will be a full cloudinary URL)
+        try:
+            # If using Cloudinary or any cloud storage, image.url gives the full URL
+            if hasattr(self.image, 'url'):
+                url = self.image.url
+                # Cloudinary URLs start with https://res.cloudinary.com
+                if url.startswith('http'):
+                    logger.debug(f"Pet {self.id} using cloud URL: {url}")
+                    return url
+        except Exception as e:
+            logger.debug(f"Pet {self.id} error getting image.url: {e}")
+
         # Clean any potential leading 'media/' in the stored filename
         if image_name.startswith('media/'):
             image_name = image_name.replace('media/', '', 1)

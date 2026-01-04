@@ -238,6 +238,19 @@ def mark_all_notifications_read(request):
     return Response({'status': 'success'})
 
 
+@api_view(['GET'])
+@permission_classes([IsVeterinarian])
+def notification_count(request):
+    """
+    API endpoint for getting unread notification count.
+    """
+    count = VetNotification.objects.filter(
+        veterinarian=request.user.vet_profile,
+        is_read=False
+    ).count()
+    return Response({'unread_count': count})
+
+
 @api_view(['POST'])
 @permission_classes([IsVeterinarian])
 def sync_offline_changes(request):

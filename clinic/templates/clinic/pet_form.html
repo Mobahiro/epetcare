@@ -267,6 +267,25 @@
       grid-column: span 1;
     }
   }
+  /* Loading spinner styles */
+  .spinner {
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .btn-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  .btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
 {% endblock %}
 
@@ -291,8 +310,9 @@
     <p>Fill in the details below to {% if form.instance.pk %}update{% else %}register{% endif %} your pet.</p>
   </div>
   
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" id="petForm">
     {% csrf_token %}
+    <input type="hidden" name="submission_token" value="{{ submission_token }}">
     <div class="form-card-body">
       <div class="form-grid">
         <div class="form-group">
@@ -354,7 +374,16 @@
     </div>
     
     <div class="form-actions">
-      <button class="btn-save" type="submit">{% if form.instance.pk %}Save Changes{% else %}Register Pet{% endif %}</button>
+      <button class="btn-save" type="submit" id="submitBtn">
+        <span class="btn-text">{% if form.instance.pk %}Save Changes{% else %}Register Pet{% endif %}</span>
+        <span class="btn-loading" style="display: none;">
+          <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+          </svg>
+          Saving...
+        </span>
+      </button>
       <a class="btn-cancel" href="{% url 'pet_list' %}">Cancel</a>
     </div>
   </form>
@@ -530,10 +559,20 @@
     birthDateInput.setAttribute('min', minDate);
   }
   
-  // Debug: Log form submission
+  // Debug: Log form submission and prevent double-submit
   const form = document.querySelector('form');
-  if (form) {
+  const submitBtn = document.getElementById('submitBtn');
+  let formSubmitting = false;
+  
+  if (form && submitBtn) {
     form.addEventListener('submit', function(e) {
+      // Prevent double submission
+      if (formSubmitting) {
+        e.preventDefault();
+        console.log('Form already submitting - blocked duplicate');
+        return false;
+      }
+      
       console.log('Form submitting...');
       console.log('Image input files:', imageInput.files.length);
       if (imageInput.files[0]) {
@@ -541,6 +580,12 @@
         console.log('File size:', imageInput.files[0].size);
         console.log('File type:', imageInput.files[0].type);
       }
+      
+      // Mark as submitting and disable button
+      formSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.querySelector('.btn-text').style.display = 'none';
+      submitBtn.querySelector('.btn-loading').style.display = 'flex';
     });
   }
   
